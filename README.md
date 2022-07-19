@@ -7,13 +7,33 @@ The main idea is to create a website about psychology.
 # MVP Scope
 
 * As an unauthorized user, I want to be able to visit the public pages of a website
-* As an authorized user, I want to be able to change my personal details and activate the course with an activation code that will be sent to my email
+* As an authorized user, I want to be able to change my personal details and activate the course with an activation code
+  that will be sent to my email
 * As an author, I want to C.R.U.D my own events, articles
 * As an admin, I want to C.R.U.D any events, articles and be able to visit the admin page.
 
 # ROLES
 
 ![roles.png](roles.png)
+
+## Deployment
+
+Required software:
+
+* terminal for running bash scripts
+* docker
+
+to deploy application - run bash script:
+
+$ bash start.sh ${DATASOURCE_URL} $(DATASOURCE_PASSWORD} $(DATASOURCE_USERNAME}
+
+And it's all.
+
+## Local development
+
+Run SpringBoot main method where in "Edit Configuration" environment variables are set to:
+
+DATASOURCE_URL=${DATASOURCE_URL};DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD};DATASOURCE_USERNAME=${DATASOURCE_USERNAME};
 
 # Technological stack
 
