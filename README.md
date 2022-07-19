@@ -25,7 +25,7 @@ Required software:
 
 to deploy application - run bash script:
 
-$ bash start.sh ${DATASOURCE_URL} $(DATASOURCE_PASSWORD} $(DATASOURCE_USERNAME}
+`$ bash start.sh ${DATASOURCE_URL} $(DATASOURCE_PASSWORD} $(DATASOURCE_USERNAME}`
 
 And it's all.
 
@@ -33,7 +33,7 @@ And it's all.
 
 Run SpringBoot main method where in "Edit Configuration" environment variables are set to:
 
-DATASOURCE_URL=${DATASOURCE_URL};DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD};DATASOURCE_USERNAME=${DATASOURCE_USERNAME};
+`DATASOURCE_URL=${DATASOURCE_URL};DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD};DATASOURCE_USERNAME=${DATASOURCE_USERNAME};`
 
 # Technological stack
 
