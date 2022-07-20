@@ -1,11 +1,19 @@
-version: '3.1'
+version: '3.8'
 
 services:
-  mycoloroflife:
+  my-color-of-life-db:
+    image: postgres:latest
+    restart: always
     build:
       context: .
     environment:
       - DATASOURCE_URL=${DATASOURCE_URL}
       - DATASOURCE_PASSWORD=${DATASOURCE_PASSWORD}
       - DATASOURCE_USERNAME=${DATASOURCE_USERNAME}
-    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - my-color-of-life-db:/var/lib/postgresql/data
+volumes:
+  my-color-of-life-db:
+    driver: local
