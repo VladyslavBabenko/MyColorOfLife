@@ -12,6 +12,7 @@ import java.util.Set;
  * Role entity.
  */
 
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -22,7 +23,7 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
-    private String name;
+    private String roleName;
     @Transient
     @ManyToMany(mappedBy = "roles")
     @ToString.Exclude
@@ -30,7 +31,7 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String toString() {
-        switch (name) {
+        switch (roleName) {
             case ("ROLE_ADMIN"):
                 return "Адміністратор ";
             case ("ROLE_AUTHOR"):
@@ -42,7 +43,7 @@ public class Role implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return getName();
+        return getRoleName();
     }
 
     @Override
