@@ -17,6 +17,7 @@ import java.util.Set;
  * User entity.
  */
 
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
