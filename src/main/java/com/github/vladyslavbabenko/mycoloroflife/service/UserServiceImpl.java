@@ -4,6 +4,8 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +32,15 @@ public class UserServiceImpl implements UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication.getPrincipal();
+        String input;
+        input = ((User) principal).getEmail();
+        Optional<User> userFromDB = userRepository.findByEmail(input);
+        return userFromDB.orElseGet(User::new);
+    }
+
     @Override
     public User findById(Integer userId) {
         Optional<User> userFromDB = userRepository.findById(userId);
@@ -52,12 +63,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean saveUser(User userToSave) {
-        Optional<User> userFromDB = userRepository.findById(userToSave.getId());
+        Optional<User> userFromDB;
+
+        if (userToSave.getId() != null) {
+            userFromDB = userRepository.findById(userToSave.getId());
+        } else {
+            userFromDB = userRepository.findByEmail(userToSave.getEmail());
+        }
 
         if (userFromDB.isPresent()) {
             return false;
         } else {
             userToSave.setRoles(Collections.singleton(Role.builder().id(1).roleName("ROLE_USER").build()));
+            userToSave.setPassword(encodePassword(userToSave.getPassword()));
             userRepository.save(userToSave);
             return true;
         }
@@ -99,12 +117,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User userFromDB = userRepository.findByUsername(username);
-
-        if (userFromDB == null) {
+        Optional<User> userFromDB = userRepository.findByUsername(username);
+        if (userFromDB.isEmpty()) {
             throw new UsernameNotFoundException("User with " + username + " not found");
         }
 
-        return userFromDB;
+        return userFromDB.get();
     }
 }

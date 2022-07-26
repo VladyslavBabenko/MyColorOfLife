@@ -4,24 +4,26 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * {@link Repository} for handling with {@link User} entity.
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     /**
-     * Finds a user by username.
+     * Finds a {@link User} by username.
      *
      * @param username username to search
-     * @return If present, returns the user from the database, otherwise null
+     * @return Optional user from database, otherwise empty Optional
      */
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     /**
-     * Finds a user by  email.
+     * Finds a {@link User} by  email.
      *
      * @param email email to search
-     * @return If present, returns the user from the database, otherwise null
+     * @return Optional user from database, otherwise empty Optional
      */
-    User findByEmail(String email);
+    Optional<User> findByEmail(String email);
 }
