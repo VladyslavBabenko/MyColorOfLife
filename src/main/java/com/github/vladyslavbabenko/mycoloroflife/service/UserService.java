@@ -65,4 +65,9 @@ public interface UserService extends UserDetailsService {
      * @return true if operation was successful, otherwise false.
      */
     boolean changePassword(User updatedUser);
+
+    /**
+     * @return {@link User} entity from the current session.
+     */
+    User getCurrentUser();
 }

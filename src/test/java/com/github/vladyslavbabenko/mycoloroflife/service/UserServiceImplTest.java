@@ -93,11 +93,26 @@ class UserServiceImplTest {
     }
 
     @Test
-    void shouldNotSaveUser() {
+    void shouldNotSaveUserById() {
         //when
         Mockito.doReturn(Optional.of(testUser))
                 .when(userRepository)
                 .findById(testUser.getId());
+
+        boolean isUserCreated = userService.saveUser(testUser);
+
+        //then
+        Mockito.verify(userRepository, Mockito.times(0)).save(testUser);
+        Assertions.assertThat(isUserCreated).isFalse();
+    }
+
+    @Test
+    void shouldNotSaveUserByEmail() {
+        //when
+        testUser.setId(null);
+        Mockito.doReturn(Optional.ofNullable(testUser))
+                .when(userRepository)
+                .findByEmail(testUser.getEmail());
 
         boolean isUserCreated = userService.saveUser(testUser);
 
@@ -174,7 +189,7 @@ class UserServiceImplTest {
     @Test
     void shouldLoadUserByUsername() {
         //when
-        Mockito.doReturn(testUser).when(userRepository).findByUsername(testUser.getUsername());
+        Mockito.doReturn(Optional.ofNullable(testUser)).when(userRepository).findByUsername(testUser.getUsername());
         UserDetails userFromMethod = userService.loadUserByUsername(testUser.getUsername());
         //then
         Assertions.assertThat(userFromMethod).isNotNull().isEqualTo(testUser);
@@ -183,7 +198,7 @@ class UserServiceImplTest {
     @Test
     void shouldNotLoadUserByUsername() {
         //when
-        Mockito.doReturn(null).when(userRepository).findByUsername(testUser.getUsername());
+        Mockito.doReturn(Optional.empty()).when(userRepository).findByUsername(testUser.getUsername());
 
         Exception exception =
                 assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(testUser.getUsername()));
