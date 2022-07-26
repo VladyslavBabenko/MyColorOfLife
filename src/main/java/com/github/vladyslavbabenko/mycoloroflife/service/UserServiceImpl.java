@@ -35,9 +35,11 @@ public class UserServiceImpl implements UserService {
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
-        String input;
-        input = ((User) principal).getEmail();
-        Optional<User> userFromDB = userRepository.findByEmail(input);
+        int id = -1;
+        if (principal instanceof User) {
+            id = ((User) authentication.getPrincipal()).getId();
+        }
+        Optional<User> userFromDB = userRepository.findById(id);
         return userFromDB.orElseGet(User::new);
     }
 

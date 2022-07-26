@@ -5,6 +5,19 @@
     <title>Доступ заборонено</title>
 </head>
 <body>
+<div id="header">
+    <ul id="nav">
+        <li><a th:href="@{/}">Головна сторінка</a></li>
+        <li id="me" th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() != 'anonymousUser'}">
+            <a th:href="@{/me}">Мій аккаунт</a></li>
+        <li id="loginButton"
+            th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/login}">Авторизуватися</a></li>
+        <li id="registrationButton"
+            th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/registration}">Зареєструватись</a></li>
+    </ul>
+</div>
 <h1>Доступ заборонено</h1>
 </body>
 </html>
