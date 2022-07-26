@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ua-UA">
+<head>
+    <title>Редагування</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="header">
+    <ul id="nav">
+        <li><a th:href="@{/}">Головна сторінка</a></li>
+        <li id="me" th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() != 'anonymousUser'}">
+            <a th:href="@{/me}">Мій аккаунт</a></li>
+        <li id="loginButton"
+            th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/login}">Авторизуватися</a></li>
+        <li id="registrationButton"
+            th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/registration}">Зареєструватись</a></li>
+    </ul>
+</div>
+<div id="main">
+    <form id="personalEditForm" th:action="@{/me/edit}" th:method="PATCH" th:object="${user}">
+        <fieldset>
+            <label for="username">Введіть ім'я користувача:</label>
+            <div>
+                <input id="username" name="username"
+                       placeholder="Ім'я користувача" required
+                       th:field="*{username}" title="Ім'я користувача" type="text"/>
+            </div>
+            <div class="formValidationError" th:errors="*{username}" th:if="${#fields.hasErrors('username')}">
+                UsernameError
+            </div>
+            <label for="email">Введіть електронну пошту: </label>
+            <div>
+                <input id="email" name="email"
+                       placeholder="Електронна пошта"
+                       th:field="*{email}"
+                       title="Електронна пошта" type="text"/>
+            </div>
+            <div class="formValidationError" th:errors="*{email}" th:if="${#fields.hasErrors('email')}">EmailError
+            </div>
+            <div class="formValidationError" th:if="${usernameError}" th:text="${usernameError}"></div>
+            <input id="submit" name="submit" type="submit" value="Підтвердити зміни!"/>
+        </fieldset>
+    </form>
+</div>
+<div id="footer"></div>
+</body>
+</html>
