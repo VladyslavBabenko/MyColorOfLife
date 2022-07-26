@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Головна сторінка</title>
+</head>
+<body>
+<div id="header">
+    <ul id="nav">
+        <li><a th:href="@{/}">Головна сторінка</a></li>
+        <li id="loginButton"
+            th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/login}">Авторизуватися</a></li>
+        <li id="registrationButton"
+            th:if="${#authentication.isAuthenticated() && #authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/registration}">Зареєструватись</a></li>
+    </ul>
+</div>
+<div id="main"></div>
+<div id="footer"></div>
+</body>
+</html>
