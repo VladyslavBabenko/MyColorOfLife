@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -21,7 +18,7 @@ public class PrivateAreaController {
 
     @GetMapping()
     public String toPersonalArea(Model model) {
-        model.addAttribute("userFromDB", userService.getCurrentUser());
+        model.addAttribute("user", userService.getCurrentUser());
         return "userTemplate/privateAreaPage";
     }
 
@@ -32,20 +29,33 @@ public class PrivateAreaController {
     }
 
     @PatchMapping("/change-password")
-    public String changePassword(@ModelAttribute User user, Model model) {
-        user.setId(userService.getCurrentUser().getId());
+    public String changePassword(@ModelAttribute User userToUpdate, @RequestParam String oldPassword, Model model) {
+        userToUpdate.setId(userService.getCurrentUser().getId());
 
-        if (user.getPassword().length() < 5 || user.getPassword().length() > 30) {
-            model.addAttribute("passwordOutOfBounds", "Довжина пароля має бути від 5 до 30 символів.");
+        if (userService.matchesPassword(userService.getCurrentUser(), oldPassword)) {
+            if (userToUpdate.getPassword().length() < 5 || userToUpdate.getPassword().length() > 30) {
+                if (userToUpdate.getPassword().length() != 0) {
+                    model.addAttribute("passwordOutOfBounds", "Довжина пароля має бути від 5 до 30 символів");
+                    return "userTemplate/changePasswordPage";
+                } else {
+                    return "redirect:/me";
+                }
+            }
+        } else {
+            if (userService.getCurrentUser().getId().equals(-1)) {
+                model.addAttribute("changePasswordError", "Користувач не знайдений");
+            } else {
+                model.addAttribute("oldPasswordError", "Невірний пароль");
+            }
             return "userTemplate/changePasswordPage";
         }
 
-        if (!user.getPassword().equals(user.getPasswordConfirm())) {
-            model.addAttribute("passwordConfirmError", "Паролі не співпадають.");
+        if (!userToUpdate.getPassword().equals(userToUpdate.getPasswordConfirm())) {
+            model.addAttribute("passwordMismatchError", "Паролі не співпадають");
             return "userTemplate/changePasswordPage";
         }
 
-        userService.changePassword(user);
+        userService.changePassword(userToUpdate);
 
         return "redirect:/me";
     }
@@ -57,15 +67,15 @@ public class PrivateAreaController {
     }
 
     @PatchMapping("/edit")
-    public String updateUser(@ModelAttribute @Valid User user, BindingResult bindingResult, Model model) {
-        user.setId(userService.getCurrentUser().getId());
+    public String updateUser(@ModelAttribute @Valid User userToUpdate, BindingResult bindingResult, Model model) {
+        userToUpdate.setId(userService.getCurrentUser().getId());
 
-        if (bindingResult.hasErrors()) {
+        if (bindingResult.hasFieldErrors("email")) {
             return "userTemplate/editPage";
         }
 
-        if (!userService.updateUser(user)) {
-            model.addAttribute("usernameError", "Ця пошта вже зайнята.");
+        if (!userService.updateUser(userToUpdate)) {
+            model.addAttribute("updateUserError", "Користувач не знайдений");
             return "userTemplate/editPage";
         }
         return "redirect:/me";
