@@ -40,6 +40,14 @@ class UserServiceImplTest {
     }
 
     @Test
+    void isUserServiceImplTest() {
+        Assertions.assertThat(bCryptPasswordEncoder).isNotNull().isInstanceOf(BCryptPasswordEncoder.class);
+        Assertions.assertThat(userRepository).isNotNull().isInstanceOf(UserRepository.class);
+        Assertions.assertThat(userService).isNotNull().isInstanceOf(UserServiceImpl.class);
+        Assertions.assertThat(testUser).isNotNull().isInstanceOf(User.class);
+    }
+
+    @Test
     void shouldFindUserById() {
         //when
         userService.findById(testUser.getId());
@@ -107,12 +115,12 @@ class UserServiceImplTest {
     }
 
     @Test
-    void shouldNotSaveUserByEmail() {
+    void shouldNotSaveUserByUsername() {
         //when
         testUser.setId(null);
         Mockito.doReturn(Optional.ofNullable(testUser))
                 .when(userRepository)
-                .findByEmail(testUser.getEmail());
+                .findByUsername(testUser.getUsername());
 
         boolean isUserCreated = userService.saveUser(testUser);
 
