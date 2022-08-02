@@ -23,9 +23,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(value = {"/create-user-before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class RegistrationControllerAsAnonymousUserIntegrationTest extends AbstractControllerIntegrationTest {
 
+    private User testUser;
+
     @BeforeEach
     void setUp() {
         super.setup();
+
+        testUser = User.builder()
+                .id(1)
+                .username("TestUser")
+                .email("TestUser@mail.com")
+                .password("123456")
+                .passwordConfirm("123456")
+                .build();
     }
 
     @Test
@@ -49,11 +59,13 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
     public void POST_RegistrationPageAsAnonymousUser_WithErrors() throws Exception {
         String errorText = "Пошта має бути валідною";
 
+        testUser.setEmail("TestUsermailcom");
+
         this.mockMvc.perform(post("/registration")
-                        .param("username", "TestUser")
-                        .param("email", "TestUsermailcom")
-                        .param("password", "123456")
-                        .param("passwordConfirm", "123456"))
+                        .param("username", testUser.getUsername())
+                        .param("email", testUser.getEmail())
+                        .param("password", testUser.getPassword())
+                        .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("generalTemplate/registrationPage"))
                 .andExpect(content().string(Matchers.containsString(errorText)))
@@ -64,11 +76,13 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
     public void POST_RegistrationPageAsAnonymousUser_WithPasswordMismatchError() throws Exception {
         String errorText = "Паролі не співпадають";
 
+        testUser.setPasswordConfirm(testUser.getPassword() + testUser.getPassword());
+
         this.mockMvc.perform(post("/registration")
-                        .param("username", "TestUser")
-                        .param("email", "TestUser@mail.com")
-                        .param("password", "123456")
-                        .param("passwordConfirm", "654321"))
+                        .param("username", testUser.getUsername())
+                        .param("email", testUser.getEmail())
+                        .param("password", testUser.getPassword())
+                        .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("generalTemplate/registrationPage"))
                 .andExpect(model().attribute("passwordMismatchError", Matchers.equalTo(errorText)))
@@ -78,13 +92,6 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserFailure() throws Exception {
-        User testUser = User.builder()
-                .username("TestUser")
-                .email("TestUser@mail.com")
-                .password("123456")
-                .passwordConfirm("123456")
-                .build();
-
         String errorText = "Цей користувач уже існує";
 
         this.mockMvc.perform(post("/registration")
@@ -101,13 +108,7 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserSuccess() throws Exception {
-
-        User testUser = User.builder()
-                .username("NewTestUser")
-                .email("NewTestUser@mail.com")
-                .password("123456")
-                .passwordConfirm("123456")
-                .build();
+        testUser.setUsername("NewTestUser");
 
         this.mockMvc.perform(post("/registration")
                         .param("username", testUser.getUsername())
