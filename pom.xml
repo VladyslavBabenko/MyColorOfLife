@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.github.vladyslavbabenko</groupId>
     <artifactId>MyColorOfLife</artifactId>
-    <version>0.0.7-SNAPSHOT</version>
+    <version>0.0.8-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>MyColorOfLife</name>
     <description>The main idea is to create a website about psychology</description>
@@ -23,6 +23,7 @@
         <fest-assert-core.version>2.0M10</fest-assert-core.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <flyway-core.version>8.5.12</flyway-core.version>
+        <java-hamcrest.vesrion>2.0.0.0</java-hamcrest.vesrion>
     </properties>
 
     <dependencies>
@@ -110,6 +111,12 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
             <version>${flyway-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${java-hamcrest.vesrion}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
