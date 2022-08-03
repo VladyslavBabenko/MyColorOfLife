@@ -107,8 +107,8 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
     }
 
     @Test
+    @Sql(value = {"/clear-db-before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserSuccess() throws Exception {
-        testUser.setId(-1);
         testUser.setUsername("NewTestUser");
 
         this.mockMvc.perform(post("/registration")
