@@ -18,6 +18,6 @@ public class GeneralController {
 
     @GetMapping("/access-denied")
     public String toAccessDeniedPage() {
-        return "exceptionTemplate/exceptionPage";
+        return "generalTemplate/accessDeniedPage";
     }
 }

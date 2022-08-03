@@ -35,12 +35,14 @@ public class UserServiceImpl implements UserService {
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
+
         int id = -1;
         if (principal instanceof User) {
             id = ((User) authentication.getPrincipal()).getId();
         }
+
         Optional<User> userFromDB = userRepository.findById(id);
-        return userFromDB.orElseGet(User::new);
+        return userFromDB.orElse(User.builder().id(id).build());
     }
 
     @Override
@@ -70,7 +72,7 @@ public class UserServiceImpl implements UserService {
         if (userToSave.getId() != null) {
             userFromDB = userRepository.findById(userToSave.getId());
         } else {
-            userFromDB = userRepository.findByEmail(userToSave.getEmail());
+            userFromDB = userRepository.findByUsername(userToSave.getUsername());
         }
 
         if (userFromDB.isPresent()) {
@@ -94,16 +96,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean updateUser(User updatedUser) {
         Optional<User> userFromDB = userRepository.findById(updatedUser.getId());
-
         if (userFromDB.isEmpty()) {
             return false;
         } else {
             User userToUpdate = userFromDB.get();
-            userToUpdate.setUsername(updatedUser.getUsername());
             userToUpdate.setEmail(updatedUser.getEmail());
             userRepository.save(userToUpdate);
             return true;
         }
+    }
+
+    @Override
+    public boolean matchesPassword(User user, CharSequence rawPassword) {
+        return bCryptPasswordEncoder.matches(rawPassword, user.getPassword());
     }
 
     @Override

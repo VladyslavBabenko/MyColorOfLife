@@ -23,13 +23,12 @@ public class WebSecurity {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()//enable later
                 .authorizeRequests()
-                .antMatchers("/registration").not().fullyAuthenticated()
-                .antMatchers("/me").hasRole("USER")
+                .antMatchers("/registration", "/login").not().fullyAuthenticated()
+                .antMatchers("/me", "/me/**").hasRole("USER")
                 .antMatchers("/", "/resources/**").permitAll()
                 .anyRequest().authenticated()
-                .and().formLogin().loginPage("/login").defaultSuccessUrl("/").permitAll()
+                .and().formLogin().loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/")
                 .and().logout().logoutSuccessUrl("/").permitAll()
                 .and().exceptionHandling().accessDeniedPage("/access-denied");
 

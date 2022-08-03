@@ -33,11 +33,11 @@ public class Role implements GrantedAuthority {
     public String toString() {
         switch (roleName) {
             case ("ROLE_ADMIN"):
-                return "Адміністратор ";
+                return "Адміністратор";
             case ("ROLE_AUTHOR"):
-                return "Автор ";
+                return "Автор";
             default:
-                return "Користувач ";
+                return "Користувач";
         }
     }
 

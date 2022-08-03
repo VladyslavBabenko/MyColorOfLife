@@ -30,14 +30,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Integer id;
     @Column(nullable = false)
-    @NotEmpty(message = "Вкажіть ім'я.")
-    @Size(min = 2, max = 30, message = "Ім'я користувача має бути від 2 до 30 символів.")
+    @NotEmpty(message = "Вкажіть ім'я")
+    @Size(min = 2, max = 30, message = "Ім'я користувача має бути від 2 до 30 символів")
     private String username;
     @Column(nullable = false)
-    @Email(message = "Пошта має бути валідною.")
-    @NotEmpty(message = "Вкажіть пошту.")
+    @Email(message = "Пошта має бути валідною")
+    @NotEmpty(message = "Вкажіть пошту")
     private String email;
-    @Size(min = 5, message = "Довжина пароля має бути від 5 до 30 символів.")
+    @Size(min = 5, message = "Довжина пароля має бути від 5 до 30 символів")
     private String password;
     @Transient
     private String passwordConfirm;

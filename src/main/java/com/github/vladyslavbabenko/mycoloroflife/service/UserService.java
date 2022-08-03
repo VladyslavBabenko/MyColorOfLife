@@ -70,4 +70,13 @@ public interface UserService extends UserDetailsService {
      * @return {@link User} entity from the current session.
      */
     User getCurrentUser();
+
+    /**
+     * Update provided {@link User} entity.
+     *
+     * @param user        the {@link User} whose password will be checked.
+     * @param rawPassword raw password that will be checked for matching {@link User} password;
+     * @return true if rawPassword matches {@link User} password, otherwise false.
+     */
+    boolean matchesPassword(User user, CharSequence rawPassword);
 }

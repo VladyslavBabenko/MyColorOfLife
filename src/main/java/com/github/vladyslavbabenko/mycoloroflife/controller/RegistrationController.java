@@ -31,12 +31,12 @@ public class RegistrationController {
         }
 
         if (!user.getPassword().equals(user.getPasswordConfirm())) {
-            model.addAttribute("passwordMismatchError", "Паролі не співпадають.");
+            model.addAttribute("passwordMismatchError", "Паролі не співпадають");
             return "generalTemplate/registrationPage";
         }
 
         if (!userService.saveUser(user)) {
-            model.addAttribute("usernameError", "Цей користувач уже існує");
+            model.addAttribute("saveUserError", "Цей користувач уже існує");
             return "generalTemplate/registrationPage";
         }
 

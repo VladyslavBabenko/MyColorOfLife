@@ -50,6 +50,7 @@ Run SpringBoot main method where in "Edit Configuration" environment variables a
 * spring-boot-devtools
 * spring-security-test
 * fest-assert-core
+* java-hamcrest
 * commons-text
 * mockito-core
 * flyway-core
