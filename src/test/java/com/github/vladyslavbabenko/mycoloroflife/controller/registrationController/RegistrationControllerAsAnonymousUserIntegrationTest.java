@@ -108,9 +108,11 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserSuccess() throws Exception {
+        testUser.setId(-1);
         testUser.setUsername("NewTestUser");
 
         this.mockMvc.perform(post("/registration")
+                        .param("id", String.valueOf(testUser.getId()))
                         .param("username", testUser.getUsername())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
