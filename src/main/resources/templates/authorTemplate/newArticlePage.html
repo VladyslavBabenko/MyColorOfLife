@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ua-UA">
+<head>
+    <title>Нова стаття</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="header">
+    <div class="wrapper">
+        <ul id="nav">
+            <li><a th:href="@{/}">Головна сторінка</a></li>
+            <li><a th:href="@{/article}">Статті</a></li>
+            <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
+                <a th:href="@{/me}">Мій аккаунт</a></li>
+            <li id="loginButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/login}">Авторизуватися</a></li>
+            <li id="registrationButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/registration}">Зареєструватись</a></li>
+        </ul>
+    </div>
+</div>
+<div id="main">
+    <div class="wrapper">
+        <form id="articleForm" th:action="@{/article}" th:method="POST" th:object="${article}">
+            <fieldset>
+                <label for="title">Введіть назву статті:</label>
+                <div>
+                    <textarea cols="20" id="title"
+                              name="title" rows="5"
+                              th:field="*{title}" title="Назва статті">
+                    </textarea>
+                </div>
+                <div class="formValidationError" th:errors="*{title}"
+                     th:if="${#fields.hasErrors('title')}">TitleError
+                </div>
+                <label for="text">Введіть текст статті:</label>
+                <div>
+                    <textarea cols="20" id="text"
+                              name="title" rows="5"
+                              th:field="*{text}" title="Текст статті">
+                    </textarea>
+                </div>
+                <div class="formValidationError" th:errors="*{text}"
+                     th:if="${#fields.hasErrors('text')}">
+                    textError
+                </div>
+                <div class="formValidationError" th:if="${articleError}" th:text="${articleError}">articleError</div>
+                <input id="submit" name="submit" type="submit" value="Зберігти статтю"/>
+            </fieldset>
+        </form>
+    </div>
+</div>
+<div id="footer"></div>
+</body>
+</html>
