@@ -149,7 +149,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
     }
 
     @Test
-    public void POST_CreateNewArticleAsAuthor_WithSaveArticleFaliure() throws Exception {
+    public void POST_CreateNewArticleAsAuthor_WithSaveArticleFailure() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
                 "TestAuthor", testAuthor, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_AUTHOR")));
@@ -168,6 +168,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
     }
 
     @Test
+    @Sql(value = {"/clear-articles.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_CreateNewArticleAsAuthor_WithSaveArticleSuccess() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
@@ -175,7 +176,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
         SecurityContextHolder.setContext(securityContext);
 
         this.mockMvc.perform(post("/article")
-                        .param("title", "New test title")
+                        .param("title", "New test title as Author")
                         .param("text", "New text text"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -281,7 +282,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
     }
 
     @Test
-    public void PUT_UpdateArticleAsAuthor_WithSaveArticleFaliure() throws Exception {
+    public void PUT_UpdateArticleAsAuthor_WithSaveArticleFailure() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
                 "TestAuthor", testAuthor, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_AUTHOR")));

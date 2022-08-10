@@ -149,7 +149,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     }
 
     @Test
-    public void POST_CreateNewArticleAsAdmin_WithSaveArticleFaliure() throws Exception {
+    public void POST_CreateNewArticleAsAdmin_WithSaveArticleFailure() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
                 "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
@@ -168,6 +168,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     }
 
     @Test
+    @Sql(value = {"/clear-articles.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_CreateNewArticleAsAdmin_WithSaveArticleSuccess() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
@@ -175,8 +176,8 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
         SecurityContextHolder.setContext(securityContext);
 
         this.mockMvc.perform(post("/article")
-                        .param("title", "New test title")
-                        .param("text", "New text text"))
+                        .param("title", "New test title As Admin")
+                        .param("text", "New text text 2"))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/article"));
@@ -281,7 +282,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     }
 
     @Test
-    public void PUT_UpdateArticleAsAdmin_WithSaveArticleFaliure() throws Exception {
+    public void PUT_UpdateArticleAsAdmin_WithSaveArticleFailure() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
                 "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
