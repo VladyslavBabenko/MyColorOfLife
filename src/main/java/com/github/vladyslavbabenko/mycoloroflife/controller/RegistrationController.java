@@ -2,7 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.controller;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Controller
 public class RegistrationController {
     private final UserService userService;
