@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WithAnonymousUser
 @DisplayName("Integration-level testing for RegistrationController as AnonymousUser")
-@Sql(value = {"/create-user-before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/create-articles-and-users.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class RegistrationControllerAsAnonymousUserIntegrationTest extends AbstractControllerIntegrationTest {
 
     private User testUser;
@@ -107,7 +107,7 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
     }
 
     @Test
-    @Sql(value = {"/clear-db-before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = {"/clear-db.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserSuccess() throws Exception {
         testUser.setUsername("NewTestUser");
 

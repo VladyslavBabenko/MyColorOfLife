@@ -40,7 +40,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void isUserServiceImplTest() {
+    void isUserServiceImplTestReady() {
         Assertions.assertThat(bCryptPasswordEncoder).isNotNull().isInstanceOf(BCryptPasswordEncoder.class);
         Assertions.assertThat(userRepository).isNotNull().isInstanceOf(UserRepository.class);
         Assertions.assertThat(userService).isNotNull().isInstanceOf(UserServiceImpl.class);

@@ -43,6 +43,10 @@ public class User implements UserDetails {
     private String passwordConfirm;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
+    @Transient
+    @ManyToMany(mappedBy = "users")
+    @ToString.Exclude
+    private Set<Article> articles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
