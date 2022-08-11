@@ -11,7 +11,7 @@ CREATE TABLE t_article_users
 (
     t_article_id INTEGER NOT NULL,
     users_id     INTEGER NOT NULL,
-    CONSTRAINT pk_t_user_articles PRIMARY KEY (t_article_id, users_id)
+    CONSTRAINT pk_t_article_users PRIMARY KEY (t_article_id, users_id)
 );
 
 ALTER TABLE t_article_users
