@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+<!DOCTYPE  html>
 <html lang="ua-UA">
 <head>
-    <title>Нова стаття</title>
+    <title>Редагувати подію</title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -24,31 +24,40 @@
 </div>
 <div id="main">
     <div class="wrapper">
-        <form id="articleForm" th:action="@{/article}" th:method="POST" th:object="${article}">
+        <form id="eventForm" th:action="@{/event}" th:method="PUT" th:object="${event}">
             <fieldset>
-                <label for="title">Введіть назву статті:</label>
+                <input id="id" th:field="*{id}" type="hidden"/>
+                <label for="title">Введіть назву події:</label>
                 <div>
                     <textarea cols="20" id="title"
                               name="title" rows="5"
-                              th:field="*{title}" title="Назва статті">
+                              th:field="*{title}" title="Назва події">
                     </textarea>
                 </div>
                 <div class="formValidationError" th:errors="*{title}"
                      th:if="${#fields.hasErrors('title')}">TitleError
                 </div>
-                <label for="text">Введіть текст статті:</label>
+                <label for="text">Введіть опис події:</label>
                 <div>
                     <textarea cols="20" id="text"
                               name="title" rows="5"
-                              th:field="*{text}" title="Текст статті">
+                              th:field="*{text}" title="Опис події">
                     </textarea>
                 </div>
                 <div class="formValidationError" th:errors="*{text}"
                      th:if="${#fields.hasErrors('text')}">
-                    textError
+                    eventTextError
                 </div>
-                <div class="formValidationError" th:if="${articleError}" th:text="${articleError}">articleError</div>
-                <input id="submit" name="submit" type="submit" value="Зберігти статтю"/>
+                <div class="formValidationError" th:if="${updateEventError}" th:text="${updateEventError}">
+                    updateEventError
+                </div>
+                <input id="submit" name="submit" type="submit" value="Зберегти подію!"/>
+            </fieldset>
+        </form>
+
+        <form id="deleteForm" th:action="@{/event/{eventId}(eventId=${event.getId()})}" th:method="DELETE">
+            <fieldset>
+                <input id="deleteButton" name="deleteButtont" type="submit" value="Видалити подію!">
             </fieldset>
         </form>
     </div>
