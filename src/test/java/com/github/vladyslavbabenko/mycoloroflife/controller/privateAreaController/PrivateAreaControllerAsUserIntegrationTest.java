@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WithMockUser(username = "TestUser", roles = "USER")
 @DisplayName("Integration-level testing for PrivateAreaControllerController as User")
-@Sql(value = {"/create-articles-and-users.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/create-test-values.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControllerIntegrationTest {
 
     private User testUser;

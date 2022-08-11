@@ -134,24 +134,24 @@ class ArticleServiceImplTest {
     }
 
     @Test
-    void shouldUpdateUser() {
+    void shouldUpdateArticle() {
         //when
         Mockito.doReturn(Optional.of(firstTestArticle)).when(articleRepository).findById(firstTestArticle.getId());
-        boolean isUserUpdated = articleService.updateArticle(firstTestArticle);
+        boolean isArticleUpdated = articleService.updateArticle(firstTestArticle);
 
         //then
         Mockito.verify(articleRepository, Mockito.times(1)).save(firstTestArticle);
-        Assertions.assertThat(isUserUpdated).isTrue();
+        Assertions.assertThat(isArticleUpdated).isTrue();
     }
 
     @Test
-    void shouldNotUpdateUser() {
+    void shouldNotUpdateArticle() {
         //when
         Mockito.doReturn(Optional.empty()).when(articleRepository).findById(firstTestArticle.getId());
-        boolean isUserUpdated = articleService.updateArticle(firstTestArticle);
+        boolean isArticleUpdated = articleService.updateArticle(firstTestArticle);
 
         //then
         Mockito.verify(articleRepository, Mockito.times(0)).save(firstTestArticle);
-        Assertions.assertThat(isUserUpdated).isFalse();
+        Assertions.assertThat(isArticleUpdated).isFalse();
     }
 }

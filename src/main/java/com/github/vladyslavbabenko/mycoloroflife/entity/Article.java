@@ -9,6 +9,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
+/**
+ * Article entity.
+ */
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
