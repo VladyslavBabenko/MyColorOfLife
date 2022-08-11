@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 /**
- * Article entity.
+ * Event entity.
  */
 
 @Builder
@@ -19,8 +19,8 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@Entity(name = "t_article")
-public class Article {
+@Entity(name = "t_event")
+public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
@@ -32,8 +32,8 @@ public class Article {
     @Column(length = 100, nullable = false)
     private String title;
     @Column(columnDefinition = "TEXT", nullable = false)
-    @NotEmpty(message = "Стаття не повинна бути порожньою")
-    @Size(min = 1, max = 65535, message = "Стаття має бути від 1 до 65535 символів")
+    @NotEmpty(message = "Опис не повинен бути порожнім")
+    @Size(min = 1, max = 65535, message = "Опис має бути від 1 до 65535 символів")
     private String text;
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> users;

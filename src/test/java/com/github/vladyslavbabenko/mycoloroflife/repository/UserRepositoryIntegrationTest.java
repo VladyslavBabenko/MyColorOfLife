@@ -11,7 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.Optional;
 
 @DisplayName("Integration-level testing for UserRepository")
-@Sql(value = {"/create-articles-and-users.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/create-test-values.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class UserRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
     private User expectedUser;

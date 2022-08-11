@@ -47,6 +47,10 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "users")
     @ToString.Exclude
     private Set<Article> articles;
+    @Transient
+    @ManyToMany(mappedBy = "users")
+    @ToString.Exclude
+    private Set<Event> events;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

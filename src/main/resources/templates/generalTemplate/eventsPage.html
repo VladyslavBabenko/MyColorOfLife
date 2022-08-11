@@ -1,7 +1,7 @@
 <!DOCTYPE  html>
 <html lang="ua-UA">
 <head>
-    <title>Статті</title>
+    <title>Події</title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -11,10 +11,10 @@
             <li><a th:href="@{/}">Головна сторінка</a></li>
             <li><a th:href="@{/article}">Статті</a></li>
             <li><a th:href="@{/event}">Події</a></li>
-            <li id="newArticle" th:if="${#authorization.expression('hasRole(''AUTHOR'')')} or
+            <li id="newEvent" th:if="${#authorization.expression('hasRole(''AUTHOR'')')} or
                    ${#authorization.expression('hasRole(''ADMIN'')')}">
-                <a th:href="@{/article/new}">
-                    Нова стаття
+                <a th:href="@{/event/new}">
+                    Нова подія
                 </a>
             </li>
             <li id="me"
@@ -31,7 +31,7 @@
 </div>
 <div id="main">
     <div class="wrapper">
-        <form id="searchForm" th:action="@{/article}" th:method="GET">
+        <form id="searchForm" th:action="@{/event}" th:method="GET">
             <div>
                 <input id="search" name="keyword" placeholder="Пошук..."
                        th:value="${keyWord}" type="text">
@@ -39,30 +39,30 @@
             </div>
         </form>
         <div>
-            <div th:if="${listOfArticles.size() == 0}">
+            <div th:if="${listOfEvents.size() == 0}">
                 <h2 th:text="'Вибачте, але тут нічого немає'"></h2>
             </div>
-            <div th:if="${listOfArticles.size() > 0}">
+            <div th:if="${listOfEvents.size() > 0}">
                 <ul>
-                    <li th:each="article, articleCounter : ${listOfArticles}" th:object="${article}"
-                        th:unless="${articleCounter.index > 5}">
-                        <a th:href="@{/article/{articleId}(articleId=${article.getId()})}">
+                    <li th:each="event, eventCounter : ${listOfEvents}" th:object="${event}"
+                        th:unless="${eventCounter.index > 5}">
+                        <a th:href="@{/event/{eventId}(eventId=${event.getId()})}">
                             <div>
-                                <a th:href="@{/article/{articleId}(articleId=${article.getId()})}"
-                                   th:text="${article.getTitle()}">
+                                <a th:href="@{/event/{eventId}(eventId=${event.getId()})}"
+                                   th:text="${event.getTitle()}">
                                 </a>
-                                <div th:each="user : ${article.getUsers()}"
+                                <div th:each="user : ${event.getUsers()}"
                                      th:text="'Автор: ' + ${user.getUsername()} + '. '
-                                     + 'Дата публікації: '+ ${article.getDateTimeOfCreation()}"></div>
-                                <a class="text" th:href="@{/article/{articleId}(articleId=${article.getId()})}"
-                                   th:text="${article.getText()}"></a>
+                                     + 'Дата публікації: '+ ${event.getDateTimeOfCreation()}"></div>
+                                <a class="text" th:href="@{/event/{eventId}(eventId=${event.getId()})}"
+                                   th:text="${event.getText()}"></a>
                             </div>
                     </li>
                 </ul>
                 <ul th:if="${numberOfPages.length} != 1">
                     <th:block th:if="${pageID} >= 2">
-                        <li><a th:href="@{/article/page/{pageId}(pageId=1)}" title="Перша сторінка">&laquo;</a></li>
-                        <li><a th:href="@{/article/page/{pageId}(pageId=${pageID}-1)}" title="Попередня сторінка">&lsaquo;</a>
+                        <li><a th:href="@{/event/page/{pageId}(pageId=1)}" title="Перша сторінка">&laquo;</a></li>
+                        <li><a th:href="@{/event/page/{pageId}(pageId=${pageID}-1)}" title="Попередня сторінка">&lsaquo;</a>
                         </li>
                     </th:block>
 
@@ -70,18 +70,18 @@
                         th:each="pageNumber : ${numberOfPages}"
                         th:if="${pageNumber} + 1 > ${pageID} - 4 and ${pageNumber} + 1 < ${pageID} + 4">
 
-                        <a th:href="@{/article/page/{pageId}(pageId=${pageNumber} + 1)}"
+                        <a th:href="@{/event/page/{pageId}(pageId=${pageNumber} + 1)}"
                            th:text="${pageNumber} + 1"></a>
                     </li>
 
                     <th:block th:if="${pageID} != ${numberOfPages.length}">
                         <li>
-                            <a th:href="@{/article/page/{pageId}(pageId=${pageID} + 1)}"
+                            <a th:href="@{/event/page/{pageId}(pageId=${pageID} + 1)}"
                                title="Наступна сторінка">&rsaquo;
                             </a>
                         </li>
                         <li>
-                            <a th:href="@{/article/page/{pageId}(pageId=${numberOfPages.length})}"
+                            <a th:href="@{/event/page/{pageId}(pageId=${numberOfPages.length})}"
                                title="Остання сторінка">&raquo;
                             </a>
                         </li>

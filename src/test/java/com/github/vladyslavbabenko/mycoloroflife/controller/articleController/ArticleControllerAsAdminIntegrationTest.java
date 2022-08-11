@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WithMockUser(username = "TestAdmin", roles = {"USER", "ADMIN"})
 @DisplayName("Integration-level testing for ArticleController as Admin")
-@Sql(value = {"/create-articles-and-users.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/create-test-values.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrationTest {
 
     private User testAdmin;

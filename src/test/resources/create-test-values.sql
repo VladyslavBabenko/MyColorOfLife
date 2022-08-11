@@ -3,6 +3,10 @@ FROM t_article_users;
 DELETE
 FROM t_user_roles;
 DELETE
+FROM t_event_users;
+DELETE
+FROM t_event;
+DELETE
 FROM t_article;
 DELETE
 FROM t_user;
@@ -26,3 +30,12 @@ VALUES (1, '2022.08.05 22:00', 'First test title', 'First test text. First test 
 INSERT INTO t_article_users
 VALUES (1, 2),
        (2, 3);
+
+INSERT INTO t_event
+VALUES (1, '2022.08.05 22:00', 'First test title', 'First test text. First test text. First test text.'),
+       (2, '2022.08.05 22:05', 'Second test title', 'Second test text. Second test text. Second test text.');
+
+INSERT INTO t_event_users
+VALUES (1, 2),
+       (2, 3);
+

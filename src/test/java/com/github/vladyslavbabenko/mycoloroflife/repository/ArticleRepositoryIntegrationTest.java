@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @DisplayName("Integration-level testing for ArticleRepository")
-@Sql(value = {"/create-articles-and-users.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(value = {"/create-test-values.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class ArticleRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
     private final User testAdmin = User.builder().id(2).username("TestAdmin").email("TestAdmin@mail.com").build(),
