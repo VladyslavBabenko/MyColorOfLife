@@ -1,0 +1,96 @@
+<!DOCTYPE  html>
+<html lang="ua-UA">
+<head>
+    <title>Aдміністрування</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="header">
+    <div class="wrapper">
+        <ul id="nav">
+            <li><a th:href="@{/}">Головна сторінка</a></li>
+            <li><a th:href="@{/article}">Статті</a></li>
+            <li><a th:href="@{/event}">Події</a></li>
+            <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
+                <a th:href="@{/me}">Мій аккаунт</a></li>
+            <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin}">Адміністрування</a>
+            </li>
+            <li id="loginButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/login}">Авторизуватися</a></li>
+            <li id="registrationButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/registration}">Зареєструватись</a></li>
+        </ul>
+    </div>
+</div>
+<div id="main">
+    <div class="wrapper">
+        <div id="adminTable">
+            <table id="tableForm">
+                <thead>
+                <th>Пошук користувачів</th>
+                <th>Видалення</th>
+                </thead>
+                <tr>
+                    <td>
+                        <form th:action="@{/admin/findByID}"
+                              th:method="GET">
+                            <fieldset>
+                                <div>
+                                    <input name="userID" type="text"
+                                           placeholder="ID користувача"
+                                           title="ID користувача">
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${findIdError}" th:text="${findIdError}">IdError
+                                </div>
+                                <input class="submit" name="submit" type="submit" value="Знайти"/>
+                            </fieldset>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin}"
+                              th:method="DELETE">
+                            <fieldset>
+                                <div>
+                                    <input name="userID" type="text"
+                                           placeholder="ID користувача"
+                                           title="ID користувача">
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${deleteIdError}" th:text="${deleteIdError}">IdError
+                                </div>
+                                <input class="submit" name="submit" type="submit" value="Видалити користувача"/>
+                            </fieldset>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+
+            <table id="tableUser">
+                <thead>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Email</th>
+                <th>Ролі</th>
+                </thead>
+                <th:block th:each="user : ${listOfUsers}">
+                    <tr>
+                        <td th:text="${user.getId()}"></td>
+                        <td th:text="${user.getUsername()}"></td>
+                        <td th:text="${user.getEmail()}"></td>
+                        <td>
+                            <div th:each="role : ${user.roles}" th:text="${role}"></div>
+                        </td>
+                    </tr>
+                </th:block>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="footer">
+</div>
+</body>
+</html>
