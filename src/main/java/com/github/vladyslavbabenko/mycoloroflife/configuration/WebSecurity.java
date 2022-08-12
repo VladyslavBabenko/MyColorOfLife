@@ -27,6 +27,7 @@ public class WebSecurity {
                 .antMatchers("/registration", "/login").not().fullyAuthenticated()
                 .antMatchers("/me", "/me/**").hasRole("USER")
                 .antMatchers("/article/new", "/article/**/edit", "/event/new", "/event/**/edit").hasAnyRole("AUTHOR", "ADMIN")
+                .antMatchers("/admin", "/admin/**").hasRole("ADMIN")
                 .antMatchers("/", "/article", "/article/**", "/event", "/event/**", "/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/")

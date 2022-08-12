@@ -13,6 +13,9 @@
             <li><a th:href="@{/event}">Події</a></li>
             <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
                 <a th:href="@{/me}">Мій аккаунт</a></li>
+            <li id="admin"  th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin}">Адміністрування</a>
+            </li>
             <li id="loginButton"
                 th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
                 <a th:href="@{/login}">Авторизуватися</a></li>
