@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.controller.privateAreaControll
 
 import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import org.fest.assertions.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
+                .registrationType(UserRegistrationType.REGISTRATION_FORM)
                 .build();
     }
 
@@ -190,7 +192,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
         SecurityContextHolder.setContext(securityContext);
 
         String oldPassword = testUser.getPassword();
-
+        System.out.println(testUser);
         String errorMessage = "Користувач не знайдений";
 
         this.mockMvc.perform(patch("/me/change-password")
