@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Pull last update
-git pull origin master
+#git pull origin master
 
 # Prepare jar
 mvn clean
@@ -14,6 +14,8 @@ docker-compose stop
 export DATASOURCE_URL=$1
 export DATASOURCE_PASSWORD=$2
 export DATASOURCE_USERNAME=$3
+export GOOGLE_CLIENT_ID=$4
+export GOOGLE_CLIENT_SECRET=$5
 
 # Start new deployment
 docker-compose up --build -d

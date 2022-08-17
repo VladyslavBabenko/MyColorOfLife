@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.service;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -9,6 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -35,14 +38,24 @@ public class UserServiceImpl implements UserService {
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
-
-        int id = -1;
         if (principal instanceof User) {
-            id = ((User) authentication.getPrincipal()).getId();
+            Optional<User> userFromDB = userRepository.findById(((User) authentication.getPrincipal()).getId());
+            if (userFromDB.isPresent()) {
+                return userFromDB.get();
+            }
+        } else if (principal instanceof OAuth2User) {
+            return (User) loadUserByUsername(((OAuth2User) principal).getAttribute("email"));
         }
 
-        Optional<User> userFromDB = userRepository.findById(id);
-        return userFromDB.orElse(User.builder().id(id).build());
+        return new User();
+    }
+
+    public boolean saveOAuth2User(OAuth2UserAuthority oAuth2UserAuthority) {
+        return saveUser(User.builder()
+                .username((String) oAuth2UserAuthority.getAttributes().get("name"))
+                .email((String) oAuth2UserAuthority.getAttributes().get("email"))
+                .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
+                .build());
     }
 
     @Override
@@ -72,7 +85,7 @@ public class UserServiceImpl implements UserService {
         if (userToSave.getId() != null) {
             userFromDB = userRepository.findById(userToSave.getId());
         } else {
-            userFromDB = userRepository.findByUsername(userToSave.getUsername());
+            userFromDB = userRepository.findByEmail(userToSave.getEmail());
         }
 
         if (userFromDB.isPresent()) {
@@ -124,11 +137,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userFromDB = userRepository.findByUsername(username);
+        Optional<User> userFromDB = userRepository.findByEmail(username);
         if (userFromDB.isEmpty()) {
             throw new UsernameNotFoundException("User with " + username + " not found");
         }
-
         return userFromDB.get();
+    }
+
+    @Override
+    public boolean existsById(Integer userId) {
+        return userRepository.existsById(userId);
     }
 }

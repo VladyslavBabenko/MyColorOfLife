@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.controller.privateAreaControll
 
 import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import org.fest.assertions.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
+                .registrationType(UserRegistrationType.REGISTRATION_FORM)
                 .build();
     }
 
@@ -190,7 +192,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
         SecurityContextHolder.setContext(securityContext);
 
         String oldPassword = testUser.getPassword();
-
+        System.out.println(testUser);
         String errorMessage = "Користувач не знайдений";
 
         this.mockMvc.perform(patch("/me/change-password")
@@ -243,30 +245,6 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .andDo(print())
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(view().name("userTemplate/editPage"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void PATCH_EditPageAsUser_WithUpdateUserFailure() throws Exception {
-        testUser.setId(-1);
-
-        SecurityContextImpl securityContext = new SecurityContextImpl();
-        securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
-        SecurityContextHolder.setContext(securityContext);
-
-        String errorMessage = "Користувач не знайдений";
-
-        this.mockMvc.perform(patch("/me/edit")
-                        .param("id", String.valueOf(testUser.getId()))
-                        .param("username", testUser.getUsername())
-                        .param("email", testUser.getEmail())
-                        .param("password", testUser.getPassword())
-                        .param("passwordConfirm", testUser.getPasswordConfirm()))
-                .andDo(print())
-                .andExpect(view().name("userTemplate/editPage"))
-                .andExpect(model().attribute("updateUserError", Matchers.equalTo(errorMessage)))
-                .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 

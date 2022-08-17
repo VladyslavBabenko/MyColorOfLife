@@ -8,6 +8,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -15,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurity {
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
@@ -31,9 +35,22 @@ public class WebSecurity {
                 .antMatchers("/", "/article", "/article/**", "/event", "/event/**", "/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/")
+                .and().oauth2Login().authorizationEndpoint().authorizationRequestRepository(getAuthorizationRequestRepository())
+                .and().userInfoEndpoint().userAuthoritiesMapper(getUserAuthoritiesMapper().authoritiesMapper())
+                .and().loginPage("/login").defaultSuccessUrl("/").permitAll()
                 .and().logout().logoutSuccessUrl("/").permitAll()
                 .and().exceptionHandling().accessDeniedPage("/access-denied");
 
         return http.build();
+    }
+
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
+        return new HttpSessionOAuth2AuthorizationRequestRepository();
+    }
+
+    @Bean
+    public UserAuthoritiesMapper getUserAuthoritiesMapper() {
+        return new UserAuthoritiesMapper();
     }
 }

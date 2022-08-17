@@ -1,15 +1,18 @@
 package com.github.vladyslavbabenko.mycoloroflife.entity;
 
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,7 +27,7 @@ import java.util.Set;
 @Setter
 @ToString
 @Entity(name = "t_user")
-public class User implements UserDetails {
+public class User implements UserDetails, OAuth2User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
@@ -51,6 +54,26 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "users")
     @ToString.Exclude
     private Set<Event> events;
+    @Column(nullable = false)
+    //Assume that the user will register via standard form by default
+    private UserRegistrationType registrationType = UserRegistrationType.REGISTRATION_FORM;
+
+    @Transient
+    private Map<String, Object> attributes;
+
+    public User(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public <A> A getAttribute(String name) {
+        return OAuth2User.super.getAttribute(name);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return this.attributes;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -98,5 +121,10 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String getName() {
+        return username;
     }
 }

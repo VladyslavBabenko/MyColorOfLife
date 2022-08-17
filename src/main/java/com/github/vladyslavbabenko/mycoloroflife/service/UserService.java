@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.service;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,14 @@ public interface UserService extends UserDetailsService {
      * @return {@link User} with the provided id, or new {@link User} otherwise.
      */
     User findById(Integer userId);
+
+    /**
+     * Find {@link User} by userId.
+     *
+     * @param userId provided user id.
+     * @return true if {@link User} exists, false otherwise.
+     */
+    boolean existsById(Integer userId);
 
     /**
      * Get all {@link User} entities.
@@ -79,4 +88,12 @@ public interface UserService extends UserDetailsService {
      * @return true if rawPassword matches {@link User} password, otherwise false.
      */
     boolean matchesPassword(User user, CharSequence rawPassword);
+
+    /**
+     * Save provided {@link OAuth2UserAuthority} as {@link User} entity.
+     *
+     * @param oAuth2UserAuthority provided {@link OAuth2UserAuthority} to save as {@link User} entity.
+     * @return true if operation was successful, otherwise false.
+     */
+    boolean saveOAuth2User(OAuth2UserAuthority oAuth2UserAuthority);
 }
