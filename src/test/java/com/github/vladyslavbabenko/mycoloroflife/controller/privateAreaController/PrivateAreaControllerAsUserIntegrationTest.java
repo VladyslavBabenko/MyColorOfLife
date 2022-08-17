@@ -249,30 +249,6 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
     }
 
     @Test
-    public void PATCH_EditPageAsUser_WithUpdateUserFailure() throws Exception {
-        testUser.setId(-1);
-
-        SecurityContextImpl securityContext = new SecurityContextImpl();
-        securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
-        SecurityContextHolder.setContext(securityContext);
-
-        String errorMessage = "Користувач не знайдений";
-
-        this.mockMvc.perform(patch("/me/edit")
-                        .param("id", String.valueOf(testUser.getId()))
-                        .param("username", testUser.getUsername())
-                        .param("email", testUser.getEmail())
-                        .param("password", testUser.getPassword())
-                        .param("passwordConfirm", testUser.getPasswordConfirm()))
-                .andDo(print())
-                .andExpect(view().name("userTemplate/editPage"))
-                .andExpect(model().attribute("updateUserError", Matchers.equalTo(errorMessage)))
-                .andExpect(content().string(Matchers.containsString(errorMessage)))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     public void PATCH_EditPageAsUser_WithUpdateUserSuccess() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
