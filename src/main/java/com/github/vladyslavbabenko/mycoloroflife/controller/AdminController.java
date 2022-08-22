@@ -1,14 +1,16 @@
 package com.github.vladyslavbabenko.mycoloroflife.controller;
 
+import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
+import com.github.vladyslavbabenko.mycoloroflife.service.CourseService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RequiredArgsConstructor
 @Controller
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AdminController {
 
     private final UserService userService;
+    private final CourseService courseService;
 
     @GetMapping()
     public String userList(Model model) {
@@ -58,5 +61,60 @@ public class AdminController {
         }
 
         return "redirect:/admin";
+    }
+
+    @GetMapping("/course")
+    public String coursePage(Model model) {
+        model.addAttribute("listOfCourses", courseService.getAllCourses());
+        return "adminTemplate/courseAdminPage";
+    }
+
+    @GetMapping("/course/{courseId}/edit")
+    public String editCoursePage(@PathVariable("courseId") Integer id, Model model) {
+        model.addAttribute("course", courseService.findById(id));
+        return "adminTemplate/editCoursePage";
+    }
+
+    @GetMapping("/course/new")
+    public String newCoursePage(Model model) {
+        model.addAttribute("course", new Course());
+        return "adminTemplate/addCoursePage";
+    }
+
+    @PostMapping("/course")
+    public String addCourse(@ModelAttribute @Valid Course course, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "adminTemplate/addCoursePage";
+        }
+
+        if (!courseService.saveCourse(course)) {
+            model.addAttribute("courseError", "Така сторінка вже існує");
+            return "adminTemplate/addCoursePage";
+        }
+
+        return "redirect:/admin/course";
+    }
+
+    @PutMapping("/course")
+    public String updateCourse(@ModelAttribute @Valid Course course, BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "adminTemplate/editCoursePage";
+        }
+
+        if (!courseService.updateCourse(course)) {
+            model.addAttribute("courseError", "Перевірте коректність введених даних");
+            return "adminTemplate/editCoursePage";
+        }
+
+        return "redirect:/admin/course";
+    }
+
+    @DeleteMapping("/course")
+    public String deleteEvent(@RequestParam("courseID") Integer courseId) {
+        courseService.deleteCourse(courseId);
+
+        return "redirect:/admin/course";
     }
 }

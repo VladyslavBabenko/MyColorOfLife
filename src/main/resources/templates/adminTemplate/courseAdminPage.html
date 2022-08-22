@@ -19,6 +19,9 @@
             <li id="adminCourse" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
                 <a th:href="@{/admin/course}">Адміністрування Курсів</a>
             </li>
+            <li th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin/course/new}">Створити курс</a>
+            </li>
             <li id="loginButton"
                 th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
                 <a th:href="@{/login}">Авторизуватися</a></li>
@@ -33,60 +36,49 @@
         <div id="adminTable">
             <table id="tableForm">
                 <thead>
-                <th>Пошук користувачів</th>
-                <th>Видалення</th>
+                <th>Видалення курсу</th>
                 </thead>
                 <tr>
                     <td>
-                        <form th:action="@{/admin/findByID}"
-                              th:method="GET">
-                            <fieldset>
-                                <div>
-                                    <input name="userID" type="text"
-                                           placeholder="ID користувача"
-                                           title="ID користувача">
-                                </div>
-                                <div class="formValidationError"
-                                     th:if="${findIdError}" th:text="${findIdError}">IdError
-                                </div>
-                                <input class="submit" name="submit" type="submit" value="Знайти"/>
-                            </fieldset>
-                        </form>
-                    </td>
-                    <td>
-                        <form th:action="@{/admin}"
+                        <form th:action="@{/admin/course}"
                               th:method="DELETE">
                             <fieldset>
                                 <div>
-                                    <input name="userID" type="text"
-                                           placeholder="ID користувача"
-                                           title="ID користувача">
+                                    <input name="courseID" type="text"
+                                           placeholder="ID курсу"
+                                           title="ID курсу">
                                 </div>
                                 <div class="formValidationError"
                                      th:if="${deleteIdError}" th:text="${deleteIdError}">IdError
                                 </div>
-                                <input class="submit" name="submit" type="submit" value="Видалити користувача"/>
+                                <input class="submit" name="submit" type="submit" value="Видалити курс"/>
                             </fieldset>
                         </form>
                     </td>
                 </tr>
             </table>
 
-            <table id="tableUser">
+            <table id="table">
                 <thead>
                 <th>ID</th>
-                <th>Имя</th>
-                <th>Email</th>
-                <th>Ролі</th>
+                <th>Назва курсу</th>
+                <th>Назва відео</th>
+                <th>Посилання на відео</th>
+                <th>Текст</th>
+                <th>Сторінка</th>
+                <th></th>
                 </thead>
-                <th:block th:each="user : ${listOfUsers}">
+                <th:block th:each="course : ${listOfCourses}">
                     <tr>
-                        <td th:text="${user.getId()}"></td>
-                        <td th:text="${user.getUsername()}"></td>
-                        <td th:text="${user.getEmail()}"></td>
-                        <td>
-                            <div th:each="role : ${user.roles}" th:text="${role}"></div>
-                        </td>
+                        <td th:text="${course.getId()}"></td>
+                        <td th:text="${course.getCourseTitle()}"></td>
+                        <td th:text="${course.getVideoTitle()}"></td>
+                        <td th:text="${course.getVideoLink()}"></td>
+                        <td th:text="${course.getText()}"></td>
+                        <td th:text="${course.getPage()}"></td>
+                        <td><a th:href="@{/admin/course/{courseId}/edit (courseId=${course.getId()})}">
+                            <button type="button" title="Редагувати">Редагувати</button>
+                        </a>
                     </tr>
                 </th:block>
             </table>
