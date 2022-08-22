@@ -21,7 +21,7 @@ public interface ArticleService {
      * Finds all {@link Article} with keyword in title or text.
      *
      * @param keyword keyword to search
-     * @return List of articles from database, empty List
+     * @return List of existing articles from database
      */
     List<Article> findByKeyword(String keyword);
 
