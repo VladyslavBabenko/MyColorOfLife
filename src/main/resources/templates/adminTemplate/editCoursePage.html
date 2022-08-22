@@ -1,0 +1,111 @@
+<!DOCTYPE  html>
+<html lang="ua-UA">
+<head>
+    <title>Aдміністрування</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="header">
+    <div class="wrapper">
+        <ul id="nav">
+            <li><a th:href="@{/}">Головна сторінка</a></li>
+            <li><a th:href="@{/article}">Статті</a></li>
+            <li><a th:href="@{/event}">Події</a></li>
+            <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
+                <a th:href="@{/me}">Мій аккаунт</a></li>
+            <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin}">Адміністрування</a>
+            </li>
+            <li id="adminCourse" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin/course}">Адміністрування Курсів</a>
+            </li>
+            <li id="loginButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/login}">Авторизуватися</a></li>
+            <li id="registrationButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/registration}">Зареєструватись</a></li>
+        </ul>
+    </div>
+</div>
+<div id="main">
+    <div class="wrapper">
+        <div id="adminTable">
+            <table id="tableForm">
+                <thead>
+                <th>Додати новий курс</th>
+                </thead>
+                <tr>
+                    <td>
+                        <form th:action="@{/admin/course}"
+                              th:method="PUT"
+                              th:object="${course}">
+                            <fieldset>
+                                <input type="hidden" th:field="*{id}">
+                                <label for="courseTitle">Введіть назву:</label>
+                                <div>
+                                    <textarea cols="20" id="courseTitle"
+                                              name="courseTitle" rows="5"
+                                              th:field="*{courseTitle}" title="Назва курсу">
+                                    </textarea>
+                                </div>
+                                <div class="formValidationError" th:errors="*{courseTitle}"
+                                     th:if="${#fields.hasErrors('courseTitle')}">courseTitleError
+                                </div>
+                                <label for="videoTitle">Введіть назву відео:</label>
+                                <div>
+                                    <textarea cols="20" id="videoTitle"
+                                              name="videoTitle" rows="5"
+                                              th:field="*{videoTitle}" title="Назва відео">
+                                    </textarea>
+                                </div>
+                                <div class="formValidationError" th:errors="*{videoTitle}"
+                                     th:if="${#fields.hasErrors('videoTitle')}">videoTitleError
+                                </div>
+                                <label for="videoLink">Введіть посилання на відео:</label>
+                                <div>
+                                    <textarea cols="20" id="videoLink"
+                                              name="videoLink" rows="5"
+                                              th:field="*{videoLink}" title="Посилання на відео">
+                                    </textarea>
+                                </div>
+                                <div class="formValidationError" th:errors="*{videoLink}"
+                                     th:if="${#fields.hasErrors('videoLink')}">videoLinkError
+                                </div>
+                                <label for="text">Введіть текст:</label>
+                                <div>
+                                    <textarea cols="20" id="text"
+                                              name="text" rows="5"
+                                              th:field="*{text}" title="Текст курсу">
+                                    </textarea>
+                                </div>
+                                <div class="formValidationError" th:errors="*{text}"
+                                     th:if="${#fields.hasErrors('text')}">textError
+                                </div>
+                                <label for="page">Введіть сторінку:</label>
+                                <div>
+                                    <textarea cols="20" id="page"
+                                              name="page" rows="5"
+                                              th:field="*{page}" title="Сторінка">
+                                    </textarea>
+                                </div>
+                                <div class="formValidationError" th:errors="*{page}"
+                                     th:if="${#fields.hasErrors('page')}">pageError
+                                </div>
+
+                                <div class="formValidationError"
+                                     th:if="${courseError}" th:text="${courseError}">courseError
+                                </div>
+                                <input class="submit" name="submit" type="submit" value="Зберігти"/>
+                            </fieldset>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="footer">
+</div>
+</body>
+</html>
