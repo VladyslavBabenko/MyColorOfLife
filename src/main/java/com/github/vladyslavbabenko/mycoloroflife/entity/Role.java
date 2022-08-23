@@ -23,7 +23,9 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
+
     private String roleName;
+
     @Transient
     @ManyToMany(mappedBy = "roles")
     @ToString.Exclude
