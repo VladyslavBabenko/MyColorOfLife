@@ -1,6 +1,7 @@
 package com.github.vladyslavbabenko.mycoloroflife.repository;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
+import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,22 +17,25 @@ import java.util.Optional;
 class CourseRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
     private Course expectedFirstCourse, expectedSecondCourse;
+    private CourseTitle courseTitle;
     @Autowired
     private CourseRepository courseRepository;
 
     @BeforeEach
     void setUp() {
         //given
+        courseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
+
         expectedFirstCourse = Course.builder()
                 .id(1)
-                .courseTitle("Test")
+                .courseTitle(courseTitle)
                 .page(1)
                 .text("Test Text 1")
                 .build();
 
         expectedSecondCourse = Course.builder()
                 .id(2)
-                .courseTitle("Test")
+                .courseTitle(courseTitle)
                 .page(2)
                 .videoTitle("Test Video Title 2")
                 .videoLink("Test Video Link 2")
@@ -44,7 +48,7 @@ class CourseRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest 
         Optional<Course> actualCourse = courseRepository.findByCourseTitleAndPage(expectedFirstCourse.getCourseTitle(), expectedFirstCourse.getPage());
 
         Assertions.assertThat(actualCourse.get().getId()).isEqualTo(expectedFirstCourse.getId());
-        Assertions.assertThat(actualCourse.get().getCourseTitle()).isEqualTo(expectedFirstCourse.getCourseTitle());
+        Assertions.assertThat(actualCourse.get().getCourseTitle().getTitle()).isEqualTo(expectedFirstCourse.getCourseTitle().getTitle());
         Assertions.assertThat(actualCourse.get().getVideoTitle()).isEqualTo(expectedFirstCourse.getVideoTitle());
         Assertions.assertThat(actualCourse.get().getVideoLink()).isEqualTo(expectedFirstCourse.getVideoLink());
         Assertions.assertThat(actualCourse.get().getText()).isEqualTo(expectedFirstCourse.getText());
@@ -56,7 +60,7 @@ class CourseRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest 
         Optional<Course> actualCourse = courseRepository.findByVideoTitle(expectedSecondCourse.getVideoTitle());
 
         Assertions.assertThat(actualCourse.get().getId()).isEqualTo(expectedSecondCourse.getId());
-        Assertions.assertThat(actualCourse.get().getCourseTitle()).isEqualTo(expectedSecondCourse.getCourseTitle());
+        Assertions.assertThat(actualCourse.get().getCourseTitle().getTitle()).isEqualTo(expectedSecondCourse.getCourseTitle().getTitle());
         Assertions.assertThat(actualCourse.get().getVideoTitle()).isEqualTo(expectedSecondCourse.getVideoTitle());
         Assertions.assertThat(actualCourse.get().getVideoLink()).isEqualTo(expectedSecondCourse.getVideoLink());
         Assertions.assertThat(actualCourse.get().getText()).isEqualTo(expectedSecondCourse.getText());
@@ -67,12 +71,12 @@ class CourseRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest 
     void shouldFindByVideoTitleContains() {
         Optional<List<Course>> actualCourse = courseRepository.findAllByVideoTitleContains("Video Title");
 
-        Assertions.assertThat(actualCourse.get().size()).isEqualTo(3);
+        Assertions.assertThat(actualCourse.get().size()).isEqualTo(6);
     }
 
     @Test
     void shouldFindAllByCourseTitleContains() {
-        Optional<List<Course>> actualCourse = courseRepository.findAllByCourseTitleContains("Test");
+        Optional<List<Course>> actualCourse = courseRepository.findAllByCourseTitle(courseTitle);
 
         Assertions.assertThat(actualCourse.get().size()).isEqualTo(5);
     }
