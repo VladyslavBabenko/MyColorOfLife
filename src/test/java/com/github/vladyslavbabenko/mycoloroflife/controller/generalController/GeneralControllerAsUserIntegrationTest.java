@@ -52,7 +52,7 @@ public class GeneralControllerAsUserIntegrationTest extends AbstractControllerIn
     public void GET_AccessDeniedPageAsUser() throws Exception {
         this.mockMvc.perform(get("/access-denied"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/accessDeniedPage"))
+                .andExpect(view().name("error/accessDeniedPage"))
                 .andExpect(status().isOk());
     }
 }
