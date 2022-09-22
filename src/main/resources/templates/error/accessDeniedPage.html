@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Доступ заборонено</title>
+</head>
+<body>
+<div id="header">
+    <ul id="nav">
+        <li><a th:href="@{/}">Головна сторінка</a></li>
+        <li><a th:href="@{/article}">Статті</a></li>
+        <li><a th:href="@{/event}">Події</a></li>
+        <li><a th:href="@{/course}">Курси</a></li>
+        <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
+            <a th:href="@{/me}">Мій аккаунт</a></li>
+        <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+            <a th:href="@{/admin}">Адміністрування</a>
+        </li>
+        <li id="loginButton"
+            th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/login}">Авторизуватися</a></li>
+        <li id="registrationButton"
+            th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/registration}">Зареєструватись</a></li>
+    </ul>
+</div>
+<h1>Доступ заборонено</h1>
+</body>
+</html>
