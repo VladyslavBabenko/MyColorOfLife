@@ -16,6 +16,8 @@ export DATASOURCE_PASSWORD=$2
 export DATASOURCE_USERNAME=$3
 export GOOGLE_CLIENT_ID=$4
 export GOOGLE_CLIENT_SECRET=$5
+export EMAIL_USERNAME=$6
+export EMAIL_PASSWORD=$7
 
 # Start new deployment
 docker-compose up --build -d
