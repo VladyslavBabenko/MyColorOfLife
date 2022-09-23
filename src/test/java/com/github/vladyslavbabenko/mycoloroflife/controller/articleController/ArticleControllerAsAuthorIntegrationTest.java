@@ -219,7 +219,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
         this.mockMvc.perform(get("/article/1/edit"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/accessDeniedPage"))
+                .andExpect(view().name("error/accessDeniedPage"))
                 .andExpect(status().isOk());
     }
 

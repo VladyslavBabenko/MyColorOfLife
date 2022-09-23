@@ -99,7 +99,7 @@ public class EventController {
             model.addAttribute("event", event);
             return "authorTemplate/editEventPage";
         } else {
-            return "generalTemplate/accessDeniedPage";
+            return "error/accessDeniedPage";
         }
     }
 
