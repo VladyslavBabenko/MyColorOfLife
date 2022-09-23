@@ -349,7 +349,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
     }
 
     @Test
-    @Sql(value = {"/clear-roles.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = {"/clear-roles.sql", "/clear-course-titles.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_CreateCourseTitleAsAdmin_WithSuccess() throws Exception {
         this.mockMvc.perform(post("/admin/course-title/new")
                         .param("title", "New " + testCourseTitle.getTitle())
