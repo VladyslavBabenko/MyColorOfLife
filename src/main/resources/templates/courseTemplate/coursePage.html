@@ -1,0 +1,58 @@
+<!DOCTYPE  html>
+<html lang="ua-UA">
+<head>
+    <title>Курси</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="header">
+    <div class="wrapper">
+        <ul id="nav">
+            <li><a th:href="@{/}">Головна сторінка</a></li>
+            <li><a th:href="@{/article}">Статті</a></li>
+            <li><a th:href="@{/event}">Події</a></li>
+            <li><a th:href="@{/course}">Курси</a></li>
+            <li id="me"
+                th:if="${#authentication.getPrincipal() != 'anonymousUser'}"><a
+                    th:href="@{/me}">Мій аккаунт</a></li>
+            <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin}">Адміністрування</a>
+            </li>
+            <li id="loginButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/login}">Авторизуватися</a></li>
+            <li id="registrationButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/registration}">Зареєструватись</a></li>
+        </ul>
+    </div>
+</div>
+<div id="main">
+    <p th:if="${tooEarly}" th:text="${tooEarly}"></p>
+    <div th:unless="${tooEarly}" class="wrapper">
+        <h2 th:text="${courseTitle.getTitle()}"></h2>
+        <p th:text="${course.getVideoTitle()}"></p>
+        <p th:text="${course.getVideoLink()}"></p>
+        <p th:text="${course.getText()}"></p>
+
+        <a th:href="@{/course/{courseTitle}/page/{pageID} (courseTitle = ${courseTitle.getTitle()}, pageID=${course.getPage()}-1)}">
+            <button id="prevPageButton" name="prevPageButton" th:if="${course.getPage()}>1" type="button">Назад</button>
+        </a>
+        <div th:if="${lastCoursePage} > ${course.getPage()}">
+            <a th:href="@{/course/{courseTitle}/page/{pageID} (courseTitle = ${courseTitle.getTitle()}, pageID=${course.getPage()}+1)}">
+                <button class="nextPageButton" name="nextPageButton" type="button"
+                        th:if="${lastVisitedPage} > ${course.getPage()}">Вперед
+                </button>
+            </a>
+            <form th:action="@{/course/{courseTitle}/page/{pageID} (courseTitle = ${courseTitle.getTitle()}, pageID=${course.getPage()})}"
+                  th:method="PATCH" th:if="${lastVisitedPage} <= ${course.getPage()}">
+                <button class="nextPageButton" id="nextPageButton" name="nextPageButton" type="submit">Вперед (Форма)
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="footer">
+</div>
+</body>
+</html>
