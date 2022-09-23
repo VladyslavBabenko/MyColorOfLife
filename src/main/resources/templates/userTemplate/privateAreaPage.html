@@ -10,9 +10,10 @@
         <li><a th:href="@{/}">Головна сторінка</a></li>
         <li><a th:href="@{/article}">Статті</a></li>
         <li><a th:href="@{/event}">Події</a></li>
+        <li><a th:href="@{/course}">Курси</a></li>
         <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
             <a th:href="@{/me}">Мій аккаунт</a></li>
-        <li id="admin"  th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+        <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
             <a th:href="@{/admin}">Адміністрування</a>
         </li>
         <li id="loginButton"
@@ -40,6 +41,27 @@
             <button type="button">Змінити пароль</button>
         </a>
     </div>
+    <form id="generateCode" th:action="@{/me/generate/activation-code}" th:method="POST">
+        <fieldset>
+            <input name="submit" type="submit" value="Згенерувати"/>
+        </fieldset>
+        <div th:if="${mailHasBeenSent}" th:text="${mailHasBeenSent}"></div>
+        <div class="formValidationError" th:if="${codeAlreadyGeneratedError}"
+             th:text="${codeAlreadyGeneratedError}"></div>
+    </form>
+    <form id="activationCodeForm" th:action="@{/me/activate-code}" th:method="PUT">
+        <fieldset>
+            <div>
+                <input name="activationCode"
+                       placeholder="Код активації" th:value="${activationCode}"
+                       title="Код активації" type="text">
+            </div>
+            <div class="formValidationError" th:if="${activationCodeError}"
+                 th:text="${activationCodeError}">InvalidCode
+            </div>
+            <input id="submit" name="submit" type="submit" value="Відправити"/>
+        </fieldset>
+    </form>
 </div>
 <div id="footer"></div>
 </body>

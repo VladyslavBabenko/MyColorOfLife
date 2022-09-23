@@ -1,6 +1,8 @@
 package com.github.vladyslavbabenko.mycoloroflife.controller.privateAreaController;
 
 import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
+import com.github.vladyslavbabenko.mycoloroflife.entity.ActivationCode;
+import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import org.fest.assertions.api.Assertions;
@@ -17,9 +19,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 
 import javax.servlet.ServletContext;
+import java.util.Locale;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -29,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControllerIntegrationTest {
 
     private User testUser;
+    private CourseTitle testCourseTitle;
+    private ActivationCode testActivationCode;
 
     @BeforeEach
     void setUp() {
@@ -41,6 +45,10 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .passwordConfirm("123456")
                 .registrationType(UserRegistrationType.REGISTRATION_FORM)
                 .build();
+
+        testCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
+
+        testActivationCode = ActivationCode.builder().id(1).code("Q5sxTc941iokNy8").user(testUser).courseTitle(testCourseTitle).build();
     }
 
     @Test
@@ -264,5 +272,96 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .andDo(print())
                 .andExpect(redirectedUrl("/me"))
                 .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    public void PUT_ActivateCodeAsUser_Failure_WithEmptyActivationCode() throws Exception {
+        this.mockMvc.perform(put("/me/activate-code")
+                        .param("activationCode", ""))
+                .andDo(print())
+                .andExpect(redirectedUrl("/me"))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    public void PUT_ActivateCodeAsUser_Failure_WithActivationCodeDoesNotExist() throws Exception {
+        String errorMessage = "Недійсний код активації";
+
+        this.mockMvc.perform(put("/me/activate-code")
+                        .param("activationCode", testActivationCode.getCode().toUpperCase(Locale.ROOT)))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("activationCodeError", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void PUT_ActivateCodeAsUser_Success() throws Exception {
+        this.mockMvc.perform(put("/me/activate-code")
+                        .param("activationCode", testActivationCode.getCode()))
+                .andDo(print())
+                .andExpect(redirectedUrl("/me"))
+                .andExpect(status().is3xxRedirection());
+    }
+
+
+    /////TEMP\\\\\\
+    @Test
+    @Sql(value = {"/forSelfGenerateCodeDeleteLater/clear-activation-codes.sql", "/forSelfGenerateCodeDeleteLater/clear-course-title.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void POST_SelfGenerateCodeAsUser_Failure_WithCourseTitleDoesNotExist() throws Exception {
+        this.mockMvc.perform(post("/me/generate/activation-code"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Sql(value = {"/forSelfGenerateCodeDeleteLater/clear-course-owner-role.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void POST_SelfGenerateCodeAsUser_Failure_WithRoleForCourseTitleDoesNotExist() throws Exception {
+        this.mockMvc.perform(post("/me/generate/activation-code"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Sql(value = {"/forSelfGenerateCodeDeleteLater/create-activation-code.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void POST_SelfGenerateCodeAsUser_Failure_WithCodeAlreadyGenerated() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String errorMessage = "Ви вже згенерували тестовий код активації";
+
+        this.mockMvc.perform(post("/me/generate/activation-code"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("codeAlreadyGeneratedError", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Sql(value = {"/forSelfGenerateCodeDeleteLater/clear-activation-codes.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void POST_SelfGenerateCodeAsUser_Success() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String message = "Код активації було надіслано на Вашу пошту";
+
+        this.mockMvc.perform(post("/me/generate/activation-code"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("mailHasBeenSent", Matchers.equalTo(message)))
+                .andExpect(status().isOk());
     }
 }
