@@ -182,6 +182,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
     }
 
     @Test
+    @Sql(value = {"/clear-all-courses.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_AddCourseAsAdmin_WithSuccess() throws Exception {
         this.mockMvc.perform(post("/admin/course/new")
                         .param("courseTitle", testCourseTitle.getId().toString())
@@ -302,6 +303,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
     }
 
     @Test
+    @Sql(value = {"/clear-activation-codes.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_CreateCodeAsAdmin_WithSuccess() throws Exception {
         this.mockMvc.perform(post("/admin/code/new")
                         .param("userID", "3")
@@ -347,6 +349,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
     }
 
     @Test
+    @Sql(value = {"/clear-roles.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_CreateCourseTitleAsAdmin_WithSuccess() throws Exception {
         this.mockMvc.perform(post("/admin/course-title/new")
                         .param("title", "New " + testCourseTitle.getTitle())
