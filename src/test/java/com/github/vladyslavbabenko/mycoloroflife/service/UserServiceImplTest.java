@@ -1,7 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service;
 
-import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
-import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.repository.UserRepository;
 import org.fest.assertions.api.Assertions;
@@ -14,9 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -25,22 +22,40 @@ class UserServiceImplTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private UserRepository userRepository;
     private UserService userService;
-    private User testUser, testUserGAuth;
     private OAuth2UserAuthority oAuth2UserAuthorityMock;
+    private ActivationCodeService activationCodeService;
+    private RoleService roleService;
+    private CourseProgressService courseProgressService;
+    private CourseService courseService;
+
+    private User testUser, testUserGAuth;
+    private Role testRole;
+    private ActivationCode testActivationCode;
+    private Course testCourse;
+    private CourseTitle testCourseTitle;
 
     @BeforeEach
     void setUp() {
         //given
         userRepository = Mockito.mock(UserRepository.class);
         bCryptPasswordEncoder = Mockito.mock(BCryptPasswordEncoder.class);
-        userService = new UserServiceImpl(userRepository, bCryptPasswordEncoder);
+        activationCodeService = Mockito.mock(ActivationCodeService.class);
+        roleService = Mockito.mock(RoleService.class);
+        courseProgressService = Mockito.mock(CourseProgressService.class);
+        courseService = Mockito.mock(CourseService.class);
+
+        userService = new UserServiceImpl(userRepository, bCryptPasswordEncoder, activationCodeService, roleService, courseProgressService, courseService);
 
         oAuth2UserAuthorityMock = Mockito.mock(OAuth2UserAuthority.class);
+
+        Set<Role> roles = new HashSet<>();
+        roles.add(testRole);
 
         testUser = User.builder()
                 .id(1)
                 .username("TestUser")
                 .email("TestMail@mail.com")
+                .roles(roles)
                 .password(String.valueOf(123456789))
                 .registrationType(UserRegistrationType.REGISTRATION_FORM)
                 .build();
@@ -49,8 +64,17 @@ class UserServiceImplTest {
                 .id(4)
                 .username("TestUserGAuth")
                 .email("TestUserGAuth@gmail.com")
+                .roles(roles)
                 .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
                 .build();
+
+        testRole = Role.builder().id(1).roleName("ROLE_USER").build();
+
+        testCourseTitle = CourseTitle.builder().id(1).title("test").build();
+
+        testActivationCode = ActivationCode.builder().id(1).code("qqqqqwwwwweeeee").courseTitle(testCourseTitle).user(testUser).build();
+
+        testCourse = Course.builder().id(1).courseTitle(testCourseTitle).text("test text").build();
     }
 
     @Test
@@ -59,6 +83,11 @@ class UserServiceImplTest {
         Assertions.assertThat(userRepository).isNotNull().isInstanceOf(UserRepository.class);
         Assertions.assertThat(userService).isNotNull().isInstanceOf(UserServiceImpl.class);
         Assertions.assertThat(testUser).isNotNull().isInstanceOf(User.class);
+        Assertions.assertThat(testUserGAuth).isNotNull().isInstanceOf(User.class);
+        Assertions.assertThat(testRole).isNotNull().isInstanceOf(Role.class);
+        Assertions.assertThat(testCourseTitle).isNotNull().isInstanceOf(CourseTitle.class);
+        Assertions.assertThat(testActivationCode).isNotNull().isInstanceOf(ActivationCode.class);
+        Assertions.assertThat(testCourse).isNotNull().isInstanceOf(Course.class);
     }
 
     @Test
@@ -69,7 +98,6 @@ class UserServiceImplTest {
         //then
         Mockito.verify(userRepository, Mockito.times(1)).findById(testUser.getId());
     }
-
 
     @Test
     void shouldReturnSortedListOfUsers() {
@@ -236,5 +264,64 @@ class UserServiceImplTest {
         userService.saveOAuth2User(oAuth2UserAuthorityMock);
 
         Assertions.assertThat(testUserGAuth).isNotNull().isInstanceOf(User.class).isEqualTo(testUserGAuth);
+    }
+
+    @Test
+    void deleteRoleFromUser() {
+        //given
+        Mockito.doReturn(true).when(roleService).existsByRoleName(testRole.getRoleName());
+
+        List<User> users = new ArrayList<>();
+        users.add(testUser);
+        users.add(testUserGAuth);
+
+        //when
+        boolean isTrue = userService.deleteRoleFromUser(users, testRole);
+
+        //Then
+        Mockito.verify(roleService, Mockito.times(1)).existsByRoleName(testRole.getRoleName());
+        Assertions.assertThat(isTrue).isTrue();
+    }
+
+    @Test
+    void activateCodeFailure() {
+        //when
+        boolean isFalse = userService.activateCode(testActivationCode);
+
+        //then
+        Assertions.assertThat(isFalse).isFalse();
+    }
+
+    @Test
+    void activateCodeSuccess() {
+        //given
+        String courseOwnerRoleAsString = "ROLE_COURSE_OWNER_" + testActivationCode.getCourseTitle().getTitle().toUpperCase(Locale.ROOT);
+
+        Mockito.doReturn(true).when(activationCodeService).existsByCode(testActivationCode.getCode());
+        Mockito.doReturn(testActivationCode.getCourseTitle().getTitle().toUpperCase(Locale.ROOT)).when(roleService).convertToRoleStyle(testActivationCode.getCourseTitle().getTitle());
+        Mockito.doReturn(true).when(roleService).existsByRoleName(courseOwnerRoleAsString);
+        Mockito.doReturn(Optional.of(testRole)).when(roleService).findByRoleName(courseOwnerRoleAsString);
+        Mockito.doReturn(Optional.of(testCourse)).when(courseService).findByCourseTitleAndPage(testActivationCode.getCourseTitle().getTitle(), 1);
+
+        //when
+        boolean isTrue = userService.activateCode(testActivationCode);
+
+        //then
+        Mockito.verify(activationCodeService, Mockito.times(1)).existsByCode(testActivationCode.getCode());
+        Mockito.verify(roleService, Mockito.times(1)).convertToRoleStyle(testActivationCode.getCourseTitle().getTitle());
+        Mockito.verify(roleService, Mockito.times(1)).existsByRoleName(courseOwnerRoleAsString);
+        Mockito.verify(userRepository, Mockito.times(1)).save(testActivationCode.getUser());
+        Mockito.verify(activationCodeService, Mockito.times(1)).deleteByCode(testActivationCode.getCode());
+        Mockito.verify(courseService, Mockito.times(1)).findByCourseTitleAndPage(testActivationCode.getCourseTitle().getTitle(), 1);
+        Assertions.assertThat(isTrue).isTrue();
+    }
+
+    @Test
+    void existsById() {
+        //when
+        userService.existsById(testUser.getId());
+
+        //then
+        Mockito.verify(userRepository, Mockito.times(1)).existsById(testUser.getId());
     }
 }
