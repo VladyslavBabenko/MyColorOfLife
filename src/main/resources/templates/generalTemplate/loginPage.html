@@ -10,6 +10,7 @@
         <li><a th:href="@{/}">Головна сторінка</a></li>
         <li><a th:href="@{/article}">Статті</a></li>
         <li><a th:href="@{/event}">Події</a></li>
+        <li><a th:href="@{/course}">Курси</a></li>
         <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
             <a th:href="@{/me}">Мій аккаунт</a></li>
         <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">

@@ -10,9 +10,10 @@
         <li><a th:href="@{/}">Головна сторінка</a></li>
         <li><a th:href="@{/article}">Статті</a></li>
         <li><a th:href="@{/event}">Події</a></li>
+        <li><a th:href="@{/course}">Курси</a></li>
         <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
             <a th:href="@{/me}">Мій аккаунт</a></li>
-        <li id="admin"  th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+        <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
             <a th:href="@{/admin}">Адміністрування</a>
         </li>
         <li id="loginButton"
@@ -40,7 +41,7 @@
                 <input id="email" name="email"
                        placeholder="Електронна пошта" required
                        th:field="*{email}" title="Електронна пошта"
-                       type="text"/>
+                       type="email"/>
             </div>
             <div class="formValidationError" th:errors="*{email}" th:if="${#fields.hasErrors('email')}">EmailError
             </div>
