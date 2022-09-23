@@ -25,16 +25,20 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
+
     @Column(length = 16)
     private String dateTimeOfCreation = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+
     @NotEmpty(message = "Назва не повинна бути порожньою")
     @Size(min = 1, max = 100, message = "Назва має бути від 1 до 100 символів")
     @Column(length = 100, nullable = false)
     private String title;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     @NotEmpty(message = "Стаття не повинна бути порожньою")
     @Size(min = 1, max = 65535, message = "Стаття має бути від 1 до 65535 символів")
     private String text;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> users;
 }

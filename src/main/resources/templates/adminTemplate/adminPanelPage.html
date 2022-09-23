@@ -11,6 +11,7 @@
             <li><a th:href="@{/}">Головна сторінка</a></li>
             <li><a th:href="@{/article}">Статті</a></li>
             <li><a th:href="@{/event}">Події</a></li>
+            <li><a th:href="@{/course}">Курси</a></li>
             <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
                 <a th:href="@{/me}">Мій аккаунт</a></li>
             <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
@@ -35,16 +36,18 @@
                 <thead>
                 <th>Пошук користувачів</th>
                 <th>Видалення</th>
+                <th>Створити код</th>
+                <th>Видалити код</th>
                 </thead>
                 <tr>
                     <td>
-                        <form th:action="@{/admin/findByID}"
+                        <form th:action="@{/admin/find-by-id}"
                               th:method="GET">
                             <fieldset>
                                 <div>
-                                    <input name="userID" type="text"
-                                           placeholder="ID користувача"
-                                           title="ID користувача">
+                                    <input name="userID" placeholder="ID користувача"
+                                           title="ID користувача"
+                                           type="number" min="1">
                                 </div>
                                 <div class="formValidationError"
                                      th:if="${findIdError}" th:text="${findIdError}">IdError
@@ -54,18 +57,58 @@
                         </form>
                     </td>
                     <td>
-                        <form th:action="@{/admin}"
+                        <form th:action="@{/admin/delete}"
                               th:method="DELETE">
                             <fieldset>
                                 <div>
-                                    <input name="userID" type="text"
-                                           placeholder="ID користувача"
-                                           title="ID користувача">
+                                    <input name="userID" placeholder="ID користувача"
+                                           title="ID користувача"
+                                           type="number" min="1">
                                 </div>
                                 <div class="formValidationError"
                                      th:if="${deleteIdError}" th:text="${deleteIdError}">IdError
                                 </div>
                                 <input class="submit" name="submit" type="submit" value="Видалити користувача"/>
+                            </fieldset>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/code/new}"
+                              th:method="POST">
+                            <fieldset>
+                                <div>
+                                    <input name="userID" placeholder="ID користувача"
+                                           title="ID користувача"
+                                           type="number" min="1">
+                                </div>
+                                <div>
+                                    <input name="courseTitleID" placeholder="ID курсу"
+                                           title="ID курсу"
+                                           type="number" min="1">
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${courseTitleIDError}" th:text="${courseTitleIDError}">courseTitleIDError
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${userIDError}" th:text="${userIDError}">userIDError
+                                </div>
+                                <input class="submit" name="submit" type="submit" value="Створити код"/>
+                            </fieldset>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/code/delete}"
+                              th:method="DELETE">
+                            <fieldset>
+                                <div>
+                                    <input name="activationCode" placeholder="Код активації"
+                                           title="Код активації"
+                                           type="text">
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${codeEror}" th:text="${codeEror}">codeError
+                                </div>
+                                <input class="submit" name="submit" type="submit" value="Видалити код"/>
                             </fieldset>
                         </form>
                     </td>
@@ -78,6 +121,8 @@
                 <th>Имя</th>
                 <th>Email</th>
                 <th>Ролі</th>
+                <th>Курси</th>
+                <th>Коди</th>
                 </thead>
                 <th:block th:each="user : ${listOfUsers}">
                     <tr>
@@ -86,6 +131,14 @@
                         <td th:text="${user.getEmail()}"></td>
                         <td>
                             <div th:each="role : ${user.roles}" th:text="${role}"></div>
+                        </td>
+                        <td>
+                            <div th:each="code : ${user.activationCodes}"
+                                 th:text="${code.getCourseTitle().getTitle()}"></div>
+                        </td>
+                        <td>
+                            <div th:each="code : ${user.activationCodes}"
+                                 th:text="${code.getCode()}"></div>
                         </td>
                     </tr>
                 </th:block>

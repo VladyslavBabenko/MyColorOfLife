@@ -1,0 +1,81 @@
+<!DOCTYPE  html>
+<html lang="ua-UA">
+<head>
+    <title>Редагувати назву</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="header">
+    <div class="wrapper">
+        <ul id="nav">
+            <li><a th:href="@{/}">Головна сторінка</a></li>
+            <li><a th:href="@{/article}">Статті</a></li>
+            <li><a th:href="@{/event}">Події</a></li>
+            <li><a th:href="@{/course}">Курси</a></li>
+            <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
+                <a th:href="@{/me}">Мій аккаунт</a></li>
+            <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin}">Адміністрування</a>
+            </li>
+            <li id="adminCourse" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/admin/course}">Адміністрування Курсів</a>
+            </li>
+            <li id="loginButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/login}">Авторизуватися</a></li>
+            <li id="registrationButton"
+                th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+                <a th:href="@{/registration}">Зареєструватись</a></li>
+        </ul>
+    </div>
+</div>
+<div id="main">
+    <div class="wrapper">
+        <div id="adminTable">
+            <table id="tableForm">
+                <thead>
+                <th>Редагувати назву курсу</th>
+                </thead>
+                <tr>
+                    <td>
+                        <form th:action="@{/admin/course-title/edit}"
+                              th:method="PUT"
+                              th:object="${courseTitle}">
+                            <fieldset>
+                                <label for="title">Введіть нову назву:</label>
+                                <input th:field="*{id}" type="hidden">
+                                <div>
+                                    <textarea cols="20" id="title"
+                                              name="title" placeholder="Назва курсу" rows="5"
+                                              th:field="*{title}" title="Назва курсу">
+                                    </textarea>
+                                </div>
+                                <div class="formValidationError" th:errors="*{title}"
+                                     th:if="${#fields.hasErrors('title')}">titleError
+                                </div>
+                                <label for="description">Введіть новий опис курсу:</label>
+                                <div>
+                                    <textarea cols="20" id="description"
+                                              name="description" placeholder="Опис курсу" rows="5"
+                                              th:field="*{description}" title="Опис курсу">
+                                    </textarea>
+                                </div>
+                                <div class="formValidationError" th:errors="*{description}"
+                                     th:if="${#fields.hasErrors('description')}">titleError
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${courseTitleError}" th:text="${courseTitleError}">courseTitleError
+                                </div>
+                                <input class="submit" name="submit" type="submit" value="Оновити"/>
+                            </fieldset>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="footer">
+</div>
+</body>
+</html>

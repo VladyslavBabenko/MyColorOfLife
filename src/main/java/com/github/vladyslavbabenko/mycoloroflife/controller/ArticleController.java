@@ -99,7 +99,7 @@ public class ArticleController {
             model.addAttribute("article", article);
             return "authorTemplate/editArticlePage";
         } else {
-            return "generalTemplate/accessDeniedPage";
+            return "error/accessDeniedPage";
         }
     }
 

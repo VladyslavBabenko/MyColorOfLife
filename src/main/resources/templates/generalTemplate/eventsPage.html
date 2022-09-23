@@ -11,6 +11,7 @@
             <li><a th:href="@{/}">Головна сторінка</a></li>
             <li><a th:href="@{/article}">Статті</a></li>
             <li><a th:href="@{/event}">Події</a></li>
+            <li><a th:href="@{/course}">Курси</a></li>
             <li id="newEvent" th:if="${#authorization.expression('hasRole(''AUTHOR'')')} or
                    ${#authorization.expression('hasRole(''ADMIN'')')}">
                 <a th:href="@{/event/new}">
@@ -20,7 +21,7 @@
             <li id="me"
                 th:if="${#authentication.getPrincipal() != 'anonymousUser'}"><a
                     th:href="@{/me}">Мій аккаунт</a></li>
-            <li id="admin"  th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+            <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
                 <a th:href="@{/admin}">Адміністрування</a>
             </li>
             <li id="loginButton"
@@ -37,7 +38,7 @@
         <form id="searchForm" th:action="@{/event}" th:method="GET">
             <div>
                 <input id="search" name="keyword" placeholder="Пошук..."
-                       th:value="${keyWord}" type="text">
+                       th:value="${keyWord}" type="search">
                 <input id="searchSubmit" type="submit" value=" ">
             </div>
         </form>
@@ -65,7 +66,8 @@
                 <ul th:if="${numberOfPages.length} != 1">
                     <th:block th:if="${pageID} >= 2">
                         <li><a th:href="@{/event/page/{pageId}(pageId=1)}" title="Перша сторінка">&laquo;</a></li>
-                        <li><a th:href="@{/event/page/{pageId}(pageId=${pageID}-1)}" title="Попередня сторінка">&lsaquo;</a>
+                        <li><a th:href="@{/event/page/{pageId}(pageId=${pageID}-1)}"
+                               title="Попередня сторінка">&lsaquo;</a>
                         </li>
                     </th:block>
 

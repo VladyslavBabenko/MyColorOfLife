@@ -23,23 +23,38 @@ public class Role implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
+
     private String roleName;
+
     @Transient
     @ManyToMany(mappedBy = "roles")
     @ToString.Exclude
     private Set<User> users;
 
+    @Column(nullable = false)
+    private String description;
+
+    @Override
+    public String toString() {
+        if (description != null && !description.isEmpty()) {
+            return description;
+        } else return roleName;
+    }
+
+/*
     @Override
     public String toString() {
         switch (roleName) {
+            case ("ROLE_USER"):
+                return "Користувач";
             case ("ROLE_ADMIN"):
                 return "Адміністратор";
             case ("ROLE_AUTHOR"):
                 return "Автор";
             default:
-                return "Користувач";
+                return roleName;
         }
-    }
+    }*/
 
     @Override
     public String getAuthority() {

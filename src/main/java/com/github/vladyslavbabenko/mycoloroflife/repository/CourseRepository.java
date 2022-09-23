@@ -1,6 +1,7 @@
 package com.github.vladyslavbabenko.mycoloroflife.repository;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
+import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,12 +14,12 @@ import java.util.Optional;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
     /**
-     * Finds all {@link Course} by title.
+     * Finds all {@link Course} by {@link CourseTitle}.
      *
-     * @param title title to search
+     * @param courseTitle courseTitle to search
      * @return Optional List of Courses from database, otherwise empty Optional
      */
-    Optional<List<Course>> findAllByCourseTitleContains(String title);
+    Optional<List<Course>> findAllByCourseTitle(CourseTitle courseTitle);
 
     /**
      * Finds an {@link Course} by title.
@@ -43,15 +44,15 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
      * @param page        page to search
      * @return Optional Course from database, otherwise empty Optional
      */
-    Optional<Course> findByCourseTitleAndPage(String courseTitle, Integer page);
+    Optional<Course> findByCourseTitleAndPage(CourseTitle courseTitle, Integer page);
 
     /**
-     * Finds an {@link Course} by title.
+     * Finds an {@link Course} by {@link CourseTitle}.
      *
-     * @param title title to search
+     * @param courseTitle courseTitle to search
      * @return true if exists, otherwise false
      */
-    boolean existsByCourseTitle(String title);
+    boolean existsByCourseTitle(CourseTitle courseTitle);
 
     /**
      * Finds an {@link Course} by title.
@@ -68,5 +69,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
      * @param page        page to search
      * @return true if exists, otherwise false
      */
-    boolean existsByCourseTitleAndPage(String courseTitle, Integer page);
+    boolean existsByCourseTitleAndPage(CourseTitle courseTitle, Integer page);
 }

@@ -1,5 +1,7 @@
 package com.github.vladyslavbabenko.mycoloroflife.service;
 
+import com.github.vladyslavbabenko.mycoloroflife.entity.ActivationCode;
+import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
@@ -96,4 +98,21 @@ public interface UserService extends UserDetailsService {
      * @return true if operation was successful, otherwise false.
      */
     boolean saveOAuth2User(OAuth2UserAuthority oAuth2UserAuthority);
+
+    /**
+     * Activates provided {@link ActivationCode}
+     *
+     * @param activationCode activationCode to activate
+     * @return true if operation was successful, otherwise false.
+     */
+    boolean activateCode(ActivationCode activationCode);
+
+    /**
+     * Deletes {@link Role} from provided {@link User} List
+     *
+     * @param users users whose role will be removed
+     * @param roleToDelete role to remove from users
+     * @return true if operation was successful, otherwise false.
+     */
+    boolean deleteRoleFromUser(List<User> users, Role roleToDelete);
 }

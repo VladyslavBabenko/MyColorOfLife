@@ -1,0 +1,2 @@
+DELETE
+FROM t_activation_code;

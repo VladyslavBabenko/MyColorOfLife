@@ -32,7 +32,7 @@ public class WebSecurity {
                 .antMatchers("/me", "/me/**").hasRole("USER")
                 .antMatchers("/article/new", "/article/**/edit", "/event/new", "/event/**/edit").hasAnyRole("AUTHOR", "ADMIN")
                 .antMatchers("/admin", "/admin/**").hasRole("ADMIN")
-                .antMatchers("/", "/article", "/article/**", "/event", "/event/**", "/resources/**").permitAll()
+                .antMatchers("/", "/article", "/article/**", "/event", "/event/**", "/resources/**", "/course", "/course/**").permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin().loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/")
                 .and().oauth2Login().authorizationEndpoint().authorizationRequestRepository(getAuthorizationRequestRepository())

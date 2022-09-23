@@ -1,7 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service;
 
-import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
-import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Implementation of {@link UserService}.
@@ -28,11 +24,24 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final ActivationCodeService activationCodeService;
+    private final RoleService roleService;
+    private final CourseProgressService courseProgressService;
+    private final CourseService courseService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserServiceImpl(UserRepository userRepository,
+                           BCryptPasswordEncoder bCryptPasswordEncoder,
+                           ActivationCodeService activationCodeService,
+                           RoleService roleService,
+                           CourseProgressService courseProgressService,
+                           CourseService courseService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.activationCodeService = activationCodeService;
+        this.roleService = roleService;
+        this.courseProgressService = courseProgressService;
+        this.courseService = courseService;
     }
 
     public User getCurrentUser() {
@@ -147,5 +156,37 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsById(Integer userId) {
         return userRepository.existsById(userId);
+    }
+
+    @Override
+    public boolean activateCode(ActivationCode activationCode) {
+        if (activationCodeService.existsByCode(activationCode.getCode())) {
+            String courseOwnerRoleString = "ROLE_COURSE_OWNER_" +
+                    roleService.convertToRoleStyle(activationCode.getCourseTitle().getTitle());
+            if (roleService.existsByRoleName(courseOwnerRoleString)) {
+                Optional<Role> courseOwnerRole = roleService.findByRoleName(courseOwnerRoleString);
+                if (courseOwnerRole.isPresent()) {
+                    User user = activationCode.getUser();
+                    user.getRoles().add(courseOwnerRole.get());
+                    userRepository.save(user);
+
+                    Optional<Course> courseFromDB = courseService.findByCourseTitleAndPage(activationCode.getCourseTitle().getTitle(), 1);
+                    courseFromDB.ifPresent(course -> courseProgressService.save(CourseProgress.builder().user(user).course(course).build()));
+
+                    activationCodeService.deleteByCode(activationCode.getCode());
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deleteRoleFromUser(List<User> users, Role roleToDelete) {
+        if (roleService.existsByRoleName(roleToDelete.getRoleName())) {
+            getAllUsers().stream().peek(user -> user.getRoles().removeIf(role -> role.getRoleName().equals(roleToDelete.getRoleName()))).forEach(userRepository::save);
+            return true;
+        }
+        return false;
     }
 }

@@ -32,34 +32,52 @@ public class User implements UserDetails, OAuth2User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
+
     @Column(nullable = false)
     @NotEmpty(message = "Вкажіть ім'я")
     @Size(min = 2, max = 30, message = "Ім'я користувача має бути від 2 до 30 символів")
     private String username;
+
     @Column(nullable = false)
     @Email(message = "Пошта має бути валідною")
     @NotEmpty(message = "Вкажіть пошту")
     private String email;
+
     @Size(min = 5, message = "Довжина пароля має бути від 5 до 30 символів")
     private String password;
+
     @Transient
     private String passwordConfirm;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
+
     @Transient
     @ManyToMany(mappedBy = "users")
     @ToString.Exclude
     private Set<Article> articles;
+
     @Transient
     @ManyToMany(mappedBy = "users")
     @ToString.Exclude
     private Set<Event> events;
-    @Column(nullable = false)
+
     //Assume that the user will register via standard form by default
+    @Column(nullable = false)
     private UserRegistrationType registrationType = UserRegistrationType.REGISTRATION_FORM;
+
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    private Set<ActivationCode> activationCodes;
 
     @Transient
     private Map<String, Object> attributes;
+
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    private Set<CourseProgress> courseProgresses;
 
     public User(Map<String, Object> attributes) {
         this.attributes = attributes;

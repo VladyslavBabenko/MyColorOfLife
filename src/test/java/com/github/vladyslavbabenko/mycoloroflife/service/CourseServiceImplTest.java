@@ -1,7 +1,9 @@
 package com.github.vladyslavbabenko.mycoloroflife.service;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
+import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseRepository;
+import com.github.vladyslavbabenko.mycoloroflife.repository.CourseTitleRepository;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,20 +17,26 @@ class CourseServiceImplTest {
 
     private CourseService courseService;
     private CourseRepository courseRepository;
+    private CourseTitleRepository courseTitleRepository;
     private Course testCourse;
+    private CourseTitle testCourseTitle;
 
     @BeforeEach
     void setUp() {
         //given
         courseRepository = Mockito.mock(CourseRepository.class);
-        courseService = new CourseServiceImpl(courseRepository);
+        courseTitleRepository = Mockito.mock(CourseTitleRepository.class);
+        courseService = new CourseServiceImpl(courseRepository, courseTitleRepository);
 
-        testCourse = Course.builder().id(2).courseTitle("Test").page(2).videoTitle("Test Video Title 2").videoLink("Test Video Link 2").text("Test Text 2").build();
+        testCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
+
+        testCourse = Course.builder().id(2).courseTitle(testCourseTitle).page(2).videoTitle("Test Video Title 2").videoLink("Test Video Link 2").text("Test Text 2").build();
     }
 
     @Test
-    void isArticleServiceImplTestReady() {
+    void isCourseServiceImplTestReady() {
         Assertions.assertThat(courseRepository).isNotNull().isInstanceOf(CourseRepository.class);
+        Assertions.assertThat(courseTitleRepository).isNotNull().isInstanceOf(CourseTitleRepository.class);
         Assertions.assertThat(courseService).isNotNull().isInstanceOf(CourseService.class);
         Assertions.assertThat(testCourse).isNotNull().isInstanceOf(Course.class);
     }
@@ -46,13 +54,15 @@ class CourseServiceImplTest {
     @Test
     void findAllByCourseTitleContains() {
         //given
-        String keyword = "Test";
+        String title = "Test";
+        Mockito.doReturn(Optional.ofNullable(testCourseTitle)).when(courseTitleRepository).findByTitle(title);
 
         //when
-        courseService.findAllByCourseTitleContains(keyword);
+        courseService.findAllByCourseTitleContains(title);
 
         //then
-        Mockito.verify(courseRepository, Mockito.times(1)).findAllByCourseTitleContains(keyword);
+        Mockito.verify(courseTitleRepository, Mockito.times(1)).findByTitle(title);
+        Mockito.verify(courseRepository, Mockito.times(1)).findAllByCourseTitle(testCourseTitle);
     }
 
     @Test
@@ -75,7 +85,7 @@ class CourseServiceImplTest {
         Mockito.doReturn(true).when(courseRepository).existsByCourseTitleAndPage(testCourse.getCourseTitle(), testCourse.getPage());
 
         //when
-        boolean isFalse = courseService.saveCourse(testCourse);
+        boolean isFalse = courseService.save(testCourse);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).existsByCourseTitle(testCourse.getCourseTitle());
@@ -91,7 +101,7 @@ class CourseServiceImplTest {
         Mockito.doReturn(true).when(courseRepository).existsByVideoTitle(testCourse.getVideoTitle());
 
         //when
-        boolean isFalse = courseService.saveCourse(testCourse);
+        boolean isFalse = courseService.save(testCourse);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).existsByCourseTitle(testCourse.getCourseTitle());
@@ -108,7 +118,7 @@ class CourseServiceImplTest {
         Mockito.doReturn(false).when(courseRepository).existsByCourseTitleAndPage(testCourse.getCourseTitle(), testCourse.getPage());
 
         //when
-        boolean isTrue = courseService.saveCourse(testCourse);
+        boolean isTrue = courseService.save(testCourse);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).existsByCourseTitle(testCourse.getCourseTitle());
@@ -124,7 +134,7 @@ class CourseServiceImplTest {
         Mockito.doReturn(false).when(courseRepository).existsById(id);
 
         //when
-        boolean isFalse = courseService.deleteCourse(id);
+        boolean isFalse = courseService.delete(id);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).existsById(id);
@@ -139,7 +149,7 @@ class CourseServiceImplTest {
         Mockito.doReturn(true).when(courseRepository).existsById(id);
 
         //when
-        boolean isTrue = courseService.deleteCourse(id);
+        boolean isTrue = courseService.delete(id);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).existsById(id);
@@ -154,7 +164,7 @@ class CourseServiceImplTest {
         Mockito.doReturn(true).when(courseRepository).existsByCourseTitleAndPage(testCourse.getCourseTitle(), testCourse.getPage());
 
         //when
-        boolean isFalse = courseService.updateCourse(testCourse);
+        boolean isFalse = courseService.update(testCourse);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).findById(testCourse.getId());
@@ -164,12 +174,12 @@ class CourseServiceImplTest {
     }
 
     @Test
-    void updateCourse_WhenCourseDoesNotExsitById() {
+    void updateCourse_WhenCourseDoesNotExistById() {
         //given
         Mockito.doReturn(Optional.empty()).when(courseRepository).findById(testCourse.getId());
 
         //when
-        boolean isFalse = courseService.updateCourse(testCourse);
+        boolean isFalse = courseService.update(testCourse);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).findById(testCourse.getId());
@@ -185,7 +195,7 @@ class CourseServiceImplTest {
         Mockito.doReturn(false).when(courseRepository).existsByCourseTitleAndPage(testCourse.getCourseTitle(), testCourse.getPage());
 
         //when
-        boolean isTrue = courseService.updateCourse(testCourse);
+        boolean isTrue = courseService.update(testCourse);
 
         //then
         Mockito.verify(courseRepository, Mockito.times(1)).findById(testCourse.getId());
@@ -209,13 +219,32 @@ class CourseServiceImplTest {
     @Test
     void findByCourseTitleAndPage() {
         //given
-        String courseTitle = "Test";
         int page = 1;
 
+        Mockito.doReturn(Optional.ofNullable(testCourseTitle)).when(courseTitleRepository).findByTitle(testCourseTitle.getTitle());
+
         //when
-        courseService.findByCourseTitleAndPage(courseTitle, page);
+        courseService.findByCourseTitleAndPage(testCourseTitle.getTitle(), page);
 
         //then
-        Mockito.verify(courseRepository, Mockito.times(1)).findByCourseTitleAndPage(courseTitle, page);
+        Mockito.verify(courseTitleRepository, Mockito.times(1)).findByTitle(testCourseTitle.getTitle());
+        Mockito.verify(courseRepository, Mockito.times(1)).findByCourseTitleAndPage(testCourseTitle, page);
+    }
+/*
+    @Override
+    public boolean existsByCourseTitle(CourseTitle courseTitle) {
+        return courseRepository.existsByCourseTitle(courseTitle);
+    }*/
+
+    @Test
+    void existsByCourseTitle() {
+        //given
+        Mockito.doReturn(true).when(courseRepository).existsByCourseTitle(testCourseTitle);
+
+        //when
+        courseService.existsByCourseTitle(testCourseTitle);
+
+        //then
+        Mockito.verify(courseRepository, Mockito.times(1)).existsByCourseTitle(testCourseTitle);
     }
 }

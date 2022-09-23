@@ -11,6 +11,7 @@
             <li><a th:href="@{/}">Головна сторінка</a></li>
             <li><a th:href="@{/article}">Статті</a></li>
             <li><a th:href="@{/event}">Події</a></li>
+            <li><a th:href="@{/course}">Курси</a></li>
             <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
                 <a th:href="@{/me}">Мій аккаунт</a></li>
             <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
@@ -37,17 +38,16 @@
                 </thead>
                 <tr>
                     <td>
-                        <form th:action="@{/admin/course}"
+                        <form th:action="@{/admin/course/edit}"
                               th:method="PUT"
                               th:object="${course}">
                             <fieldset>
-                                <input type="hidden" th:field="*{id}">
+                                <input th:field="*{id}" type="hidden">
                                 <label for="courseTitle">Введіть назву:</label>
                                 <div>
-                                    <textarea cols="20" id="courseTitle"
-                                              name="courseTitle" rows="5"
-                                              th:field="*{courseTitle}" title="Назва курсу">
-                                    </textarea>
+                                    <input id="courseTitle" name="courseTitle"
+                                           placeholder="ID курсу" th:field="*{courseTitle}"
+                                           title="ID курсу" type="number" min="1">
                                 </div>
                                 <div class="formValidationError" th:errors="*{courseTitle}"
                                      th:if="${#fields.hasErrors('courseTitle')}">courseTitleError
@@ -84,10 +84,9 @@
                                 </div>
                                 <label for="page">Введіть сторінку:</label>
                                 <div>
-                                    <textarea cols="20" id="page"
-                                              name="page" rows="5"
-                                              th:field="*{page}" title="Сторінка">
-                                    </textarea>
+                                    <input id="page" name="page"
+                                           placeholder="Сторінка" th:field="*{page}"
+                                           title="Сторінка" type="number" min="1">
                                 </div>
                                 <div class="formValidationError" th:errors="*{page}"
                                      th:if="${#fields.hasErrors('page')}">pageError

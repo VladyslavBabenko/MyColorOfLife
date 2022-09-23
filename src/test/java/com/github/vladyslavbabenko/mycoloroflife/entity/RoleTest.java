@@ -27,16 +27,21 @@ class RoleTest {
                 .id(1)
                 .roleName("ROLE_USER")
                 .users(Collections.singleton(testUser))
+                .description("Користувач")
                 .build();
+
         testAdminRole = Role.builder()
                 .id(2)
                 .roleName("ROLE_ADMIN")
                 .users(Collections.singleton(testUser))
+                .description("Адміністратор")
                 .build();
+
         testAuthorRole = Role.builder()
                 .id(3)
                 .roleName("ROLE_AUTHOR")
                 .users(Collections.singleton(testUser))
+                .description("Автор")
                 .build();
     }
 

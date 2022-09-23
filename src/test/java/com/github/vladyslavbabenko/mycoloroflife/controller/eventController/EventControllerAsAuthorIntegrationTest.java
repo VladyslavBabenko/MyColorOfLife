@@ -219,7 +219,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
         this.mockMvc.perform(get("/event/1/edit"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/accessDeniedPage"))
+                .andExpect(view().name("error/accessDeniedPage"))
                 .andExpect(status().isOk());
     }
 

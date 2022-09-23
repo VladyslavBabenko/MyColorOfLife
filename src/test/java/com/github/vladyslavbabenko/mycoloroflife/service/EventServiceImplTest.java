@@ -41,10 +41,11 @@ class EventServiceImplTest {
     }
 
     @Test
-    void iseventServiceImplTestReady() {
+    void isEventServiceImplTestReady() {
         Assertions.assertThat(eventRepository).isNotNull().isInstanceOf(EventRepository.class);
         Assertions.assertThat(eventService).isNotNull().isInstanceOf(EventService.class);
         Assertions.assertThat(testAuthor).isNotNull().isInstanceOf(User.class);
+        Assertions.assertThat(firstTestEvent).isNotNull().isInstanceOf(Event.class);
     }
 
     @Test

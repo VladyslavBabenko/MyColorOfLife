@@ -48,7 +48,7 @@ class GeneralControllerForAnonymousUserIntegrationTest extends AbstractControlle
     @Test
     public void GET_AccessDeniedPageAsAnonymousUser() throws Exception {
         this.mockMvc.perform(get("/access-denied"))
-                .andExpect(view().name("generalTemplate/accessDeniedPage"))
+                .andExpect(view().name("error/accessDeniedPage"))
                 .andExpect(status().isOk());
     }
 }
