@@ -4,6 +4,7 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseRepository;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseTitleRepository;
+import com.github.vladyslavbabenko.mycoloroflife.service.implementation.CourseServiceImpl;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -3,6 +3,7 @@ package com.github.vladyslavbabenko.mycoloroflife.service;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.ArticleRepository;
+import com.github.vladyslavbabenko.mycoloroflife.service.implementation.ArticleServiceImpl;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
