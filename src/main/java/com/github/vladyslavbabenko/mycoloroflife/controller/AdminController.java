@@ -5,6 +5,7 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
+import com.github.vladyslavbabenko.mycoloroflife.service.implementation.MailSenderServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
