@@ -17,6 +17,8 @@ FROM t_event;
 DELETE
 FROM t_article;
 DELETE
+FROM t_secure_token;
+DELETE
 FROM t_user;
 
 DELETE
