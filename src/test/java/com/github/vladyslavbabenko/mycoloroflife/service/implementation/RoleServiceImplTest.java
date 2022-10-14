@@ -1,8 +1,8 @@
-package com.github.vladyslavbabenko.mycoloroflife.service;
+package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.repository.RoleRepository;
-import com.github.vladyslavbabenko.mycoloroflife.service.implementation.RoleServiceImpl;
+import com.github.vladyslavbabenko.mycoloroflife.service.RoleService;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

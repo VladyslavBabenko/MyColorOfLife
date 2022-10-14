@@ -1,9 +1,9 @@
-package com.github.vladyslavbabenko.mycoloroflife.service;
+package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.repository.UserRepository;
-import com.github.vladyslavbabenko.mycoloroflife.service.implementation.UserServiceImpl;
+import com.github.vladyslavbabenko.mycoloroflife.service.*;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +55,7 @@ class UserServiceImplTest {
         testUser = User.builder()
                 .id(1)
                 .username("TestUser")
-                .email("TestMail@mail.com")
+                .email("TestUser@mail.com")
                 .roles(roles)
                 .password(String.valueOf(123456789))
                 .registrationType(UserRegistrationType.REGISTRATION_FORM)
@@ -285,6 +285,21 @@ class UserServiceImplTest {
     }
 
     @Test
+    void deleteRoleFromUserFailure() {
+        //given
+        List<User> users = new ArrayList<>();
+        users.add(testUser);
+        users.add(testUserGAuth);
+
+        //when
+        boolean isFalse = userService.deleteRoleFromUser(users, testRole);
+
+        //Then
+        Mockito.verify(roleService, Mockito.times(1)).existsByRoleName(testRole.getRoleName());
+        Assertions.assertThat(isFalse).isFalse();
+    }
+
+    @Test
     void activateCodeFailure() {
         //when
         boolean isFalse = userService.activateCode(testActivationCode);
@@ -324,5 +339,17 @@ class UserServiceImplTest {
 
         //then
         Mockito.verify(userRepository, Mockito.times(1)).existsById(testUser.getId());
+    }
+
+    @Test
+    void isAccountNonLocked() {
+        //given
+        Mockito.doReturn(Optional.ofNullable(testUser)).when(userRepository).findByEmail(testUser.getUsername());
+
+        //when
+        userService.isAccountNonLocked(testUser.getUsername());
+
+        //then
+        Mockito.verify(userRepository, Mockito.times(1)).findByEmail(testUser.getUsername());
     }
 }

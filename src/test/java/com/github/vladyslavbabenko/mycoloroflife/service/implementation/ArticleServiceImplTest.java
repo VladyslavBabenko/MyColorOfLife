@@ -1,9 +1,9 @@
-package com.github.vladyslavbabenko.mycoloroflife.service;
+package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.ArticleRepository;
-import com.github.vladyslavbabenko.mycoloroflife.service.implementation.ArticleServiceImpl;
+import com.github.vladyslavbabenko.mycoloroflife.service.ArticleService;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
