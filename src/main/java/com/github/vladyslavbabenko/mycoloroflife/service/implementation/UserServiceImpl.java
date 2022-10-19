@@ -14,7 +14,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of {@link UserService}.
@@ -123,7 +126,11 @@ public class UserServiceImpl implements UserService {
             return false;
         } else {
             User userToUpdate = userFromDB.get();
+
             userToUpdate.setEmail(updatedUser.getEmail());
+            userToUpdate.setFailedLoginAttempt(updatedUser.getFailedLoginAttempt());
+            userToUpdate.setAccountNonLocked(updatedUser.isAccountNonLocked());
+
             userRepository.save(userToUpdate);
             return true;
         }
@@ -189,5 +196,10 @@ public class UserServiceImpl implements UserService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked(String username) {
+        return loadUserByUsername(username).isAccountNonLocked();
     }
 }
