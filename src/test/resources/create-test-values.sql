@@ -95,4 +95,4 @@ INSERT INTO t_activation_code
 VALUES (1, 'Q5sxTc941iokNy8', 1, 1),
        (2, 'Yx5ui2nqx98m92x', 1, 2);
 
-INSERT INTO t_secure_token VALUES (1, 'wMQzFUNrjsXyyht0lF-B', default, default, 1);
+INSERT INTO t_secure_token VALUES (1, 'wMQzFUNrjsXyyht0lF-B', date(now()), date(now()), 1);

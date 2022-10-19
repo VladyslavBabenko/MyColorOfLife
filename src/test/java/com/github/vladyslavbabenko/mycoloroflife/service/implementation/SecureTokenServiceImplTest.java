@@ -9,6 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -16,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SpringBootTest
+@TestPropertySource("classpath:application-test.properties")
 @DisplayName("Unit-level testing for SecureTokenService")
 class SecureTokenServiceImplTest {
 
@@ -23,6 +29,9 @@ class SecureTokenServiceImplTest {
     private SecureTokenRepository secureTokenRepository;
     private SecureToken expectedSecureToken;
     private User expectedUser;
+
+    @Value("${secure.token.validity}")
+    private int tokenValidityInSeconds;
 
     @BeforeEach
     void setUp() {
@@ -37,7 +46,7 @@ class SecureTokenServiceImplTest {
                 .email("TestUser@mail.com")
                 .build();
 
-        int tokenValidityInSeconds = 60;
+        ReflectionTestUtils.setField(secureTokenService, "tokenValidityInSeconds", tokenValidityInSeconds);
 
         expectedSecureToken = SecureToken.builder().id(1).token("wMQzFUNrjsXyyht0lF-B").timeStamp(Timestamp.valueOf(LocalDateTime.now())).expireAt(LocalDateTime.now().plusSeconds(tokenValidityInSeconds)).user(expectedUser).build();
     }
@@ -53,10 +62,10 @@ class SecureTokenServiceImplTest {
     @Test
     void getTokenValidityInSeconds() {
         //given
-        int tokenValidityInSeconds = secureTokenService.getTokenValidityInSeconds();
+        int actualTokenValidityInSeconds = secureTokenService.getTokenValidityInSeconds();
 
         //then
-        Assertions.assertThat(tokenValidityInSeconds).isZero();
+        Assertions.assertThat(actualTokenValidityInSeconds).isEqualTo(tokenValidityInSeconds);
     }
 
     @Test
@@ -180,18 +189,6 @@ class SecureTokenServiceImplTest {
         Mockito.verify(secureTokenRepository, Mockito.times(1)).findAll();
         Assertions.assertThat(isDeletedAllExpired).isFalse();
     }
-
-    /*
-    *      Optional<SecureToken> tokenFromDB = findByToken(updatedToken.getToken());
-        if (tokenFromDB.isEmpty()) {
-            return false;
-        } else {
-            SecureToken tokenToUpdate = tokenFromDB.get();
-            tokenToUpdate.setToken(updatedToken.getToken());
-            tokenToUpdate.setUser(updatedToken.getUser());
-            secureTokenRepository.save(tokenToUpdate);
-            return true;
-        }*/
 
     @Test
     void updateSuccess() {
