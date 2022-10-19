@@ -78,6 +78,7 @@ public class PasswordRecoveryControllerIntegrationTest extends AbstractControlle
     }
 
     @Test
+    @Sql(value = {"/clear-secure-tokens.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void PATCH_resetPasswordAsAnonymousUser() throws Exception {
         String message = "Якщо на цю пошту було зареєстровано обліковий запис, туди буде надіслано посилання для зміни паролю";
 
