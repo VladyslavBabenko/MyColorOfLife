@@ -41,21 +41,6 @@ public class Role implements GrantedAuthority {
         } else return roleName;
     }
 
-/*
-    @Override
-    public String toString() {
-        switch (roleName) {
-            case ("ROLE_USER"):
-                return "Користувач";
-            case ("ROLE_ADMIN"):
-                return "Адміністратор";
-            case ("ROLE_AUTHOR"):
-                return "Автор";
-            default:
-                return roleName;
-        }
-    }*/
-
     @Override
     public String getAuthority() {
         return getRoleName();

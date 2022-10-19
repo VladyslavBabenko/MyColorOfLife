@@ -21,11 +21,11 @@ import java.util.Set;
  */
 
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name = "t_user")
 public class User implements UserDetails, OAuth2User {
     @Id
@@ -48,6 +48,9 @@ public class User implements UserDetails, OAuth2User {
 
     @Transient
     private String passwordConfirm;
+
+    //to prevent brute force, the user account will be locked out after several failed attempts
+    private boolean isAccountNonLocked = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles;
@@ -74,10 +77,18 @@ public class User implements UserDetails, OAuth2User {
     @Transient
     private Map<String, Object> attributes;
 
+    @Column(nullable = false)
+    private int failedLoginAttempt = 0;
+
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     private Set<CourseProgress> courseProgresses;
+
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    private Set<SecureToken> secureTokens;
 
     public User(Map<String, Object> attributes) {
         this.attributes = attributes;
@@ -105,7 +116,7 @@ public class User implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
 
     @Override
@@ -115,7 +126,7 @@ public class User implements UserDetails, OAuth2User {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return isAccountNonLocked;
     }
 
     @Override
@@ -125,7 +136,12 @@ public class User implements UserDetails, OAuth2User {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isAccountNonLocked();
+    }
+
+    @Override
+    public String getName() {
+        return username;
     }
 
     @Override
@@ -139,10 +155,5 @@ public class User implements UserDetails, OAuth2User {
     @Override
     public int hashCode() {
         return getClass().hashCode();
-    }
-
-    @Override
-    public String getName() {
-        return username;
     }
 }

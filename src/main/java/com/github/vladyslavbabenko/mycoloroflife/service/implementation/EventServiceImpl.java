@@ -1,7 +1,8 @@
-package com.github.vladyslavbabenko.mycoloroflife.service;
+package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Event;
 import com.github.vladyslavbabenko.mycoloroflife.repository.EventRepository;
+import com.github.vladyslavbabenko.mycoloroflife.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

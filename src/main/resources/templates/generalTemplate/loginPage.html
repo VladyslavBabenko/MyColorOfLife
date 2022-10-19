@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <meta charset="UTF-8">
     <title>Увійти</title>
@@ -28,19 +28,20 @@
     <form id="loginForm" th:action="@{/login}" th:method="POST">
         <fieldset>
             <div>
-                <input id="username" name="username"
-                       placeholder="Електронна пошта" title="Електронна пошта" type="text">
+                <input id="username" name="username" required
+                       placeholder="Електронна пошта" title="Електронна пошта" type="email">
             </div>
             <div>
-                <input id="password" name="password"
+                <input id="password" name="password" required
                        placeholder="Пароль" title="Пароль" type="password">
             </div>
-            <p class="formValidationError" th:if="${param.error}"
-               th:text="'Введений пароль або eлектронна пошта містять помилки.'"></p>
-            <input id="submit" name="submit" type="submit" value="Вхід"> <a th:href="@{/restore}">Забули
-            пароль?</a>
+            <p class="formValidationError" th:if="${param.error}" th:text="#{user.invalid.credentials}"></p>
+            <input id="submit" name="submit" type="submit" value="Вхід">
+            <a th:href="@{/password/request}">Забули пароль?</a>
         </fieldset>
     </form>
+    <p th:if="${message}" th:text="${message}"></p>
+    <p th:if="${tokenError}" th:text="${tokenError}"></p>
     <h3>Або</h3>
     <p></p>
     <a class="auth" href="/oauth2/authorization/google">

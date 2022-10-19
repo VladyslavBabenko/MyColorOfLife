@@ -1,7 +1,8 @@
-package com.github.vladyslavbabenko.mycoloroflife.service;
+package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.repository.RoleRepository;
+import com.github.vladyslavbabenko.mycoloroflife.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

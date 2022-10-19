@@ -110,9 +110,17 @@ public interface UserService extends UserDetailsService {
     /**
      * Deletes {@link Role} from provided {@link User} List
      *
-     * @param users users whose role will be removed
+     * @param users        users whose role will be removed
      * @param roleToDelete role to remove from users
      * @return true if operation was successful, otherwise false.
      */
     boolean deleteRoleFromUser(List<User> users, Role roleToDelete);
+
+    /**
+     * Checks that the {@link User} account is not locked out
+     *
+     * @param username {@link User}'s username
+     * @return true if the account is not locked out, false otherwise.
+     */
+    boolean isAccountNonLocked(String username);
 }
