@@ -425,6 +425,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
     }
 
     @Test
+    @Sql(value = {"/clear-secure-tokens.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_EmailRequest_Success() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(

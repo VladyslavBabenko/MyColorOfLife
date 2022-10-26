@@ -1,3 +1,2 @@
 DELETE
-FROM t_activation_code
-WHERE user_id = 4;
+FROM t_activation_code;
