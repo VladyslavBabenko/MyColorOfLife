@@ -127,6 +127,10 @@ public class UserServiceImpl implements UserService {
         } else {
             User userToUpdate = userFromDB.get();
 
+            if (!userToUpdate.getEmail().equals(updatedUser.getEmail())) {
+                userToUpdate.setEmailConfirmed(false);
+            }
+
             userToUpdate.setEmail(updatedUser.getEmail());
             userToUpdate.setFailedLoginAttempt(updatedUser.getFailedLoginAttempt());
             userToUpdate.setAccountNonLocked(updatedUser.isAccountNonLocked());
@@ -201,5 +205,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isAccountNonLocked(String username) {
         return loadUserByUsername(username).isAccountNonLocked();
+    }
+
+    @Override
+    public boolean confirmEmail(String username) {
+        try {
+            User userFromDB = (User) loadUserByUsername(username);
+            userFromDB.setEmailConfirmed(true);
+
+            userRepository.save(userFromDB);
+            return true;
+
+        } catch (UsernameNotFoundException e) {
+            //log later
+            return false;
+        }
     }
 }

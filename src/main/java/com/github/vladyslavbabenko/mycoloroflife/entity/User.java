@@ -69,6 +69,8 @@ public class User implements UserDetails, OAuth2User {
     @Column(nullable = false)
     private UserRegistrationType registrationType = UserRegistrationType.REGISTRATION_FORM;
 
+    private boolean isEmailConfirmed = false;
+
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
@@ -155,5 +157,9 @@ public class User implements UserDetails, OAuth2User {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public boolean isEmailConfirmed() {
+        return isEmailConfirmed;
     }
 }
