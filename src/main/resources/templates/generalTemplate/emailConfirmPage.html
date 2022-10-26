@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ua-UA">
+<head>
+    <title>Підтвердження пошти</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div id="header">
+    <ul id="nav">
+        <li><a th:href="@{/}">Головна сторінка</a></li>
+        <li><a th:href="@{/article}">Статті</a></li>
+        <li><a th:href="@{/event}">Події</a></li>
+        <li><a th:href="@{/course}">Курси</a></li>
+        <li id="me" th:if="${#authentication.getPrincipal() != 'anonymousUser'}">
+            <a th:href="@{/me}">Мій аккаунт</a></li>
+        <li id="admin" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+            <a th:href="@{/admin}">Адміністрування</a>
+        </li>
+        <li id="loginButton"
+            th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/login}">Авторизуватися</a></li>
+        <li id="registrationButton"
+            th:if="${#authentication.getPrincipal() == 'anonymousUser'}">
+            <a th:href="@{/registration}">Зареєструватись</a></li>
+    </ul>
+</div>
+<div id="main">
+    <p>Якщо ви підтверджуєте, що вказаний нижче email ваш - натисніть кнопку</p>
+    <form id="emailConfirm" th:action="@{/me/email-confirm}" th:method="POST">
+        <fieldset>
+            <input type="hidden" name="token" th:value="${token}"/>
+            <p th:text="${email}"></p>
+            <input name="submit" type="submit" value="Підтвердити пошту"/>
+        </fieldset>
+    </form>
+    <p th:if="${tokenError}" th:text="${tokenError}"></p>
+</div>
+<div id="footer"></div>
+</body>
+</html>

@@ -1,18 +1,19 @@
 package com.github.vladyslavbabenko.mycoloroflife.controller;
 
-import com.github.vladyslavbabenko.mycoloroflife.entity.ActivationCode;
-import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
-import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
-import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.entity.*;
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -22,8 +23,11 @@ public class PrivateAreaController {
     private final UserService userService;
     private final ActivationCodeService activationCodeService;
     private final MailSenderService mailSender;
+    private final MailContentBuilderService mailContentBuilderService;
     private final CourseTitleService courseTitleService;
     private final RoleService roleService;
+    private final EmailConfirmationService emailConfirmationService;
+    private final SecureTokenService secureTokenService;
 
     @GetMapping()
     public String toPersonalArea(Model model) {
@@ -121,8 +125,15 @@ public class PrivateAreaController {
     //Temp
     @PostMapping("/generate/activation-code")
     private String selfGenerateCode(Model model) {
+
         Optional<CourseTitle> courseTitleFromDB = courseTitleService.findByTitle("Test Course");
         User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.isEmailConfirmed()) {
+            model.addAttribute("message", "Спочатку підтвердьте свою електронну адресу");
+            return toPersonalArea(model);
+        }
+
         if (courseTitleFromDB.isPresent()) {
             Optional<Role> roleFromDB = roleService.findByRoleName("ROLE_COURSE_OWNER_" + roleService.convertToRoleStyle(courseTitleFromDB.get().getTitle()));
             if (roleFromDB.isPresent()) {
@@ -130,26 +141,65 @@ public class PrivateAreaController {
                     model.addAttribute("codeAlreadyGeneratedError", "Ви вже згенерували тестовий код активації");
                 } else {
                     ActivationCode code = activationCodeService.createCode(courseTitleFromDB.get(), currentUser);
-                    String htmlText = "<div style=\"text-align:center;line-height:24px\"> " +
-                            "<span style=\"font-size:25px;\">" +
-                            "<p>Здрастуйте, " + currentUser.getUsername() + "!</p>" +
-                            "<p> " +
-                            "Дякуємо за генерацію коду для курсу " + code.getCourseTitle().getTitle() +
-                            "</p>" +
-                            "<p style = \"font-size:35px;line-height:40px;font-weight:bold\">" +
-                            "Ваш код активації: <br>" + code.getCode() +
-                            "</p>" +
-                            "</div>";
+
+                    String courseTitle = code.getCourseTitle().getTitle();
+
+                    List<String> strings = new ArrayList<>();
+                    strings.add(currentUser.getUsername());
+                    strings.add(courseTitle);
+                    strings.add(code.getCode());
 
                     mailSender.sendEmail(currentUser.getEmail(),
-                            "Код активації для курсу " + code.getCourseTitle().getTitle(),
-                            htmlText);
+                            "Код активації для курсу " + courseTitle,
+                            mailContentBuilderService.build(strings, "emailTemplate/activationCode"));
 
                     model.addAttribute("mailHasBeenSent", "Код активації було надіслано на Вашу пошту");
                 }
             }
         }
-        model.addAttribute("user", currentUser);
-        return "userTemplate/privateAreaPage";
+
+        return toPersonalArea(model);
+    }
+
+    @PostMapping("/email-request")
+    private String emailRequest(Model model) {
+        User currentUser = userService.getCurrentUser();
+        if (!currentUser.isEmailConfirmed() && !secureTokenService.existsByUserAndPurpose(currentUser, Purpose.EMAIL_CONFIRM)) {
+            emailConfirmationService.sendConfirmationEmail(userService.getCurrentUser());
+        }
+
+        model.addAttribute("message", "На вашу електронну адресу надіслано лист із посиланням для підтвердження");
+
+        return toPersonalArea(model);
+    }
+
+    @GetMapping("/email-confirm")
+    private String getEmailConfirm(@RequestParam(required = false) String token, Model model) {
+        if (StringUtils.isEmpty(token)) {
+            model.addAttribute("tokenError", "Відсутній токен");
+            return "generalTemplate/emailConfirmPage";
+        }
+
+        Optional<SecureToken> secureTokenFromDB = secureTokenService.findByToken(token);
+
+        if (secureTokenFromDB.isEmpty()) {
+            model.addAttribute("tokenError", "Неправильний або застарілий токен");
+        } else {
+            model.addAttribute("token", secureTokenFromDB.get().getToken());
+            model.addAttribute("email", secureTokenFromDB.get().getUser().getEmail());
+        }
+
+        return "generalTemplate/emailConfirmPage";
+    }
+
+    @PostMapping("/email-confirm")
+    private String postEmailConfirm(@RequestParam(required = false) String token, Model model) {
+        if (emailConfirmationService.confirmEmail(token)) {
+            model.addAttribute("message", "Вашу електронну адресу успішно підтверджено");
+        } else {
+            model.addAttribute("message", "Неправильний або застарілий токен");
+        }
+
+        return toPersonalArea(model);
     }
 }
