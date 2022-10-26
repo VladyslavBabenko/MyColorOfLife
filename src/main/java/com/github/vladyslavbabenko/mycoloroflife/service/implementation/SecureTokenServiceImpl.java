@@ -1,6 +1,8 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
+import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.repository.SecureTokenRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.SecureTokenService;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -53,6 +55,7 @@ public class SecureTokenServiceImpl implements SecureTokenService {
         SecureToken secureToken = SecureToken.builder()
                 .token(tokenValue)
                 .expireAt(LocalDateTime.now().plusSeconds(getTokenValidityInSeconds()))
+                .purpose(Purpose.NONE)
                 .build();
         save(secureToken);
         return secureToken;
@@ -110,5 +113,10 @@ public class SecureTokenServiceImpl implements SecureTokenService {
             secureTokenRepository.save(tokenToUpdate);
             return true;
         }
+    }
+
+    @Override
+    public boolean existsByUserAndPurpose(User user, Purpose purpose) {
+        return secureTokenRepository.existsByUserAndPurpose(user, purpose);
     }
 }

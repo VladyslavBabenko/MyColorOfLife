@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.entity;
 
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,6 +32,9 @@ public class SecureToken {
 
     @Column(updatable = false)
     private LocalDateTime expireAt;
+
+    @Column(nullable = false)
+    private Purpose purpose = Purpose.NONE;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

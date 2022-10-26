@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.repository.SecureTokenRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.SecureTokenService;
 import org.fest.assertions.api.Assertions;
@@ -211,5 +212,28 @@ class SecureTokenServiceImplTest {
         //then
         Mockito.verify(secureTokenRepository, Mockito.times(0)).save(expectedSecureToken);
         Assertions.assertThat(isUpdated).isFalse();
+    }
+
+    @Test
+    void existsByUserAndPurposeTrue() {
+        //given
+        Mockito.doReturn(true).when(secureTokenRepository).existsByUserAndPurpose(expectedUser, Purpose.PASSWORD_RECOVERY);
+
+        //when
+        boolean exists = secureTokenService.existsByUserAndPurpose(expectedUser, Purpose.PASSWORD_RECOVERY);
+
+        //then
+        Mockito.verify(secureTokenRepository, Mockito.times(1)).existsByUserAndPurpose(expectedUser, Purpose.PASSWORD_RECOVERY);
+        Assertions.assertThat(exists).isTrue();
+    }
+
+    @Test
+    void existsByUserAndPurposeFalse() {
+        //when
+        boolean exists = secureTokenService.existsByUserAndPurpose(expectedUser, Purpose.PASSWORD_RECOVERY);
+
+        //then
+        Mockito.verify(secureTokenRepository, Mockito.times(1)).existsByUserAndPurpose(expectedUser, Purpose.PASSWORD_RECOVERY);
+        Assertions.assertThat(exists).isFalse();
     }
 }

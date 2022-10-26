@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     protected void sendResetPasswordEmail(User user) {
         SecureToken secureToken = secureTokenService.createSecureToken();
         secureToken.setUser(user);
+        secureToken.setPurpose(Purpose.PASSWORD_RECOVERY);
         secureTokenService.update(secureToken);
 
         List<String> strings;
@@ -98,7 +100,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                 strings.add(getResetPasswordUrl(secureToken.getToken()));
                 mailSenderService.sendEmail(user.getEmail(),
                         getMessage("email.reset.password.subject"),
-                        mailContentBuilder.build(strings, "email/forgotPassword"));
+                        mailContentBuilder.build(strings, "emailTemplate/forgotPassword"));
                 break;
 
             case GMAIL_AUTHENTICATION:
@@ -107,7 +109,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                 strings.add(getMessage("email.gmail.login.text"));
                 mailSenderService.sendEmail(user.getEmail(),
                         getMessage("email.reset.password.subject"),
-                        mailContentBuilder.build(strings, "email/loginViaGmail"));
+                        mailContentBuilder.build(strings, "emailTemplate/loginViaGmail"));
                 break;
         }
     }

@@ -31,11 +31,13 @@ VALUES (4, 'ROLE_COURSE_OWNER_TEST', '"Власник курсу Test"'),
        (6, 'ROLE_COURSE_OWNER_TEST_COURSE', '"Власник курсу Test Course"');
 
 INSERT INTO t_user /* encryptedPassword: $2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby | rawPassword: 123456 */
-VALUES (1, 'TestUser', 'TestUser@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true, 0),
-       (2, 'TestAdmin', 'TestAdmin@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true, 0),
+VALUES (1, 'TestUser', 'TestUser@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true, 0,
+        false),
+       (2, 'TestAdmin', 'TestAdmin@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true,
+        0, false),
        (3, 'TestAuthor', 'TestAuthor@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0,
-        true, 0),
-       (4, 'TestUserGAuth', 'TestUserGAuth@gmail.com', null, 1, false, 0);
+        true, 0, false),
+       (4, 'TestUserGAuth', 'TestUserGAuth@gmail.com', null, 1, false, 0, true);
 
 INSERT INTO t_user_roles
 VALUES (1, 1),
@@ -95,4 +97,7 @@ INSERT INTO t_activation_code
 VALUES (1, 'Q5sxTc941iokNy8', 1, 1),
        (2, 'Yx5ui2nqx98m92x', 1, 2);
 
-INSERT INTO t_secure_token VALUES (1, 'wMQzFUNrjsXyyht0lF-B', now(), now() +'05:00:00', 1);
+INSERT INTO t_secure_token
+VALUES (1, 'wMQzFUNrjsXyyht0lF-B', now(), now() + '05:00:00', 1, 0),
+       (2, 'Xyyht0lF-BwMQzFUNrjs', now(), now() + '05:00:00', 1, 1),
+       (3, 'wMt0lF-BQzFUNrjsXyyh', now(), now() + '05:00:00', 1, 2);

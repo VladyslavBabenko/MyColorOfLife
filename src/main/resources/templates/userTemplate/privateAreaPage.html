@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ua-UA">
 <head>
-    <title th:text="${user.getUsername()}"></title>
+    <title th:text="${user.getName()}"></title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -28,8 +28,12 @@
     <form id="logoutForm" th:action="@{/logout}" th:method="POST">
         <input id="logout" type="submit" value="Вийти з аккаунту"/>
     </form>
-    <h3 th:text="'Ім\'я користувача: ' + ${user.getUsername()}"></h3>
-    <p th:text="'Email: ' + ${user.getEmail()}"></p>
+    <h3 th:text="'Ім\'я користувача: ' + ${user.getName()}"></h3>
+    <p>
+        <span th:text="'Email: ' + ${user.getEmail()}"></span>
+        <span th:if="${user.isEmailConfirmed()}" th:text="' | Пошта підтверджена'"></span>
+        <span th:unless="${user.isEmailConfirmed()}" th:text="' | Пошта не підтверджена'"></span>
+    </p>
     <span>Ролі: </span>
     <span th:each="role : ${user.getRoles()}" th:text="${role} + ' '"></span>
     <div th:if="${user.getPassword()!=null}">
@@ -62,6 +66,13 @@
             <input id="submit" name="submit" type="submit" value="Відправити"/>
         </fieldset>
     </form>
+    <form th:if="${user.isEmailConfirmed() == false}" id="emailConfirm" th:action="@{/me/email-request}"
+          th:method="POST">
+        <fieldset>
+            <input name="submit" type="submit" value="Підтвердити пошту"/>
+        </fieldset>
+    </form>
+    <div th:if="${message}" th:text="${message}"></div>
 </div>
 <div id="footer"></div>
 </body>

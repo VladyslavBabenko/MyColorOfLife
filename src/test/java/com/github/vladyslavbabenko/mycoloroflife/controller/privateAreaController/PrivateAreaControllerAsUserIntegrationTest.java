@@ -3,6 +3,7 @@ package com.github.vladyslavbabenko.mycoloroflife.controller.privateAreaControll
 import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.ActivationCode;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
+import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import org.fest.assertions.api.Assertions;
@@ -30,25 +31,49 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(value = {"/create-test-values.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControllerIntegrationTest {
 
-    private User testUser;
+    private User testUser, testUserGAuth, testAuthor;
     private CourseTitle testCourseTitle;
     private ActivationCode testActivationCode;
+    private SecureToken testSecureToken;
 
     @BeforeEach
     void setUp() {
         super.setup();
+
         testUser = User.builder()
                 .id(1)
                 .username("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
+                .isEmailConfirmed(false)
                 .registrationType(UserRegistrationType.REGISTRATION_FORM)
+                .build();
+
+        testAuthor = User.builder()
+                .id(3)
+                .username("TestAuthor")
+                .email("TestAuthor@mail.com")
+                .password("123456")
+                .passwordConfirm("123456")
+                .isEmailConfirmed(false)
+                .registrationType(UserRegistrationType.REGISTRATION_FORM)
+                .build();
+
+        testUserGAuth = User.builder()
+                .id(4)
+                .username("TestUserGAuth")
+                .email("TestUserGAuth@gmail.com")
+                .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
+                .isEmailConfirmed(true)
                 .build();
 
         testCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
 
         testActivationCode = ActivationCode.builder().id(1).code("Q5sxTc941iokNy8").user(testUser).courseTitle(testCourseTitle).build();
+
+        testSecureToken = SecureToken.builder().id(1).token("wMQzFUNrjsXyyht0lF-B").user(testUser).build();
+
     }
 
     @Test
@@ -333,7 +358,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
     public void POST_SelfGenerateCodeAsUser_Failure_WithCodeAlreadyGenerated() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+                "testUserGAuth", testUserGAuth, AuthorityUtils.createAuthorityList("ROLE_USER")));
         SecurityContextHolder.setContext(securityContext);
 
         String errorMessage = "Ви вже згенерували тестовий код активації";
@@ -348,11 +373,28 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
     }
 
     @Test
+    public void POST_SelfGenerateCodeAsUser_Failure_WithEmailNotConfirmed() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String message = "Спочатку підтвердьте свою електронну адресу";
+
+        this.mockMvc.perform(post("/me/generate/activation-code"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("message", Matchers.equalTo(message)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @Sql(value = {"/forSelfGenerateCodeDeleteLater/clear-activation-codes.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_SelfGenerateCodeAsUser_Success() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+                "testUserGAuth", testUserGAuth, AuthorityUtils.createAuthorityList("ROLE_USER")));
         SecurityContextHolder.setContext(securityContext);
 
         String message = "Код активації було надіслано на Вашу пошту";
@@ -362,6 +404,102 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .andExpect(view().name("userTemplate/privateAreaPage"))
                 .andExpect(model().attribute("user", Matchers.any(User.class)))
                 .andExpect(model().attribute("mailHasBeenSent", Matchers.equalTo(message)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void POST_EmailRequest_FailureTokenAlreadyExistsByUserAndPurpose() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "testUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String message = "На вашу електронну адресу надіслано лист із посиланням для підтвердження";
+
+        this.mockMvc.perform(post("/me/email-request"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("message", Matchers.equalTo(message)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Sql(value = {"/clear-secure-tokens.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    public void POST_EmailRequest_Success() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "testAuthor", testAuthor, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String message = "На вашу електронну адресу надіслано лист із посиланням для підтвердження";
+
+        this.mockMvc.perform(post("/me/email-request"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("message", Matchers.equalTo(message)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GET_EmailConfirm_Failure_WithNoToken() throws Exception {
+        String errorMessage = "Відсутній токен";
+
+        this.mockMvc.perform(get("/me/email-confirm"))
+                .andDo(print())
+                .andExpect(view().name("generalTemplate/emailConfirmPage"))
+                .andExpect(model().attribute("tokenError", Matchers.equalTo(errorMessage)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GET_EmailConfirm_Failure_WithInvalidError() throws Exception {
+        String errorMessage = "Неправильний або застарілий токен";
+
+        this.mockMvc.perform(get("/me/email-confirm")
+                        .param("token", testUser.getUsername()))
+                .andDo(print())
+                .andExpect(view().name("generalTemplate/emailConfirmPage"))
+                .andExpect(model().attribute("tokenError", Matchers.equalTo(errorMessage)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GET_EmailConfirm_Success() throws Exception {
+        this.mockMvc.perform(get("/me/email-confirm")
+                        .param("token", testSecureToken.getToken()))
+                .andDo(print())
+                .andExpect(view().name("generalTemplate/emailConfirmPage"))
+                .andExpect(model().attribute("token", Matchers.equalTo(testSecureToken.getToken())))
+                .andExpect(model().attribute("email", Matchers.equalTo(testSecureToken.getUser().getEmail())))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void POST_EmailConfirm_Failure_WithInvalidToken() throws Exception {
+
+        String message = "Неправильний або застарілий токен";
+
+        this.mockMvc.perform(post("/me/email-confirm"))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("message", Matchers.equalTo(message)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void POST_EmailConfirm_Success() throws Exception {
+
+        String message = "Вашу електронну адресу успішно підтверджено";
+
+        this.mockMvc.perform(post("/me/email-confirm")
+                        .param("token", testSecureToken.getToken()))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("message", Matchers.equalTo(message)))
                 .andExpect(status().isOk());
     }
 }

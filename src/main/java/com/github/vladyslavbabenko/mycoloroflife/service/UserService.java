@@ -123,4 +123,12 @@ public interface UserService extends UserDetailsService {
      * @return true if the account is not locked out, false otherwise.
      */
     boolean isAccountNonLocked(String username);
+
+    /**
+     * Confirms the {@link User}'s email address
+     *
+     * @param username {@link User}'s username
+     * @return true if email was confirmed successfully, false otherwise.
+     */
+    boolean confirmEmail(String username);
 }
