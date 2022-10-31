@@ -23,10 +23,9 @@ import java.util.Optional;
 
 @Service
 public class SecureTokenServiceImpl implements SecureTokenService {
+    private final SecureTokenRepository secureTokenRepository;
     @Value("${secure.token.validity}")
     private int tokenValidityInSeconds;
-
-    private final SecureTokenRepository secureTokenRepository;
 
     @Autowired
     public SecureTokenServiceImpl(SecureTokenRepository secureTokenRepository) {

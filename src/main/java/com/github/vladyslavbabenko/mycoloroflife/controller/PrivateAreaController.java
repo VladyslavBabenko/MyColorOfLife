@@ -4,6 +4,7 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -16,36 +17,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
+/**
+ * {@link Controller} for user private area.
+ */
+
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/me")
 public class PrivateAreaController {
-    private final UserService userService;
-    private final ActivationCodeService activationCodeService;
-    private final MailSenderService mailSender;
-    private final MailContentBuilderService mailContentBuilderService;
-    private final CourseTitleService courseTitleService;
+
     private final RoleService roleService;
-    private final EmailConfirmationService emailConfirmationService;
+    private final UserService userService;
+    private final MailSenderService mailSender;
+    private final MessageSourceUtil messageSource;
     private final SecureTokenService secureTokenService;
+    private final CourseTitleService courseTitleService;
+    private final ActivationCodeService activationCodeService;
+    private final EmailConfirmationService emailConfirmationService;
+    private final MailContentBuilderService mailContentBuilderService;
+
+    private final String REDIRECT_ME = "redirect:/me";
 
     @GetMapping()
-    public String toPersonalArea(Model model) {
+    public String getPersonalArea(Model model) {
         model.addAttribute("user", userService.getCurrentUser());
-        return "userTemplate/privateAreaPage";
+        return messageSource.getMessage("template.user.private-area");
     }
 
     @GetMapping("/change-password")
-    public String toChangePasswordPage(Model model) {
+    public String getChangePassword(Model model) {
         if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
             model.addAttribute("user", userService.getCurrentUser());
-            return "userTemplate/changePasswordPage";
+            return messageSource.getMessage("template.user.edit.password");
         }
-        return "redirect:/me";
+        return REDIRECT_ME;
     }
 
     @PatchMapping("/change-password")
-    public String changePassword(@ModelAttribute User userToUpdate, @RequestParam String oldPassword, Model model) {
+    public String patchChangePassword(@ModelAttribute User userToUpdate, @RequestParam String oldPassword, Model model) {
         userToUpdate.setId(userService.getCurrentUser().getId());
 
         if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
@@ -54,152 +63,153 @@ public class PrivateAreaController {
             if (userService.matchesPassword(userService.getCurrentUser(), oldPassword)) {
                 if (userToUpdate.getPassword().length() < 5 || userToUpdate.getPassword().length() > 30) {
                     if (userToUpdate.getPassword().length() != 0) {
-                        model.addAttribute("passwordOutOfBounds", "Довжина пароля має бути від 5 до 30 символів");
-                        return "userTemplate/changePasswordPage";
+                        model.addAttribute("passwordOutOfBounds", messageSource.getMessage("user.password.length"));
+                        return messageSource.getMessage("template.user.edit.password");
                     } else {
-                        return "redirect:/me";
+                        return REDIRECT_ME;
                     }
                 }
             } else {
                 if (userService.getCurrentUser().equals(new User()) || userService.getCurrentUser().getId() == null) {
-                    model.addAttribute("changePasswordError", "Користувач не знайдений");
+                    model.addAttribute("changePasswordError", messageSource.getMessage("user.not.found"));
                 } else {
-                    model.addAttribute("oldPasswordError", "Невірний пароль");
+                    model.addAttribute("oldPasswordError", messageSource.getMessage("user.password.invalid"));
                 }
-                return "userTemplate/changePasswordPage";
+                return messageSource.getMessage("template.user.edit.password");
             }
 
             if (!userToUpdate.getPassword().equals(userToUpdate.getPasswordConfirm())) {
-                model.addAttribute("passwordMismatchError", "Паролі не співпадають");
-                return "userTemplate/changePasswordPage";
+                model.addAttribute("passwordMismatchError", messageSource.getMessage("user.password.mismatch"));
+                return messageSource.getMessage("template.user.edit.password");
             }
 
             userService.changePassword(userToUpdate);
         }
 
-        return "redirect:/me";
+        return REDIRECT_ME;
     }
 
     @GetMapping("/edit")
-    public String toEditPage(Model model) {
+    public String getEdit(Model model) {
         if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
             model.addAttribute("user", userService.getCurrentUser());
-            return "userTemplate/editPage";
+            return messageSource.getMessage("template.user.edit.details");
         }
-        return "redirect:/me";
+        return REDIRECT_ME;
     }
 
     @PatchMapping("/edit")
-    public String updateUser(@ModelAttribute @Valid User userToUpdate, BindingResult bindingResult, Model model) {
+    public String patchEdit(@ModelAttribute @Valid User userToUpdate, BindingResult bindingResult, Model model) {
         userToUpdate.setId(userService.getCurrentUser().getId());
         if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
             if (bindingResult.hasFieldErrors("email")) {
-                return "userTemplate/editPage";
+                return messageSource.getMessage("template.user.edit.details");
             }
             userService.updateUser(userToUpdate);
         }
 
         if (!userService.existsById(userToUpdate.getId())) {
-            model.addAttribute("updateUserError", "Користувач не знайдений");
-            return "userTemplate/editPage";
+            model.addAttribute("updateUserError", messageSource.getMessage("user.not.found"));
+            return messageSource.getMessage("template.user.edit.details");
         }
 
-        return "redirect:/me";
+        return REDIRECT_ME;
     }
 
     @PutMapping("/activate-code")
-    public String activateCode(@RequestParam("activationCode") String activationCodeAsString, Model model) {
+    public String putActivateCode(@RequestParam("activationCode") String activationCodeAsString, Model model) {
         if (activationCodeAsString != null && !activationCodeAsString.isEmpty()) {
             Optional<ActivationCode> code = activationCodeService.findByCode(activationCodeAsString);
             if (code.isEmpty()) {
                 model.addAttribute("user", userService.getCurrentUser());
-                model.addAttribute("activationCodeError", "Недійсний код активації");
-                return "userTemplate/privateAreaPage";
+                model.addAttribute("activationCodeError", messageSource.getMessage("user.invalid.activation-code"));
+                return messageSource.getMessage("template.user.private-area");
             }
 
             code.ifPresent(userService::activateCode);
         }
-        return "redirect:/me";
+        return REDIRECT_ME;
     }
 
     //Temp
     @PostMapping("/generate/activation-code")
-    private String selfGenerateCode(Model model) {
+    private String postSelfGenerateCode(Model model) {
 
-        Optional<CourseTitle> courseTitleFromDB = courseTitleService.findByTitle("Test Course");
+        Optional<CourseTitle> courseTitleFromDB = courseTitleService.findByTitle(messageSource.getMessage("test.course.title"));
         User currentUser = userService.getCurrentUser();
 
         if (!currentUser.isEmailConfirmed()) {
-            model.addAttribute("message", "Спочатку підтвердьте свою електронну адресу");
-            return toPersonalArea(model);
+            model.addAttribute("message", messageSource.getMessage("user.activation-code.email.confirm"));
+            return getPersonalArea(model);
         }
 
         if (courseTitleFromDB.isPresent()) {
-            Optional<Role> roleFromDB = roleService.findByRoleName("ROLE_COURSE_OWNER_" + roleService.convertToRoleStyle(courseTitleFromDB.get().getTitle()));
+            Optional<Role> roleFromDB =
+                    roleService.findByRoleName(messageSource.getMessage("role.course.owner") + roleService.convertToRoleStyle(courseTitleFromDB.get().getTitle()));
             if (roleFromDB.isPresent()) {
                 if (activationCodeService.existsByUser(currentUser) || currentUser.getRoles().contains(roleFromDB.get())) {
-                    model.addAttribute("codeAlreadyGeneratedError", "Ви вже згенерували тестовий код активації");
+                    model.addAttribute("codeAlreadyGeneratedError", messageSource.getMessage("user.activation-code.already.generated"));
                 } else {
                     ActivationCode code = activationCodeService.createCode(courseTitleFromDB.get(), currentUser);
 
                     String courseTitle = code.getCourseTitle().getTitle();
+                    String subject = messageSource.getMessage("email.course.activation-code.subject") + " " + courseTitle;
 
                     List<String> strings = new ArrayList<>();
-                    strings.add(currentUser.getUsername());
+                    strings.add(currentUser.getName());
                     strings.add(courseTitle);
                     strings.add(code.getCode());
 
-                    mailSender.sendEmail(currentUser.getEmail(),
-                            "Код активації для курсу " + courseTitle,
-                            mailContentBuilderService.build(strings, "emailTemplate/activationCode"));
+                    mailSender.sendEmail(currentUser.getEmail(), subject,
+                            mailContentBuilderService.build(strings, messageSource.getMessage("template.email.activation-code")));
 
-                    model.addAttribute("mailHasBeenSent", "Код активації було надіслано на Вашу пошту");
+                    model.addAttribute("mailHasBeenSent", messageSource.getMessage("user.activation-code.email.sent"));
                 }
             }
         }
 
-        return toPersonalArea(model);
+        return getPersonalArea(model);
     }
 
     @PostMapping("/email-request")
-    private String emailRequest(Model model) {
+    private String postEmailRequest(Model model) {
         User currentUser = userService.getCurrentUser();
         if (!currentUser.isEmailConfirmed() && !secureTokenService.existsByUserAndPurpose(currentUser, Purpose.EMAIL_CONFIRM)) {
             emailConfirmationService.sendConfirmationEmail(userService.getCurrentUser());
         }
 
-        model.addAttribute("message", "На вашу електронну адресу надіслано лист із посиланням для підтвердження");
+        model.addAttribute("message", messageSource.getMessage("user.email.confirm.sent"));
 
-        return toPersonalArea(model);
+        return getPersonalArea(model);
     }
 
     @GetMapping("/email-confirm")
     private String getEmailConfirm(@RequestParam(required = false) String token, Model model) {
         if (StringUtils.isEmpty(token)) {
-            model.addAttribute("tokenError", "Відсутній токен");
-            return "generalTemplate/emailConfirmPage";
+            model.addAttribute("tokenError", messageSource.getMessage("empty.token"));
+            return messageSource.getMessage("template.general.email.confirm");
         }
 
         Optional<SecureToken> secureTokenFromDB = secureTokenService.findByToken(token);
 
         if (secureTokenFromDB.isEmpty()) {
-            model.addAttribute("tokenError", "Неправильний або застарілий токен");
+            model.addAttribute("tokenError", messageSource.getMessage("invalid.token"));
         } else {
             model.addAttribute("token", secureTokenFromDB.get().getToken());
             model.addAttribute("email", secureTokenFromDB.get().getUser().getEmail());
         }
 
-        return "generalTemplate/emailConfirmPage";
+        return messageSource.getMessage("template.general.email.confirm");
     }
 
     @PostMapping("/email-confirm")
     private String postEmailConfirm(@RequestParam(required = false) String token, Model model) {
         if (emailConfirmationService.confirmEmail(token)) {
-            model.addAttribute("message", "Вашу електронну адресу успішно підтверджено");
+            model.addAttribute("message", messageSource.getMessage("user.email.confirm.success"));
         } else {
-            model.addAttribute("message", "Неправильний або застарілий токен");
+            model.addAttribute("message", messageSource.getMessage("invalid.token"));
         }
 
-        return toPersonalArea(model);
+        return getPersonalArea(model);
     }
 }

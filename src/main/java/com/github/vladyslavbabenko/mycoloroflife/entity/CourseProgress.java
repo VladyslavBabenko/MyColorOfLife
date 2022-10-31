@@ -3,7 +3,6 @@ package com.github.vladyslavbabenko.mycoloroflife.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
 
 /**
  * Course progress entity. Saves the user's progress

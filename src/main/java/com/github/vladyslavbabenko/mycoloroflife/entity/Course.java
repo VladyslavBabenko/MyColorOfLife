@@ -28,22 +28,22 @@ public class Course {
 
     @ManyToOne
     @JoinColumn(name = "course_title_id", nullable = false)
-    @NotNull(message = "Вкажіть назву")
+    @NotNull(message = "{validation.title.not.empty}")
     private CourseTitle courseTitle;
 
     @Column(nullable = false)
-    @Max(value = 100, message = "Сторінка має бути від 1 до 100")
-    @Min(value = 1, message = "Сторінка має бути від 1 до 100")
-    @NotNull(message = "Вкажіть сторінку")
+    @Max(value = 100, message = "{validation.page.max}")
+    @Min(value = 1, message = "{validation.page.max}")
+    @NotNull(message = "{validation.page.not.empty}")
     private Integer page;
 
-    @Size(max = 100, message = "Назва має бути до 100 символів")
+    @Size(max = 100, message = "{validation.title.length}")
     @Column(length = 100)
     private String videoTitle;
 
     private String videoLink;
 
-    @Size(max = 65535, message = "Текст має бути до 65535 символів")
+    @Size(max = 65535, message = "{validation.text.length}")
     private String text;
 
     @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)

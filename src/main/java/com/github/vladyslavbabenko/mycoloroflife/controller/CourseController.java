@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.controller;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -17,18 +18,23 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+/**
+ * {@link Controller} for courses.
+ */
+
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/course")
 public class CourseController {
-    private final CourseService courseService;
-    private final CourseTitleService courseTitleService;
     private final UserService userService;
     private final RoleService roleService;
+    private final CourseService courseService;
+    private final MessageSourceUtil messageSource;
+    private final CourseTitleService courseTitleService;
     private final CourseProgressService courseProgressService;
 
     @GetMapping(path = {"", "/page/{pageId}"})
-    public String getCoursesPage(Model model, String keyword, @PathVariable(value = "pageId", required = false) Integer pageId) {
+    public String getCourses(Model model, String keyword, @PathVariable(value = "pageId", required = false) Integer pageId) {
         if (pageId == null) {
             pageId = 1;
         }
@@ -53,11 +59,11 @@ public class CourseController {
         model.addAttribute("pageID", pageId);
         model.addAttribute("numberOfPages", numberOfPages);
 
-        return "courseTemplate/coursesPage";
+        return messageSource.getMessage("template.course.all");
     }
 
     @GetMapping("/{courseTitle}")
-    public String getMainCoursePage(Model model, @PathVariable(value = "courseTitle") String title) {
+    public String getCourseMain(Model model, @PathVariable(value = "courseTitle") String title) {
         Optional<CourseTitle> optionalCourseTitle = courseTitleService.findByTitle(title);
         if (optionalCourseTitle.isPresent()) {
             List<Course> courseList = courseService.findAllByCourseTitle(optionalCourseTitle.get());
@@ -76,16 +82,16 @@ public class CourseController {
             model.addAttribute("courseTitle", optionalCourseTitle.get());
             model.addAttribute("courseList", courseList);
 
-            return "courseTemplate/courseMainPage";
+            return messageSource.getMessage("template.course.main");
         } else {
-            return "/error/404";
+            return messageSource.getMessage("template.error.404");
         }
     }
 
     @GetMapping("/{courseTitle}/page/{pageID}")
     public String getCoursePage(Model model, @PathVariable(value = "courseTitle") String courseTitle, @PathVariable(value = "pageID") String pageIDAsString) {
         if (courseTitleService.existsByTitle(courseTitle)) {
-            String courseOwnerAuthority = "ROLE_COURSE_OWNER_" + roleService.convertToRoleStyle(courseTitle);
+            String courseOwnerAuthority = messageSource.getMessage("role.course.owner") + roleService.convertToRoleStyle(courseTitle);
             if (roleService.existsByRoleName(courseOwnerAuthority)) {
                 Role role = roleService.findByRoleName(courseOwnerAuthority).orElse(new Role());
                 User userFromDB = userService.getCurrentUser();
@@ -112,7 +118,7 @@ public class CourseController {
                             }
 
                             if (lastVisitedPage.intValue() < course.get().getPage()) {
-                                model.addAttribute("tooEarly", "Ой, а Вам ще рано сюди. Пройдіть попередні уроки для доступу");
+                                model.addAttribute("tooEarly", messageSource.getMessage("user.course.too-early"));
                             } else {
                                 model.addAttribute("courseTitle", optionalCourseTitle.get());
                                 model.addAttribute("course", course.get());
@@ -129,19 +135,19 @@ public class CourseController {
                             model.addAttribute("lastCoursePage", lastCoursePage);
 
                         } else {
-                            return "/error/404";
+                            return messageSource.getMessage("template.error.404");
                         }
                     } else {
-                        return "/error/404";
+                        return messageSource.getMessage("template.error.404");
                     }
-                    return "courseTemplate/coursePage";
-                } else return "error/accessDeniedPage";
-            } else return "error/accessDeniedPage";
-        } else return "/error/404";
+                    return messageSource.getMessage("template.course.page");
+                } else return messageSource.getMessage("template.error.access-denied");
+            } else return messageSource.getMessage("template.error.access-denied");
+        } else return messageSource.getMessage("template.error.404");
     }
 
     @PatchMapping("/{courseTitle}/page/{pageID}")
-    private String updateCourseProgress(@PathVariable("courseTitle") String courseTitleAsString, @PathVariable("pageID") String pageIDAsString) {
+    private String patchCourseProgressUpdate(@PathVariable("courseTitle") String courseTitleAsString, @PathVariable("pageID") String pageIDAsString) {
         int page = -1;
 
         if (StringUtils.isNumeric(pageIDAsString)) {

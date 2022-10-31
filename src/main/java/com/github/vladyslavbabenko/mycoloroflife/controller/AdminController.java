@@ -6,6 +6,7 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
 import com.github.vladyslavbabenko.mycoloroflife.service.implementation.MailSenderServiceImpl;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -14,109 +15,121 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
+/**
+ * {@link Controller} to manage users and courses.
+ * Only ROLE_ADMIN has access to it
+ */
+
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
 
     private final UserService userService;
-    private final ActivationCodeService codeService;
     private final CourseService courseService;
+    private final MessageSourceUtil messageSource;
     private final MailSenderServiceImpl mailSender;
+    private final ActivationCodeService codeService;
     private final CourseTitleService courseTitleService;
+    private final MailContentBuilderService mailContentBuilderService;
+
+    private final String REDIRECT_ADMIN = "redirect:/admin";
+    private final String REDIRECT_ADMIN_COURSE = REDIRECT_ADMIN + "/course";
 
     @GetMapping()
-    public String userList(Model model) {
+    public String getUsers(Model model) {
         model.addAttribute("listOfUsers", userService.getAllUsers());
-        return "adminTemplate/adminPanelPage";
+        return messageSource.getMessage("template.admin.panel.user");
     }
 
     @GetMapping("/find-by-id")
-    public String findUserByID(@RequestParam("userID") String id, Model model) {
+    public String getUser(@RequestParam("userID") String id, Model model) {
         int userId = -1;
 
         if (StringUtils.isNumeric(id)) {
             userId = Integer.parseInt(id);
         } else {
-            model.addAttribute("findIdError", "Недійсний ідентифікатор користувача");
+            model.addAttribute("findIdError", messageSource.getMessage("user.invalid.id"));
         }
 
         model.addAttribute("listOfUsers", userId > 0 ? userService.findById(userId) : userService.getAllUsers());
 
-        return "adminTemplate/adminPanelPage";
+        return messageSource.getMessage("template.admin.panel.user");
     }
 
     @DeleteMapping("/delete")
-    public String deleteUserById(@RequestParam("userID") String id, Model model) {
+    public String deleteUser(@RequestParam("userID") String id, Model model) {
         int userId;
 
         if (StringUtils.isNumeric(id)) {
             userId = Integer.parseInt(id);
             if (userId > 0) {
                 if (!userService.deleteUser(userId)) {
-                    model.addAttribute("deleteIdError", "Недійсний ідентифікатор користувача");
+                    model.addAttribute("deleteIdError", messageSource.getMessage("user.invalid.id"));
                     model.addAttribute("listOfUsers", userService.getAllUsers());
-                    return "adminTemplate/adminPanelPage";
+                    return messageSource.getMessage("template.admin.panel.user");
                 }
             }
         } else {
-            model.addAttribute("deleteIdError", "Недійсний ідентифікатор користувача");
+            model.addAttribute("deleteIdError", messageSource.getMessage("user.invalid.id"));
             model.addAttribute("listOfUsers", userService.getAllUsers());
-            return "adminTemplate/adminPanelPage";
+            return messageSource.getMessage("template.admin.panel.user");
         }
 
-        return "redirect:/admin";
+        return REDIRECT_ADMIN;
     }
 
     @GetMapping("/course")
-    public String coursePage(Model model) {
+    public String getCourses(Model model) {
         model.addAttribute("listOfCourses", courseService.getAllCourses());
         model.addAttribute("listOfCourseTitles", courseTitleService.getAllCourseTitles());
-        return "adminTemplate/courseAdminPage";
+        return messageSource.getMessage("template.admin.panel.course");
     }
 
     @GetMapping("/course/new")
-    public String createCoursePage(Model model) {
+    public String getAddCoursePage(Model model) {
         model.addAttribute("course", new Course());
-        return "adminTemplate/addCoursePage";
+        return messageSource.getMessage("template.admin.course.add");
     }
 
     @PostMapping("/course/new")
-    public String createCourse(@ModelAttribute @Valid Course course, BindingResult bindingResult, Model model) {
+    public String postAddCourse(@ModelAttribute @Valid Course course, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            return "adminTemplate/addCoursePage";
+            return messageSource.getMessage("template.admin.course.add");
         }
 
         if (!courseService.save(course)) {
-            model.addAttribute("courseError", "Така сторінка вже існує");
-            return "adminTemplate/addCoursePage";
+            model.addAttribute("courseError", messageSource.getMessage("course.exists.page"));
+            return messageSource.getMessage("template.admin.course.add");
         }
 
-        return "redirect:/admin/course";
+        return REDIRECT_ADMIN_COURSE;
     }
 
     @GetMapping("/course/{courseId}/edit")
-    public String editCoursePage(@PathVariable("courseId") String courseId, Model model) {
+    public String getCourseEdit(@PathVariable("courseId") String courseId, Model model) {
         if (StringUtils.isNumeric(courseId)) {
             model.addAttribute("course", courseService.findById(Integer.parseInt(courseId)));
         }
-        return "adminTemplate/editCoursePage";
+        return messageSource.getMessage("template.admin.course.edit");
     }
 
     @PutMapping("/course/edit")
-    public String updateCourse(@ModelAttribute @Valid Course course, BindingResult bindingResult, Model model) {
+    public String putCourseUpdate(@ModelAttribute @Valid Course course, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            return "adminTemplate/editCoursePage";
+            return messageSource.getMessage("template.admin.course.edit");
         }
 
         if (!courseService.update(course)) {
-            model.addAttribute("courseError", "Перевірте коректність введених даних");
-            return "adminTemplate/editCoursePage";
+            model.addAttribute("courseError", messageSource.getMessage("invalid.input"));
+            return messageSource.getMessage("template.admin.course.edit");
         }
 
-        return "redirect:/admin/course";
+        return REDIRECT_ADMIN_COURSE;
     }
 
     @DeleteMapping("/course/delete")
@@ -124,7 +137,7 @@ public class AdminController {
         if (StringUtils.isNumeric(courseId)) {
             courseService.delete(Integer.parseInt(courseId));
         }
-        return "redirect:/admin/course";
+        return REDIRECT_ADMIN_COURSE;
     }
 
     @DeleteMapping("/code/delete")
@@ -132,16 +145,16 @@ public class AdminController {
         if (code != null && !code.isEmpty() && codeService.existsByCode(code)) {
             codeService.deleteByCode(code);
         } else {
-            model.addAttribute("codeError", "Перевірте коректність введених даних");
+            model.addAttribute("codeError", messageSource.getMessage("invalid.input"));
             model.addAttribute("listOfUsers", userService.getAllUsers());
-            return "adminTemplate/adminPanelPage";
+            return messageSource.getMessage("template.admin.panel.user");
         }
 
-        return "redirect:/admin";
+        return REDIRECT_ADMIN;
     }
 
     @PostMapping("/code/new")
-    public String generateCode(@RequestParam("userID") String userIDAsString, @RequestParam("courseTitleID") String courseTitleIDAsString, Model model) {
+    public String postGenerateCode(@RequestParam("userID") String userIDAsString, @RequestParam("courseTitleID") String courseTitleIDAsString, Model model) {
         int userID = -1;
         int courseTitleID = -1;
 
@@ -158,62 +171,60 @@ public class AdminController {
                 if (courseTitleFromDB.isPresent()) {
                     User user = userService.findById(userID);
                     if (codeService.findAllByUserAndCourseTitle(user, courseTitleFromDB.get()).isEmpty()) {
-
                         ActivationCode code = codeService.createCode(courseTitleFromDB.get(), userService.findById(userID));
 
-                        String htmlText = "<div style=\"text-align:center;line-height:24px\"> " +
-                                "<span style=\"font-size:25px;\">" +
-                                "<p>Здрастуйте, " + user.getUsername() + "!</p>" +
-                                "<p> " +
-                                "Дякуємо за покупку курсу " + code.getCourseTitle().getTitle() +
-                                "</p>" +
-                                "<p style = \"font-size:35px;line-height:40px;font-weight:bold\">" +
-                                "Ваш код активації: <br>" + code.getCode() +
-                                "</p>" +
-                                "</div>";
+                        String courseTitle = code.getCourseTitle().getTitle();
+
+                        List<String> strings = new ArrayList<>();
+                        strings.add(user.getName());
+                        strings.add(courseTitle);
+                        strings.add(code.getCode());
 
                         mailSender.sendEmail(user.getEmail(),
-                                "Код активації для курсу " + code.getCourseTitle().getTitle(),
-                                htmlText);
+                                messageSource.getMessage("email.course.activation-code.subject") + " " + courseTitle,
+                                mailContentBuilderService.build(strings, messageSource.getMessage("template.email.activation-code")));
+
+                        model.addAttribute("mailHasBeenSent", messageSource.getMessage("user.activation-code.email.sent"));
+
                     } else {
-                        model.addAttribute("codeForCourseExists", "Код цього курсу вже існує для користувача");
+                        model.addAttribute("codeForCourseExists", messageSource.getMessage("user.activation-code.exists"));
                         model.addAttribute("listOfUsers", userService.getAllUsers());
-                        return "adminTemplate/adminPanelPage";
+                        return messageSource.getMessage("template.admin.panel.user");
                     }
                 }
             } else {
-                model.addAttribute("courseTitleIDError", "Такого курсу не існує");
+                model.addAttribute("courseTitleIDError", messageSource.getMessage("course.exists.not"));
                 model.addAttribute("listOfUsers", userService.getAllUsers());
-                return "adminTemplate/adminPanelPage";
+                return messageSource.getMessage("template.admin.panel.user");
             }
         } else {
-            model.addAttribute("userIDError", "Такого користувача не існує");
+            model.addAttribute("userIDError", messageSource.getMessage("user.not.found"));
             model.addAttribute("listOfUsers", userService.getAllUsers());
-            return "adminTemplate/adminPanelPage";
+            return messageSource.getMessage("template.admin.panel.user");
         }
 
-        return "redirect:/admin";
+        return REDIRECT_ADMIN;
     }
 
     @GetMapping("/course-title/new")
-    public String createCourseTitlePage(Model model) {
+    public String getAddCourseTitle(Model model) {
         model.addAttribute("courseTitle", new CourseTitle());
-        return "adminTemplate/addCourseTitlePage";
+        return messageSource.getMessage("template.admin.course.title.add");
     }
 
     @PostMapping("/course-title/new")
-    public String createCourseTitle(@ModelAttribute @Valid CourseTitle courseTitle, BindingResult bindingResult, Model model) {
+    public String postAddCourseTitle(@ModelAttribute @Valid CourseTitle courseTitle, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "adminTemplate/addCourseTitlePage";
+            return messageSource.getMessage("template.admin.course.title.add");
         }
 
         if (!courseTitleService.save(courseTitle)) {
-            model.addAttribute("courseTitleError", "Така назва вже існує");
-            return "adminTemplate/addCourseTitlePage";
+            model.addAttribute("courseTitleError", messageSource.getMessage("course.exists.title"));
+            return messageSource.getMessage("template.admin.course.title.add");
         }
 
-        return "redirect:/admin/course";
+        return REDIRECT_ADMIN_COURSE;
     }
 
     @DeleteMapping("/course-title/delete")
@@ -230,24 +241,24 @@ public class AdminController {
                 if (courseService.findAllByCourseTitle(courseTitleFromDB.get()).isEmpty()) {
                     courseTitleService.delete(courseTitleID);
                 } else {
-                    model.addAttribute("linksByCourseTitleError", "Видаліть існуючі посилання на назву");
+                    model.addAttribute("linksByCourseTitleError", messageSource.getMessage("course.exists.links"));
                     model.addAttribute("listOfCourses", courseService.getAllCourses());
                     model.addAttribute("listOfCourseTitles", courseTitleService.getAllCourseTitles());
-                    return "adminTemplate/courseAdminPage";
+                    return messageSource.getMessage("template.admin.panel.course");
                 }
             }
         } else {
-            model.addAttribute("courseTitleIDError", "Такого курсу не існує");
+            model.addAttribute("courseTitleIDError", messageSource.getMessage("course.exists.not"));
             model.addAttribute("listOfCourses", courseService.getAllCourses());
             model.addAttribute("listOfCourseTitles", courseTitleService.getAllCourseTitles());
-            return "adminTemplate/courseAdminPage";
+            return messageSource.getMessage("template.admin.panel.course");
         }
 
-        return "redirect:/admin/course";
+        return REDIRECT_ADMIN_COURSE;
     }
 
     @GetMapping("/course-title/{courseTitleID}/edit")
-    public String editCourseTitlePage(@PathVariable("courseTitleID") String courseTitleIDAsString, Model model) {
+    public String getCourseTitleEdit(@PathVariable("courseTitleID") String courseTitleIDAsString, Model model) {
         int courseTitleID = -1;
 
         if (StringUtils.isNumeric(courseTitleIDAsString)) {
@@ -258,24 +269,24 @@ public class AdminController {
             Optional<CourseTitle> courseTitle = courseTitleService.findById(courseTitleID);
             if (courseTitle.isPresent()) {
                 model.addAttribute("courseTitle", courseTitle.get());
-                return "adminTemplate/editCourseTitlePage";
+                return messageSource.getMessage("template.admin.course.title.edit");
             }
         }
 
-        return "redirect:/admin/course";
+        return REDIRECT_ADMIN_COURSE;
     }
 
     @PutMapping("/course-title/edit")
-    public String updateCourseTitle(@ModelAttribute @Valid CourseTitle courseTitle, BindingResult bindingResult, Model model) {
+    public String putCourseTitleUpdate(@ModelAttribute @Valid CourseTitle courseTitle, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            return "adminTemplate/editCourseTitlePage";
+            return messageSource.getMessage("template.admin.course.title.edit");
         }
 
         if (!courseTitleService.update(courseTitle)) {
-            model.addAttribute("courseTitleError", "Перевірте коректність введених даних");
-            return "adminTemplate/editCourseTitlePage";
+            model.addAttribute("courseTitleError", messageSource.getMessage("invalid.input"));
+            return messageSource.getMessage("template.admin.course.title.edit");
         }
 
-        return "redirect:/admin/course";
+        return REDIRECT_ADMIN_COURSE;
     }
 }

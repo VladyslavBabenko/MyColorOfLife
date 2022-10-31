@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.controller;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,32 +13,37 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 
-@RequiredArgsConstructor
+/**
+ * {@link Controller} to manage user registration.
+ */
+
 @Controller
+@RequiredArgsConstructor
 public class RegistrationController {
     private final UserService userService;
+    private final MessageSourceUtil messageSource;
 
     @GetMapping("/registration")
-    public String toRegistrationPage(Model model) {
+    public String getRegistration(Model model) {
         model.addAttribute("user", new User());
-        return "generalTemplate/registrationPage";
+        return messageSource.getMessage("template.general.registration");
     }
 
     @PostMapping("/registration")
     public String registerNewUser(@ModelAttribute @Valid User user, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "generalTemplate/registrationPage";
+            return messageSource.getMessage("template.general.registration");
         }
 
         if (!user.getPassword().equals(user.getPasswordConfirm())) {
-            model.addAttribute("passwordMismatchError", "Паролі не співпадають");
-            return "generalTemplate/registrationPage";
+            model.addAttribute("passwordMismatchError", messageSource.getMessage("user.password.mismatch"));
+            return messageSource.getMessage("template.general.registration");
         }
 
         if (!userService.saveUser(user)) {
-            model.addAttribute("saveUserError", "Цей користувач уже існує");
-            return "generalTemplate/registrationPage";
+            model.addAttribute("saveUserError", messageSource.getMessage("user.exists.already"));
+            return messageSource.getMessage("template.general.registration");
         }
 
         return "redirect:/";

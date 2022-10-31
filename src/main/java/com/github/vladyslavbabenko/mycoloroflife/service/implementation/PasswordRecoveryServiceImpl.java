@@ -4,11 +4,10 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -27,7 +26,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     private final SecureTokenService secureTokenService;
     private final MailSenderService mailSenderService;
     private final MailContentBuilderService mailContentBuilder;
-    private final MessageSource messageSource;
+    private final MessageSourceUtil messageSource;
 
     @Value("${site.base.url.https}")
     private String baseURL;
@@ -37,7 +36,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                                        SecureTokenService secureTokenService,
                                        MailSenderService mailSenderService,
                                        MailContentBuilderService mailContentBuilder,
-                                       MessageSource messageSource) {
+                                       MessageSourceUtil messageSource) {
         this.userService = userService;
         this.secureTokenService = secureTokenService;
         this.mailSenderService = mailSenderService;
@@ -96,30 +95,26 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
             case REGISTRATION_FORM:
                 strings = new ArrayList<>();
                 strings.add(user.getName());
-                strings.add(getMessage("email.reset.password.message.to.link"));
+                strings.add(messageSource.getMessage("email.reset.password.message.to.link"));
                 strings.add(getResetPasswordUrl(secureToken.getToken()));
                 mailSenderService.sendEmail(user.getEmail(),
-                        getMessage("email.reset.password.subject"),
-                        mailContentBuilder.build(strings, "emailTemplate/forgotPassword"));
+                        messageSource.getMessage("email.reset.password.subject"),
+                        mailContentBuilder.build(strings, messageSource.getMessage("template.email.password.forgot.registration-form")));
                 break;
 
             case GMAIL_AUTHENTICATION:
                 strings = new ArrayList<>();
                 strings.add(user.getName());
-                strings.add(getMessage("email.gmail.login.text"));
+                strings.add(messageSource.getMessage("email.gmail.login.text"));
                 mailSenderService.sendEmail(user.getEmail(),
-                        getMessage("email.reset.password.subject"),
-                        mailContentBuilder.build(strings, "emailTemplate/loginViaGmail"));
+                        messageSource.getMessage("email.reset.password.subject"),
+                        mailContentBuilder.build(strings, messageSource.getMessage("template.email.password.forgot.gmail-authentication")));
                 break;
         }
     }
 
     protected String getResetPasswordUrl(String token) {
         return UriComponentsBuilder.fromHttpUrl(baseURL).path("/password/change").queryParam("token", token).toUriString();
-    }
-
-    private String getMessage(String source) {
-        return messageSource.getMessage(source, null, LocaleContextHolder.getLocale());
     }
 
     @Override

@@ -13,10 +13,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BruteForceProtectionServiceImpl implements BruteForceProtectionService {
+    private final UserService userService;
     @Value("${security.failed.login.count}")
     private int maxFailedLogins;
-
-    private final UserService userService;
 
     @Autowired
     public BruteForceProtectionServiceImpl(UserService userService) {

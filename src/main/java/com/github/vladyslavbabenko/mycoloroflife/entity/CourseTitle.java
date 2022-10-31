@@ -20,13 +20,13 @@ public class CourseTitle {
     @Column(nullable = false)
     private Integer id;
 
-    @NotEmpty(message = "Назва не повинна бути порожньою")
-    @Size(min = 1, max = 100, message = "Назва має бути від 1 до 100 символів")
+    @NotEmpty(message = "{validation.title.not.empty}")
+    @Size(min = 1, max = 100, message = "{validation.title.length}")
     @Column(length = 100, nullable = false)
     private String title;
 
-    @NotEmpty(message = "Опис не повинна бути порожньою")
-    @Size(min = 1, max = 200, message = "Опис має бути від 1 до 200 символів")
+    @NotEmpty(message = "{validation.description.not.empty}")
+    @Size(min = 1, max = 200, message = "{validation.description.length}")
     @Column(length = 200, nullable = false)
     private String description;
 

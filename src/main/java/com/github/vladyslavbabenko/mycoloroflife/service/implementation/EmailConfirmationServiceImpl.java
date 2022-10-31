@@ -4,10 +4,9 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,7 +22,7 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
     private final SecureTokenService secureTokenService;
     private final MailSenderService mailSenderService;
     private final MailContentBuilderService mailContentBuilder;
-    private final MessageSource messageSource;
+    private final MessageSourceUtil messageSource;
 
     @Value("${site.base.url.https}")
     private String baseURL;
@@ -32,7 +31,7 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
                                         SecureTokenService secureTokenService,
                                         MailSenderService mailSenderService,
                                         MailContentBuilderService mailContentBuilder,
-                                        MessageSource messageSource) {
+                                        MessageSourceUtil messageSource) {
         this.userService = userService;
         this.secureTokenService = secureTokenService;
         this.mailSenderService = mailSenderService;
@@ -43,7 +42,13 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
     @Override
     public boolean confirmEmail(String token) {
         Optional<SecureToken> secureToken = secureTokenService.findByToken(token);
-        if (secureToken.isEmpty() || !StringUtils.equals(token, secureToken.get().getToken()) || secureToken.get().isExpired()) {
+        if (secureToken.isEmpty() || !StringUtils.equals(token, secureToken.get().getToken())) {
+            //log later
+            return false;
+        }
+
+        if (secureToken.get().isExpired()) {
+            secureTokenService.delete(secureToken.get());
             //log later
             return false;
         }
@@ -68,18 +73,14 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
 
         strings = new ArrayList<>();
         strings.add(user.getName());
-        strings.add(getMessage("email.confirm.text"));
+        strings.add(messageSource.getMessage("email.confirm.text"));
         strings.add(getConfirmationEmailUrl(secureToken.getToken()));
         mailSenderService.sendEmail(user.getEmail(),
-                getMessage("email.confirm.subject"),
-                mailContentBuilder.build(strings, "emailTemplate/emailConfirm"));
+                messageSource.getMessage("email.confirm.subject"),
+                mailContentBuilder.build(strings, messageSource.getMessage("template.email.confirm")));
     }
 
     protected String getConfirmationEmailUrl(String token) {
         return UriComponentsBuilder.fromHttpUrl(baseURL).path("/me/email-confirm").queryParam("token", token).toUriString();
-    }
-
-    private String getMessage(String source) {
-        return messageSource.getMessage(source, null, LocaleContextHolder.getLocale());
     }
 }
