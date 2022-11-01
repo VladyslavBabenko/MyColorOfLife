@@ -278,7 +278,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
 
     @Test
     public void POST_CreateCodeAsAdmin_WithInvalidUserId() throws Exception {
-        String errorMessage = "Такого користувача не існує";
+        String errorMessage = "Користувач не знайдений";
 
         this.mockMvc.perform(post("/admin/code/new")
                         .param("userID", "-1")
@@ -324,7 +324,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
 
     @Test
     public void POST_CreateCourseTitleAsAdmin_WithErrors() throws Exception {
-        String errorMessage = "Назва не повинна бути порожньою";
+        String errorMessage = "Вкажіть назву";
 
         this.mockMvc.perform(post("/admin/course-title/new")
                         .param("title", ""))
@@ -431,7 +431,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
 
     @Test
     public void PUT_UpdateCourseTitleAsAdmin_WithErrors() throws Exception {
-        String errorMessage = "Назва не повинна бути порожньою";
+        String errorMessage = "Вкажіть назву";
 
         this.mockMvc.perform(put("/admin/course-title/edit")
                         .param("id", "-1")

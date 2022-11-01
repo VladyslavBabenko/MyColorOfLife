@@ -1,5 +1,5 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Aдміністрування</title>
     <meta charset="utf-8">
@@ -45,9 +45,9 @@
                               th:method="GET">
                             <fieldset>
                                 <div>
-                                    <input name="userID" placeholder="ID користувача"
-                                           title="ID користувача"
-                                           type="number" min="1">
+                                    <input min="1" name="userID"
+                                           placeholder="ID користувача"
+                                           title="ID користувача" type="number">
                                 </div>
                                 <div class="formValidationError"
                                      th:if="${findIdError}" th:text="${findIdError}">IdError
@@ -61,9 +61,9 @@
                               th:method="DELETE">
                             <fieldset>
                                 <div>
-                                    <input name="userID" placeholder="ID користувача"
-                                           title="ID користувача"
-                                           type="number" min="1">
+                                    <input min="1" name="userID"
+                                           placeholder="ID користувача"
+                                           title="ID користувача" type="number">
                                 </div>
                                 <div class="formValidationError"
                                      th:if="${deleteIdError}" th:text="${deleteIdError}">IdError
@@ -77,14 +77,14 @@
                               th:method="POST">
                             <fieldset>
                                 <div>
-                                    <input name="userID" placeholder="ID користувача"
-                                           title="ID користувача"
-                                           type="number" min="1">
+                                    <input min="1" name="userID"
+                                           placeholder="ID користувача"
+                                           title="ID користувача" type="number">
                                 </div>
                                 <div>
-                                    <input name="courseTitleID" placeholder="ID курсу"
-                                           title="ID курсу"
-                                           type="number" min="1">
+                                    <input min="1" name="courseTitleID"
+                                           placeholder="ID курсу"
+                                           title="ID курсу" type="number">
                                 </div>
                                 <div class="formValidationError"
                                      th:if="${courseTitleIDError}" th:text="${courseTitleIDError}">courseTitleIDError
@@ -123,11 +123,12 @@
                 <th>Ролі</th>
                 <th>Курси</th>
                 <th>Коди</th>
+                <th>Підтверджена пошта</th>
                 </thead>
                 <th:block th:each="user : ${listOfUsers}">
                     <tr>
                         <td th:text="${user.getId()}"></td>
-                        <td th:text="${user.getUsername()}"></td>
+                        <td th:text="${user.getName()}"></td>
                         <td th:text="${user.getEmail()}"></td>
                         <td>
                             <div th:each="role : ${user.roles}" th:text="${role}"></div>
@@ -140,6 +141,8 @@
                             <div th:each="code : ${user.activationCodes}"
                                  th:text="${code.getCode()}"></div>
                         </td>
+                        <td><div th:if="${user.isEmailConfirmed()}" th:text="'Так'"></div>
+                            <div th:unless="${user.isEmailConfirmed()}" th:text="'Ні'"></div></td>
                     </tr>
                 </th:block>
             </table>

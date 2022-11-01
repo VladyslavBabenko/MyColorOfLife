@@ -26,7 +26,7 @@ class SecureTokenRepositoryIntegrationTest extends AbstractRepositoryIntegration
         //given
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .build();
         expectedSecureToken = SecureToken.builder().id(1).token("wMQzFUNrjsXyyht0lF-B").user(expectedUser).build();

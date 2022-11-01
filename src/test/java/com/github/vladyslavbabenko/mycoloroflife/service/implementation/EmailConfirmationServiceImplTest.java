@@ -7,6 +7,7 @@ import com.github.vladyslavbabenko.mycoloroflife.service.MailContentBuilderServi
 import com.github.vladyslavbabenko.mycoloroflife.service.MailSenderService;
 import com.github.vladyslavbabenko.mycoloroflife.service.SecureTokenService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +36,7 @@ class EmailConfirmationServiceImplTest {
     private SecureTokenService secureTokenService;
     private MailSenderService mailSenderService;
     private MailContentBuilderService mailContentBuilder;
-    private MessageSource messageSource;
+    private MessageSourceUtil messageSource;
     private EmailConfirmationServiceImpl emailConfirmationService;
 
     private SecureToken expectedSecureToken;
@@ -57,13 +58,13 @@ class EmailConfirmationServiceImplTest {
         secureTokenService = Mockito.mock(SecureTokenService.class);
         mailSenderService = Mockito.mock(MailSenderService.class);
         mailContentBuilder = Mockito.mock(MailContentBuilderService.class);
-        messageSource = Mockito.mock(MessageSource.class);
+        messageSource = Mockito.mock(MessageSourceUtil.class);
 
         emailConfirmationService = new EmailConfirmationServiceImpl(userService, secureTokenService, mailSenderService, mailContentBuilder, messageSource);
 
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .build();
 
@@ -77,7 +78,7 @@ class EmailConfirmationServiceImplTest {
         Assertions.assertThat(userService).isNotNull().isInstanceOf(UserService.class);
         Assertions.assertThat(mailSenderService).isNotNull().isInstanceOf(MailSenderService.class);
         Assertions.assertThat(mailContentBuilder).isNotNull().isInstanceOf(MailContentBuilderService.class);
-        Assertions.assertThat(messageSource).isNotNull().isInstanceOf(MessageSource.class);
+        Assertions.assertThat(messageSource).isNotNull().isInstanceOf(MessageSourceUtil.class);
         Assertions.assertThat(emailConfirmationService).isNotNull().isInstanceOf(EmailConfirmationServiceImpl.class);
         Assertions.assertThat(secureTokenService).isNotNull().isInstanceOf(SecureTokenService.class);
         Assertions.assertThat(expectedUser).isNotNull().isInstanceOf(User.class);

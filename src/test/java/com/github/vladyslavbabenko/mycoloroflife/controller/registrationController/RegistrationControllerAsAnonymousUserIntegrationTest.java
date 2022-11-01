@@ -31,7 +31,7 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
@@ -62,7 +62,7 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
         testUser.setEmail("TestUsermailcom");
 
         this.mockMvc.perform(post("/registration")
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
@@ -79,7 +79,7 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
         testUser.setPasswordConfirm(testUser.getPassword() + testUser.getPassword());
 
         this.mockMvc.perform(post("/registration")
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
@@ -92,10 +92,10 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserFailure() throws Exception {
-        String errorText = "Цей користувач уже існує";
+        String errorText = "Цей користувач вже існує";
 
         this.mockMvc.perform(post("/registration")
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
@@ -109,11 +109,11 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
     @Test
     @Sql(value = {"/clear-db.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserSuccess() throws Exception {
-        testUser.setUsername("NewTestUser");
+        testUser.setName("NewTestUser");
 
         this.mockMvc.perform(post("/registration")
                         .param("id", String.valueOf(testUser.getId()))
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))

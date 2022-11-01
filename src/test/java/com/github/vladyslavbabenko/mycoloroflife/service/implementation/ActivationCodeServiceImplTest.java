@@ -32,7 +32,7 @@ class ActivationCodeServiceImplTest {
 
         testCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
 
-        testUser = User.builder().id(1).username("TestUser").email("TestUser@mail.com").build();
+        testUser = User.builder().id(1).name("TestUser").email("TestUser@mail.com").build();
 
         testCourse = Course.builder()
                 .id(1)

@@ -18,7 +18,7 @@ class RoleTest {
     void setUp() {
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .build();

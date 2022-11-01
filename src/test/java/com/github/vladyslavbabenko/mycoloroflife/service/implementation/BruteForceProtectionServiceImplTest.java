@@ -15,7 +15,6 @@ class BruteForceProtectionServiceImplTest {
     private BruteForceProtectionServiceImpl bruteForceProtectionService;
     private UserService userService;
     private User expectedUser;
-    private final int maxFailedLogins = 10;
 
     @BeforeEach
     void setUp() {
@@ -26,7 +25,7 @@ class BruteForceProtectionServiceImplTest {
 
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .failedLoginAttempt(0)
                 .isAccountNonLocked(true)

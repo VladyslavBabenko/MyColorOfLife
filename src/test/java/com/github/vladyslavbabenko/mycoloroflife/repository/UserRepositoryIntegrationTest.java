@@ -24,20 +24,9 @@ class UserRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
         //given
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .build();
-    }
-
-    @Test
-    void shouldProperlyFindByUsername() {
-        //when
-        Optional<User> userFromDB = userRepository.findByUsername("TestUser");
-
-        //then
-        Assertions.assertThat(userFromDB.get().getId()).isNotNull().isEqualTo(expectedUser.getId());
-        Assertions.assertThat(userFromDB.get().getUsername()).isNotNull().isEqualTo(expectedUser.getUsername());
-        Assertions.assertThat(userFromDB.get().getEmail()).isNotNull().isEqualTo(expectedUser.getEmail());
     }
 
     @Test

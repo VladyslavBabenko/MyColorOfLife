@@ -28,7 +28,7 @@ class EventServiceImplTest {
         eventService = new EventServiceImpl(eventRepository);
         testAuthor = User.builder()
                 .id(3)
-                .username("TestAuthor")
+                .name("TestAuthor")
                 .email("TestAuthor@mail.com")
                 .build();
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Реєстрація</title>
     <meta charset="utf-8">
@@ -27,13 +27,13 @@
 <div id="main">
     <form id="registrationForm" th:action="@{/registration}" th:method="POST" th:object="${user}">
         <fieldset>
-            <label for="username">Введіть ім'я користувача:</label>
+            <label for="name">Введіть ім'я користувача:</label>
             <div>
-                <input id="username" name="username" placeholder="Ім'я користувача"
-                       required th:field="*{username}"
+                <input id="name" name="name" placeholder="Ім'я користувача"
+                       required th:field="*{name}"
                        title="Ім'я користувача" type="text"/>
             </div>
-            <div class="formValidationError" th:errors="*{username}" th:if="${#fields.hasErrors('username')}">
+            <div class="formValidationError" th:errors="*{name}" th:if="${#fields.hasErrors('name')}">
                 UsernameError
             </div>
             <label for="email">Введіть електронну пошту: </label>

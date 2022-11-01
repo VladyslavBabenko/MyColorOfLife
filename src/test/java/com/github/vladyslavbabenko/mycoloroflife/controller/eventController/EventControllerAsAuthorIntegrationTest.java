@@ -36,7 +36,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
         testAuthor = User.builder()
                 .id(3)
-                .username("TestAuthor")
+                .name("TestAuthor")
                 .email("TestAuthor@mail.com")
                 .build();
     }
@@ -92,7 +92,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
     @Test
     public void POST_CreateNewEventAsAuthor_WithEmptyTitleError() throws Exception {
-        String errorMessage = "Назва не повинна бути порожньою";
+        String errorMessage = "Вкажіть назву";
 
         this.mockMvc.perform(post("/event")
                         .param("title", "")
@@ -105,7 +105,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
     @Test
     public void POST_CreateNewEventAsAuthor_WithTitleOutOfBoundsError() throws Exception {
-        String errorMessage = "Назва має бути від 1 до 100 символів";
+        String errorMessage = "Назва має бути до 100 символів";
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
 
         this.mockMvc.perform(post("/event")
@@ -132,7 +132,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
     @Test
     public void POST_CreateNewEventAsAuthor_WithTextOutOfBoundsError() throws Exception {
-        String errorMessage = "Опис має бути від 1 до 65535 символів";
+        String errorMessage = "Текст має бути до 65535 символів";
 
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
         StringBuilder longTestString = new StringBuilder();
@@ -225,7 +225,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
     @Test
     public void PUT_UpdateEventAsAuthor_WithEmptyTitleError() throws Exception {
-        String errorMessage = "Назва не повинна бути порожньою";
+        String errorMessage = "Вкажіть назву";
 
         this.mockMvc.perform(put("/event")
                         .param("title", "")
@@ -238,7 +238,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
     @Test
     public void PUT_UpdateEventAsAuthor_WithTitleOutOfBoundsError() throws Exception {
-        String errorMessage = "Назва має бути від 1 до 100 символів";
+        String errorMessage = "Назва має бути до 100 символів";
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
 
         this.mockMvc.perform(put("/event")
@@ -265,7 +265,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
 
     @Test
     public void PUT_UpdateEventAsAuthor_WithTextOutOfBoundsError() throws Exception {
-        String errorMessage = "Опис має бути від 1 до 65535 символів";
+        String errorMessage = "Текст має бути до 65535 символів";
 
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
         StringBuilder longTestString = new StringBuilder();

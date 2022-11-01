@@ -36,7 +36,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
         testAuthor = User.builder()
                 .id(3)
-                .username("TestAuthor")
+                .name("TestAuthor")
                 .email("TestAuthor@mail.com")
                 .build();
     }
@@ -92,7 +92,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
     @Test
     public void POST_CreateNewArticleAsAuthor_WithEmptyTitleError() throws Exception {
-        String errorMessage = "Назва не повинна бути порожньою";
+        String errorMessage = "Вкажіть назву";
 
         this.mockMvc.perform(post("/article")
                         .param("title", "")
@@ -105,7 +105,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
     @Test
     public void POST_CreateNewArticleAsAuthor_WithTitleOutOfBoundsError() throws Exception {
-        String errorMessage = "Назва має бути від 1 до 100 символів";
+        String errorMessage = "Назва має бути до 100 символів";
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
 
         this.mockMvc.perform(post("/article")
@@ -132,7 +132,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
     @Test
     public void POST_CreateNewArticleAsAuthor_WithTextOutOfBoundsError() throws Exception {
-        String errorMessage = "Стаття має бути від 1 до 65535 символів";
+        String errorMessage = "Текст має бути до 65535 символів";
 
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
         StringBuilder longTestString = new StringBuilder();
@@ -225,7 +225,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
     @Test
     public void PUT_UpdateArticleAsAuthor_WithEmptyTitleError() throws Exception {
-        String errorMessage = "Назва не повинна бути порожньою";
+        String errorMessage = "Вкажіть назву";
 
         this.mockMvc.perform(put("/article")
                         .param("title", "")
@@ -238,7 +238,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
     @Test
     public void PUT_UpdateArticleAsAuthor_WithTitleOutOfBoundsError() throws Exception {
-        String errorMessage = "Назва має бути від 1 до 100 символів";
+        String errorMessage = "Назва має бути до 100 символів";
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
 
         this.mockMvc.perform(put("/article")
@@ -265,7 +265,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
 
     @Test
     public void PUT_UpdateArticleAsAuthor_WithTextOutOfBoundsError() throws Exception {
-        String errorMessage = "Стаття має бути від 1 до 65535 символів";
+        String errorMessage = "Текст має бути до 65535 символів";
 
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
         StringBuilder longTestString = new StringBuilder();

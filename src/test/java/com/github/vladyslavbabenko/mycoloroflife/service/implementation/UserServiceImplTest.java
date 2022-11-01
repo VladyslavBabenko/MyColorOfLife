@@ -54,7 +54,7 @@ class UserServiceImplTest {
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .roles(roles)
                 .password(String.valueOf(123456789))
@@ -63,7 +63,7 @@ class UserServiceImplTest {
 
         testUserGAuth = User.builder()
                 .id(4)
-                .username("TestUserGAuth")
+                .name("TestUserGAuth")
                 .email("TestUserGAuth@gmail.com")
                 .roles(roles)
                 .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
@@ -141,20 +141,6 @@ class UserServiceImplTest {
         Mockito.verify(userRepository, Mockito.times(1)).save(testUser);
         Assertions.assertThat(testUser.getRoles()).isEqualTo(Collections.singleton(Role.builder().id(1).roleName("ROLE_USER").build()));
         Assertions.assertThat(isUserSaved).isTrue();
-    }
-
-    @Test
-    void shouldNotSaveUserById() {
-        //when
-        Mockito.doReturn(Optional.of(testUser))
-                .when(userRepository)
-                .findById(testUser.getId());
-
-        boolean isUserCreated = userService.saveUser(testUser);
-
-        //then
-        Mockito.verify(userRepository, Mockito.times(0)).save(testUser);
-        Assertions.assertThat(isUserCreated).isFalse();
     }
 
     @Test
@@ -249,7 +235,7 @@ class UserServiceImplTest {
     @Test
     void shouldNotLoadUserByUsername() {
         //when
-        Mockito.doReturn(Optional.empty()).when(userRepository).findByUsername(testUser.getUsername());
+        Mockito.doReturn(Optional.empty()).when(userRepository).findByEmail(testUser.getUsername());
 
         Exception exception =
                 assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(testUser.getUsername()));

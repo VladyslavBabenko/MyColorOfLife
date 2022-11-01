@@ -40,7 +40,7 @@ public class PasswordRecoveryControllerIntegrationTest extends AbstractControlle
         super.setup();
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
@@ -64,7 +64,7 @@ public class PasswordRecoveryControllerIntegrationTest extends AbstractControlle
     @Test
     public void isPasswordRecoveryControllerIntegrationTestSetUpForTests() {
         ServletContext servletContext = webApplicationContext.getServletContext();
-        System.out.println("tokenValidityInSeconds: " + tokenValidityInSeconds);
+
         Assertions.assertThat(servletContext).isNotNull().isInstanceOf(MockServletContext.class);
         Assertions.assertThat(webApplicationContext.getBean("passwordRecoveryController")).isNotNull();
     }

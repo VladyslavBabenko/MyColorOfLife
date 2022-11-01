@@ -43,7 +43,7 @@ class SecureTokenServiceImplTest {
 
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .build();
 

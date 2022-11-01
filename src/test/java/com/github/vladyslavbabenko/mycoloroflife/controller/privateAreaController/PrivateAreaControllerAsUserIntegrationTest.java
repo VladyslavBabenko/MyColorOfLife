@@ -42,7 +42,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
@@ -52,7 +52,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
 
         testAuthor = User.builder()
                 .id(3)
-                .username("TestAuthor")
+                .name("TestAuthor")
                 .email("TestAuthor@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
@@ -62,7 +62,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
 
         testUserGAuth = User.builder()
                 .id(4)
-                .username("TestUserGAuth")
+                .name("TestUserGAuth")
                 .email("TestUserGAuth@gmail.com")
                 .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
                 .isEmailConfirmed(true)
@@ -225,7 +225,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
         SecurityContextHolder.setContext(securityContext);
 
         String oldPassword = testUser.getPassword();
-        System.out.println(testUser);
+
         String errorMessage = "Користувач не знайдений";
 
         this.mockMvc.perform(patch("/me/change-password")

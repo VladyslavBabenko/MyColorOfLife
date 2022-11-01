@@ -40,7 +40,7 @@ class CourseControllerIntegrationTest extends AbstractControllerIntegrationTest 
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
@@ -87,7 +87,7 @@ class CourseControllerIntegrationTest extends AbstractControllerIntegrationTest 
     public void GET_MainCoursesPageAsCourseOwner_Failure_InvalidTitle() throws Exception {
         this.mockMvc.perform(get("/course/" + testCourseTitle.getTitle().repeat(2)))
                 .andDo(print())
-                .andExpect(view().name("/error/404"))
+                .andExpect(view().name("error/404"))
                 .andExpect(status().isOk());
     }
 
@@ -120,7 +120,7 @@ class CourseControllerIntegrationTest extends AbstractControllerIntegrationTest 
                         .param("courseTitle", testCourseTitle.getTitle())
                         .param("pageID", String.valueOf(testCourse.getPage())))
                 .andDo(print())
-                .andExpect(view().name("/error/404"))
+                .andExpect(view().name("error/404"))
                 .andExpect(status().isOk());
     }
 

@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
     public boolean saveOAuth2User(OAuth2UserAuthority oAuth2UserAuthority) {
         return saveUser(User.builder()
-                .username((String) oAuth2UserAuthority.getAttributes().get("name"))
+                .name((String) oAuth2UserAuthority.getAttributes().get("name"))
                 .email((String) oAuth2UserAuthority.getAttributes().get("email"))
                 .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
                 .build());
@@ -93,13 +93,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean saveUser(User userToSave) {
-        Optional<User> userFromDB;
-
-        if (userToSave.getId() != null) {
-            userFromDB = userRepository.findById(userToSave.getId());
-        } else {
-            userFromDB = userRepository.findByEmail(userToSave.getEmail());
-        }
+        Optional<User> userFromDB = userRepository.findByEmail(userToSave.getUsername());
 
         if (userFromDB.isPresent()) {
             return false;

@@ -36,7 +36,7 @@ class AuthenticationSuccessListenerTest {
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .roles(roles)
                 .password(String.valueOf(123456))

@@ -17,8 +17,8 @@ import java.util.Optional;
 @Sql(value = {"/create-test-values.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class ArticleRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
-    private final User testAdmin = User.builder().id(2).username("TestAdmin").email("TestAdmin@mail.com").build(),
-            testAuthor = User.builder().id(3).username("TestAuthor").email("TestAuthor@mail.com").build();
+    private final User testAdmin = User.builder().id(2).name("TestAdmin").email("TestAdmin@mail.com").build(),
+            testAuthor = User.builder().id(3).name("TestAuthor").email("TestAuthor@mail.com").build();
     private Article expectedFirstArticle, expectedSecondArticle;
     @Autowired
     private ArticleRepository articleRepository;

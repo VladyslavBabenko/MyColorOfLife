@@ -36,8 +36,9 @@ public class User implements UserDetails, OAuth2User {
     @Column(nullable = false)
     @NotEmpty(message = "{validation.user.name.not.empty}")
     @Size(min = 2, max = 30, message = "{validation.user.name.length}")
-    private String username;
+    private String name;
 
+    //email == username
     @Column(nullable = false)
     @Email(message = "{validation.user.email.not.valid}")
     @NotEmpty(message = "{validation.user.email.not.empty}")
@@ -143,7 +144,7 @@ public class User implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return username;
+        return name;
     }
 
     @Override
