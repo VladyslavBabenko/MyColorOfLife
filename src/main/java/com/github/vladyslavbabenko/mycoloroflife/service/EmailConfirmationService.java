@@ -1,6 +1,11 @@
 package com.github.vladyslavbabenko.mycoloroflife.service;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
+import org.springframework.stereotype.Service;
+
+/**
+ * {@link Service} for handling with EmailConfirmation.
+ */
 
 public interface EmailConfirmationService {
 

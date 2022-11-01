@@ -1,7 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.repository;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.ActivationCode;
-import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +12,7 @@ import java.util.Optional;
 /**
  * {@link Repository} for handling with {@link ActivationCode} entity.
  */
+
 @Repository
 public interface ActivationCodeRepository extends JpaRepository<ActivationCode, Integer> {
     /**
@@ -34,7 +34,7 @@ public interface ActivationCodeRepository extends JpaRepository<ActivationCode, 
     /**
      * Finds all {@link ActivationCode} that activates {@link CourseTitle} and belongs to {@link User}.
      *
-     * @param user user to search
+     * @param user        user to search
      * @param courseTitle courseTitle to search
      * @return Optional List of ActivationCodes for provided user and course from database, otherwise empty Optional
      */

@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * {@link Repository} for handling with {@link SecureToken} entity.
+ */
+
 @Repository
 public interface SecureTokenRepository extends JpaRepository<SecureToken, Integer> {
     /**
