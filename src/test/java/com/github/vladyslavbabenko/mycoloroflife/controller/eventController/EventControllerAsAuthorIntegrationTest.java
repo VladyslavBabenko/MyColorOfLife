@@ -162,7 +162,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
                         .param("text", "First text text"))
                 .andDo(print())
                 .andExpect(view().name("authorTemplate/newEventPage"))
-                .andExpect(model().attribute("eventError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("eventExistsAlready", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -282,6 +282,33 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
     }
 
     @Test
+    public void GET_EventPageByIdAsAuthor_With_EventNotFound() throws Exception {
+        String errorMessage = "Такої події не існує";
+
+        this.mockMvc.perform(get("/event/" + Integer.MAX_VALUE))
+                .andDo(print())
+                .andExpect(view().name("generalTemplate/eventPage"))
+                .andExpect(model().attribute("eventNotFound", Matchers.equalTo(errorMessage)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GET_EditEventPageAsAuthor_WithEventNotFound() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "testAuthor", testAuthor, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_AUTHOR")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String errorMessage = "Такої події не існує";
+
+        this.mockMvc.perform(get("/event/" + Integer.MAX_VALUE + "/edit"))
+                .andDo(print())
+                .andExpect(model().attribute("eventNotFound", Matchers.equalTo(errorMessage)))
+                .andExpect(view().name("generalTemplate/eventPage"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void PUT_UpdateEventAsAuthor_WithSaveEventFailure() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
@@ -296,7 +323,7 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
                         .param("text", "First text text"))
                 .andDo(print())
                 .andExpect(view().name("authorTemplate/editEventPage"))
-                .andExpect(model().attribute("updateEventError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("eventNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -316,5 +343,4 @@ class EventControllerAsAuthorIntegrationTest extends AbstractControllerIntegrati
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/event"));
     }
-
 }

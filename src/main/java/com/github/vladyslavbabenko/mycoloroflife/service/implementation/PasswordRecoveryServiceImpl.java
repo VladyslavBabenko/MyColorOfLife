@@ -67,7 +67,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
         User userFromDB;
 
         try {
-            userFromDB = (User) userService.loadUserByUsername(secureToken.get().getUser().getEmail());
+            userFromDB = (User) userService.loadUserByUsername(secureToken.get().getUser().getUsername());
         } catch (UsernameNotFoundException e) {
             //log later
             return false;

@@ -37,12 +37,12 @@ public class RegistrationController {
         }
 
         if (!user.getPassword().equals(user.getPasswordConfirm())) {
-            model.addAttribute("passwordMismatchError", messageSource.getMessage("user.password.mismatch"));
+            model.addAttribute("userPasswordMismatch", messageSource.getMessage("user.password.mismatch"));
             return messageSource.getMessage("template.general.registration");
         }
 
         if (!userService.saveUser(user)) {
-            model.addAttribute("saveUserError", messageSource.getMessage("user.exists.already"));
+            model.addAttribute("userExistsAlready", messageSource.getMessage("user.exists.already"));
             return messageSource.getMessage("template.general.registration");
         }
 

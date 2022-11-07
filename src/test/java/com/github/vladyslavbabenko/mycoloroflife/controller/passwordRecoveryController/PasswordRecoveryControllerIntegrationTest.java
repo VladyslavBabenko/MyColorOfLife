@@ -125,7 +125,7 @@ public class PasswordRecoveryControllerIntegrationTest extends AbstractControlle
                         .param("passwordConfirm", resetPasswordData.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("generalTemplate/changePassword"))
-                .andExpect(model().attribute("passwordMismatchError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("userPasswordMismatch", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }

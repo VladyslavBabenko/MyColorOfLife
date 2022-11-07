@@ -57,15 +57,15 @@ public class PasswordRecoveryController {
 
     @PostMapping("/change")
     public String postChangePassword(@ModelAttribute ResetPasswordData data, Model model) {
-        if (data.getPassword().equals(data.getPasswordConfirm())) {
-            if (passwordRecoveryService.updatePassword(data.getPassword(), data.getToken())) {
-                model.addAttribute("message", messageSource.getMessage("user.password.updated"));
-            } else {
-                model.addAttribute("tokenError", messageSource.getMessage("invalid.token"));
-            }
-        } else {
-            model.addAttribute("passwordMismatchError", messageSource.getMessage("user.password.mismatch"));
+        if (!data.getPassword().equals(data.getPasswordConfirm())) {
+            model.addAttribute("userPasswordMismatch", messageSource.getMessage("user.password.mismatch"));
             return messageSource.getMessage("template.general.edit.password");
+        }
+
+        if (passwordRecoveryService.updatePassword(data.getPassword(), data.getToken())) {
+            model.addAttribute("message", messageSource.getMessage("user.password.updated"));
+        } else {
+            model.addAttribute("tokenError", messageSource.getMessage("invalid.token"));
         }
 
         return messageSource.getMessage("template.general.login");

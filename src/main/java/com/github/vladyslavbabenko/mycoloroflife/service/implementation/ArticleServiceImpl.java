@@ -79,4 +79,9 @@ public class ArticleServiceImpl implements ArticleService {
             return true;
         }
     }
+
+    @Override
+    public Optional<Article> optionalFindById(Integer articleId) {
+            return articleRepository.findById(articleId);
+    }
 }

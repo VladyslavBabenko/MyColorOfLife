@@ -60,7 +60,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
                 .andExpect(model().attribute("listOfUsers", Matchers.any(List.class)))
-                .andExpect(model().attribute("findIdError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("getUserInvalidID", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -74,7 +74,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
                 .andExpect(model().attribute("listOfUsers", Matchers.any(List.class)))
-                .andExpect(model().attribute("findIdError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("getUserInvalidID", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -96,7 +96,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
         this.mockMvc.perform(delete("/admin/delete")
                         .param("userID", String.valueOf(Integer.MAX_VALUE)))
                 .andDo(print())
-                .andExpect(model().attribute("deleteIdError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("deleteUserInvalidID", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
                 .andExpect(model().attribute("listOfUsers", Matchers.any(List.class)))
@@ -110,7 +110,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
         this.mockMvc.perform(delete("/admin/delete")
                         .param("userID", "text"))
                 .andDo(print())
-                .andExpect(model().attribute("deleteIdError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("deleteUserInvalidID", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
                 .andExpect(model().attribute("listOfUsers", Matchers.any(List.class)))
@@ -122,8 +122,8 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
         this.mockMvc.perform(delete("/admin/delete")
                         .param("userID", "1"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/adminPanelPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -176,7 +176,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("page", "1"))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/addCoursePage"))
-                .andExpect(model().attribute("courseError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("courseExistsPage", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -189,8 +189,22 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("text", "First test text")
                         .param("page", "25"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin/course"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    public void DELETE_CourseByIdAsAdmin_Failure_With_CoursePageNotFound() throws Exception {
+        String errorMessage = "Така сторінка не існує";
+
+        this.mockMvc.perform(delete("/admin/course/delete")
+                        .param("courseID", "100000000"))
+                .andDo(print())
+                .andExpect(model().attribute("coursePageNotFound", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -198,8 +212,8 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
         this.mockMvc.perform(delete("/admin/course/delete")
                         .param("courseID", "1"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin/course"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -212,7 +226,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("page", "1"))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/editCoursePage"))
-                .andExpect(model().attribute("courseError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("courseInvalidInput", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -238,8 +252,8 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("courseTitle", testCourseTitle.getId().toString())
                         .param("page", "23"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin/course"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -247,8 +261,8 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
         this.mockMvc.perform(delete("/admin/code/delete")
                         .param("activationCode", "Q5sxTc941iokNy8"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/adminPanelPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -259,7 +273,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("activationCode", "qweqweqweqweqwe"))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
-                .andExpect(model().attribute("codeError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("codeInvalidInput", Matchers.equalTo(errorMessage)))
                 .andExpect(status().isOk());
     }
 
@@ -272,7 +286,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("courseTitleID", "-1"))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
-                .andExpect(model().attribute("courseTitleIDError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("courseNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(status().isOk());
     }
 
@@ -285,7 +299,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("courseTitleID", testCourseTitle.getId().toString()))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
-                .andExpect(model().attribute("userIDError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("userNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(status().isOk());
     }
 
@@ -298,7 +312,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("courseTitleID", testCourseTitle.getId().toString()))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/adminPanelPage"))
-                .andExpect(model().attribute("codeForCourseExists", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("userActivationCodeExists", Matchers.equalTo(errorMessage)))
                 .andExpect(status().isOk());
     }
 
@@ -309,8 +323,8 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("userID", "3")
                         .param("courseTitleID", testCourseTitle.getId().toString()))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/adminPanelPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -343,7 +357,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("description", testCourseTitle.getDescription()))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/addCourseTitlePage"))
-                .andExpect(model().attribute("courseTitleError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("courseTitleExists", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -355,8 +369,8 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("title", "New " + testCourseTitle.getTitle())
                         .param("description", testCourseTitle.getDescription()))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin/course"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -367,7 +381,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("courseTitleID", "-1"))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/courseAdminPage"))
-                .andExpect(model().attribute("courseTitleIDError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("courseNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(model().attribute("listOfCourses", Matchers.any(List.class)))
                 .andExpect(model().attribute("listOfCourseTitles", Matchers.any(List.class)))
                 .andExpect(status().isOk());
@@ -381,7 +395,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("courseTitleID", "1"))
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/courseAdminPage"))
-                .andExpect(model().attribute("linksByCourseTitleError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("courseLinksExists", Matchers.equalTo(errorMessage)))
                 .andExpect(model().attribute("listOfCourses", Matchers.any(List.class)))
                 .andExpect(model().attribute("listOfCourseTitles", Matchers.any(List.class)))
                 .andExpect(status().isOk());
@@ -393,16 +407,16 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
         this.mockMvc.perform(delete("/admin/course-title/delete")
                         .param("courseTitleID", "2"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin/course"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void GET_EditCourseTitlePageAsAdmin_WithInvalidID() throws Exception {
         this.mockMvc.perform(get("/admin/course-title/-1/edit"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin/course"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -425,7 +439,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                 .andDo(print())
                 .andExpect(view().name("adminTemplate/editCourseTitlePage"))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
-                .andExpect(model().attribute("courseTitleError", errorMessage))
+                .andExpect(model().attribute("courseTitleInvalidInput", errorMessage))
                 .andExpect(status().isOk());
     }
 
@@ -448,7 +462,7 @@ class AdminControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("id", "1")
                         .param("courseTitle", testCourseTitle.getId().toString()))
                 .andDo(print())
-                .andExpect(redirectedUrl("/admin/course"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("adminTemplate/courseAdminPage"))
+                .andExpect(status().isOk());
     }
 }

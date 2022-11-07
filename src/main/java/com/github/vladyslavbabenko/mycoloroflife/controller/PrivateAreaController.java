@@ -40,77 +40,90 @@ public class PrivateAreaController {
 
     @GetMapping()
     public String getPersonalArea(Model model) {
-        model.addAttribute("user", userService.getCurrentUser());
+
+        if (!model.containsAttribute("user")) {
+            model.addAttribute("user", userService.getCurrentUser());
+        }
+
         return messageSource.getMessage("template.user.private-area");
     }
 
     @GetMapping("/change-password")
     public String getChangePassword(Model model) {
-        if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
-            model.addAttribute("user", userService.getCurrentUser());
+        User currentUser = userService.getCurrentUser();
+
+        if (currentUser.getRegistrationType().equals(UserRegistrationType.REGISTRATION_FORM)) {
+            model.addAttribute("user", currentUser);
             return messageSource.getMessage("template.user.edit.password");
         }
+
         return REDIRECT_ME;
     }
 
     @PatchMapping("/change-password")
     public String patchChangePassword(@ModelAttribute User userToUpdate, @RequestParam String oldPassword, Model model) {
-        userToUpdate.setId(userService.getCurrentUser().getId());
+        User currentUser = userService.getCurrentUser();
 
-        if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
-            userToUpdate.setId(userService.getCurrentUser().getId());
+        userToUpdate.setId(currentUser.getId());
 
-            if (userService.matchesPassword(userService.getCurrentUser(), oldPassword)) {
-                if (userToUpdate.getPassword().length() < 5 || userToUpdate.getPassword().length() > 30) {
-                    if (userToUpdate.getPassword().length() != 0) {
-                        model.addAttribute("passwordOutOfBounds", messageSource.getMessage("user.password.length"));
-                        return messageSource.getMessage("template.user.edit.password");
-                    } else {
-                        return REDIRECT_ME;
-                    }
-                }
-            } else {
-                if (userService.getCurrentUser().equals(new User()) || userService.getCurrentUser().getId() == null) {
-                    model.addAttribute("changePasswordError", messageSource.getMessage("user.not.found"));
+        if (currentUser.getRegistrationType().equals(UserRegistrationType.REGISTRATION_FORM)) {
+            if (!userService.matchesPassword(currentUser, oldPassword)) {
+                if (currentUser.equals(new User()) || currentUser.getId() == null) {
+                    model.addAttribute("userNotFound", messageSource.getMessage("user.not.found"));
                 } else {
-                    model.addAttribute("oldPasswordError", messageSource.getMessage("user.password.invalid"));
+                    model.addAttribute("invalidOldPassword", messageSource.getMessage("user.password.invalid"));
                 }
+
                 return messageSource.getMessage("template.user.edit.password");
             }
 
+            if (userToUpdate.getPassword().length() < 5 || userToUpdate.getPassword().length() > 30) {
+                if (userToUpdate.getPassword().length() != 0) {
+                    model.addAttribute("passwordOutOfBounds", messageSource.getMessage("user.password.length"));
+                    return messageSource.getMessage("template.user.edit.password");
+                } else {
+                    return getPersonalArea(model);
+                }
+            }
+
             if (!userToUpdate.getPassword().equals(userToUpdate.getPasswordConfirm())) {
-                model.addAttribute("passwordMismatchError", messageSource.getMessage("user.password.mismatch"));
+                model.addAttribute("userPasswordMismatch", messageSource.getMessage("user.password.mismatch"));
                 return messageSource.getMessage("template.user.edit.password");
             }
 
             userService.changePassword(userToUpdate);
         }
 
-        return REDIRECT_ME;
+        return getPersonalArea(model);
     }
 
     @GetMapping("/edit")
     public String getEdit(Model model) {
-        if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
+        if (userService.getCurrentUser().getRegistrationType().equals(UserRegistrationType.REGISTRATION_FORM)) {
             model.addAttribute("user", userService.getCurrentUser());
             return messageSource.getMessage("template.user.edit.details");
         }
-        return REDIRECT_ME;
+
+        return getPersonalArea(model);
     }
 
     @PatchMapping("/edit")
     public String patchEdit(@ModelAttribute @Valid User userToUpdate, BindingResult bindingResult, Model model) {
-        userToUpdate.setId(userService.getCurrentUser().getId());
-        if (userService.getCurrentUser().getRegistrationType() == UserRegistrationType.REGISTRATION_FORM) {
+        User currentUser = userService.getCurrentUser();
+
+        userToUpdate.setId(currentUser.getId());
+
+        if (!userService.existsById(userToUpdate.getId())) {
+            model.addAttribute("userNotFound", messageSource.getMessage("user.not.found"));
+            return messageSource.getMessage("template.user.edit.details");
+        }
+
+        if (currentUser.getRegistrationType().equals(UserRegistrationType.REGISTRATION_FORM)) {
             if (bindingResult.hasFieldErrors("email")) {
                 return messageSource.getMessage("template.user.edit.details");
             }
-            userService.updateUser(userToUpdate);
-        }
 
-        if (!userService.existsById(userToUpdate.getId())) {
-            model.addAttribute("updateUserError", messageSource.getMessage("user.not.found"));
-            return messageSource.getMessage("template.user.edit.details");
+            userService.updateUser(userToUpdate);
         }
 
         return REDIRECT_ME;
@@ -119,16 +132,26 @@ public class PrivateAreaController {
     @PutMapping("/activate-code")
     public String putActivateCode(@RequestParam("activationCode") String activationCodeAsString, Model model) {
         if (activationCodeAsString != null && !activationCodeAsString.isEmpty()) {
+
             Optional<ActivationCode> code = activationCodeService.findByCode(activationCodeAsString);
+            User currentUser = userService.getCurrentUser();
+
+            model.addAttribute("user", currentUser);
+
+            if (!currentUser.isEmailConfirmed()) {
+                model.addAttribute("userActivationCodeEmailConfirm", messageSource.getMessage("user.activation-code.email.confirm"));
+                return getPersonalArea(model);
+            }
+
             if (code.isEmpty()) {
-                model.addAttribute("user", userService.getCurrentUser());
-                model.addAttribute("activationCodeError", messageSource.getMessage("user.invalid.activation-code"));
-                return messageSource.getMessage("template.user.private-area");
+                model.addAttribute("userInvalidActivationCode", messageSource.getMessage("user.invalid.activation-code"));
+                return getPersonalArea(model);
             }
 
             code.ifPresent(userService::activateCode);
         }
-        return REDIRECT_ME;
+
+        return getPersonalArea(model);
     }
 
     //Temp
@@ -139,33 +162,38 @@ public class PrivateAreaController {
         User currentUser = userService.getCurrentUser();
 
         if (!currentUser.isEmailConfirmed()) {
-            model.addAttribute("message", messageSource.getMessage("user.activation-code.email.confirm"));
+            model.addAttribute("userActivationCodeEmailConfirm", messageSource.getMessage("user.activation-code.email.confirm"));
             return getPersonalArea(model);
         }
 
-        if (courseTitleFromDB.isPresent()) {
-            Optional<Role> roleFromDB =
-                    roleService.findByRoleName(messageSource.getMessage("role.course.owner") + roleService.convertToRoleStyle(courseTitleFromDB.get().getTitle()));
-            if (roleFromDB.isPresent()) {
-                if (activationCodeService.existsByUser(currentUser) || currentUser.getRoles().contains(roleFromDB.get())) {
-                    model.addAttribute("codeAlreadyGeneratedError", messageSource.getMessage("user.activation-code.already.generated"));
-                } else {
-                    ActivationCode code = activationCodeService.createCode(courseTitleFromDB.get(), currentUser);
+        if (courseTitleFromDB.isEmpty()) {
+            return getPersonalArea(model);
+        }
 
-                    String courseTitle = code.getCourseTitle().getTitle();
-                    String subject = messageSource.getMessage("email.course.activation-code.subject") + " " + courseTitle;
+        Optional<Role> roleFromDB =
+                roleService.findByRoleName(messageSource.getMessage("role.course.owner") + roleService.convertToRoleStyle(courseTitleFromDB.get().getTitle()));
 
-                    List<String> strings = new ArrayList<>();
-                    strings.add(currentUser.getName());
-                    strings.add(courseTitle);
-                    strings.add(code.getCode());
+        if (roleFromDB.isEmpty()) {
+            return getPersonalArea(model);
+        }
 
-                    mailSender.sendEmail(currentUser.getEmail(), subject,
-                            mailContentBuilderService.build(strings, messageSource.getMessage("template.email.activation-code")));
+        if (activationCodeService.existsByUser(currentUser) || currentUser.getRoles().contains(roleFromDB.get())) {
+            model.addAttribute("userActivationCodeAlreadyGenerated", messageSource.getMessage("user.activation-code.already.generated"));
+        } else {
+            ActivationCode code = activationCodeService.createCode(courseTitleFromDB.get(), currentUser);
 
-                    model.addAttribute("mailHasBeenSent", messageSource.getMessage("user.activation-code.email.sent"));
-                }
-            }
+            String courseTitle = code.getCourseTitle().getTitle();
+            String subject = messageSource.getMessage("email.course.activation-code.subject") + " " + courseTitle;
+
+            List<String> strings = new ArrayList<>();
+            strings.add(currentUser.getName());
+            strings.add(courseTitle);
+            strings.add(code.getCode());
+
+            mailSender.sendEmail(currentUser.getEmail(), subject,
+                    mailContentBuilderService.build(strings, messageSource.getMessage("template.email.activation-code")));
+
+            model.addAttribute("userActivationCodeEmailSent", messageSource.getMessage("user.activation-code.email.sent"));
         }
 
         return getPersonalArea(model);
@@ -174,6 +202,7 @@ public class PrivateAreaController {
     @PostMapping("/email-request")
     private String postEmailRequest(Model model) {
         User currentUser = userService.getCurrentUser();
+
         if (!currentUser.isEmailConfirmed() && !secureTokenService.existsByUserAndPurpose(currentUser, Purpose.EMAIL_CONFIRM)) {
             emailConfirmationService.sendConfirmationEmail(userService.getCurrentUser());
         }

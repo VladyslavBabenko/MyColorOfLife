@@ -5,6 +5,7 @@ import com.github.vladyslavbabenko.mycoloroflife.service.ArticleService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
 import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -61,7 +63,15 @@ public class ArticleController {
 
     @GetMapping("/{articleId}")
     public String getArticle(@PathVariable("articleId") Integer articleId, Model model) {
-        model.addAttribute("article", articleService.findById(articleId));
+
+        Optional<Article> optionalArticle = articleService.optionalFindById(articleId);
+
+        if(optionalArticle.isEmpty()){
+            model.addAttribute("articleNotFound", messageSource.getMessage("article.exists.not"));
+            return messageSource.getMessage("template.general.article");
+        }
+
+        model.addAttribute("article", optionalArticle.get());
         return messageSource.getMessage("template.general.article");
     }
 
@@ -80,32 +90,41 @@ public class ArticleController {
         }
 
         if (!articleService.saveArticle(article)) {
-            model.addAttribute("articleError", messageSource.getMessage("article.exists.already"));
+            model.addAttribute("articleExistsAlready", messageSource.getMessage("article.exists.already"));
             return messageSource.getMessage("template.author.article.add");
         }
 
-        return REDIRECT_ARTICLE;
+        return getArticles(model,"",1);
     }
 
     @DeleteMapping("/{articleId}")
     public String deleteArticle(@PathVariable("articleId") Integer articleId) {
-        if (userService.getCurrentUser().getRoles().stream()
+        boolean hasRole = userService.getCurrentUser().getRoles().stream()
                 .anyMatch(role -> role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.admin")) ||
-                        role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.author")))) {
+                        role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.author")));
+
+        if (hasRole) {
             articleService.deleteArticle(articleId);
         }
+
         return REDIRECT_ARTICLE;
     }
 
     @GetMapping("/{articleId}/edit")
     public String getArticleEdit(@PathVariable("articleId") Integer articleId, Model model) {
-        Article article = articleService.findById(articleId);
+
+        Optional<Article> optionalArticle = articleService.optionalFindById(articleId);
+
+        if(optionalArticle.isEmpty()){
+            model.addAttribute("articleNotFound", messageSource.getMessage("article.exists.not"));
+            return messageSource.getMessage("template.general.article");
+        }
 
         boolean isAdmin = userService.getCurrentUser().getRoles().stream()
                 .anyMatch(role -> role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.admin")));
 
-        if (article.getUsers().contains(userService.getCurrentUser()) || isAdmin) {
-            model.addAttribute("article", article);
+        if (optionalArticle.get().getUsers().contains(userService.getCurrentUser()) || isAdmin) {
+            model.addAttribute("article", optionalArticle.get());
             return messageSource.getMessage("template.author.article.edit");
         } else {
             return messageSource.getMessage("template.error.access-denied");
@@ -120,10 +139,10 @@ public class ArticleController {
         }
 
         if (!articleService.updateArticle(article)) {
-            model.addAttribute("updateArticleError", messageSource.getMessage("article.exists.not"));
+            model.addAttribute("articleNotFound", messageSource.getMessage("article.exists.not"));
             return messageSource.getMessage("template.author.article.edit");
         }
 
-        return REDIRECT_ARTICLE;
+        return getArticles(model,"",1);
     }
 }

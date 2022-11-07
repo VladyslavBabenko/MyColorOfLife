@@ -82,6 +82,33 @@ class EventControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
     }
 
     @Test
+    public void GET_EventPageByIdAsAdmin_With_EventNotFound() throws Exception {
+        String errorMessage = "Такої події не існує";
+
+        this.mockMvc.perform(get("/event/" + Integer.MAX_VALUE))
+                .andDo(print())
+                .andExpect(view().name("generalTemplate/eventPage"))
+                .andExpect(model().attribute("eventNotFound", Matchers.equalTo(errorMessage)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GET_EditEventPageAsAdmin_WithEventNotFound() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String errorMessage = "Такої події не існує";
+
+        this.mockMvc.perform(get("/event/" + Integer.MAX_VALUE + "/edit"))
+                .andDo(print())
+                .andExpect(model().attribute("eventNotFound", Matchers.equalTo(errorMessage)))
+                .andExpect(view().name("generalTemplate/eventPage"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void GET_NewEventPageAsAdmin() throws Exception {
         this.mockMvc.perform(get("/event/new"))
                 .andDo(print())
@@ -162,7 +189,7 @@ class EventControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("text", "First text text"))
                 .andDo(print())
                 .andExpect(view().name("authorTemplate/newEventPage"))
-                .andExpect(model().attribute("eventError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("eventExistsAlready", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -296,7 +323,7 @@ class EventControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                         .param("text", "First text text"))
                 .andDo(print())
                 .andExpect(view().name("authorTemplate/editEventPage"))
-                .andExpect(model().attribute("updateEventError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("eventNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -316,5 +343,4 @@ class EventControllerAsAdminIntegrationTest extends AbstractControllerIntegratio
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/event"));
     }
-
 }

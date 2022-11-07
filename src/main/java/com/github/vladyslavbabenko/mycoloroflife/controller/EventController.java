@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -60,7 +61,15 @@ public class EventController {
 
     @GetMapping("/{eventId}")
     public String getEvent(@PathVariable("eventId") Integer eventId, Model model) {
-        model.addAttribute("event", eventService.findById(eventId));
+
+        Optional<Event> optionalEvent = eventService.optionalFindById(eventId);
+
+        if (optionalEvent.isEmpty()) {
+            model.addAttribute("eventNotFound", messageSource.getMessage("event.exists.not"));
+            return messageSource.getMessage("template.general.event");
+        }
+
+        model.addAttribute("event", optionalEvent.get());
         return messageSource.getMessage("template.general.event");
     }
 
@@ -79,7 +88,7 @@ public class EventController {
         }
 
         if (!eventService.saveEvent(event)) {
-            model.addAttribute("eventError", messageSource.getMessage("event.exists.already"));
+            model.addAttribute("eventExistsAlready", messageSource.getMessage("event.exists.already"));
             return messageSource.getMessage("template.author.event.add");
         }
 
@@ -88,23 +97,31 @@ public class EventController {
 
     @DeleteMapping("/{eventId}")
     public String deleteEvent(@PathVariable("eventId") Integer eventId) {
-        if (userService.getCurrentUser().getRoles().stream()
+        boolean hasRole = userService.getCurrentUser().getRoles().stream()
                 .anyMatch(role -> role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.admin")) ||
-                        role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.author")))) {
+                        role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.author")));
+
+        if (hasRole) {
             eventService.deleteEvent(eventId);
         }
+
         return REDIRECT_EVENT;
     }
 
     @GetMapping("/{eventId}/edit")
     public String getEditEvent(@PathVariable("eventId") Integer eventId, Model model) {
-        Event event = eventService.findById(eventId);
+        Optional<Event> optionalEvent = eventService.optionalFindById(eventId);
+
+        if (optionalEvent.isEmpty()) {
+            model.addAttribute("eventNotFound", messageSource.getMessage("event.exists.not"));
+            return messageSource.getMessage("template.general.event");
+        }
 
         boolean isAdmin = userService.getCurrentUser().getRoles().stream()
                 .anyMatch(role -> role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.admin")));
 
-        if (event.getUsers().contains(userService.getCurrentUser()) || isAdmin) {
-            model.addAttribute("event", event);
+        if (optionalEvent.get().getUsers().contains(userService.getCurrentUser()) || isAdmin) {
+            model.addAttribute("event", optionalEvent.get());
             return messageSource.getMessage("template.author.event.edit");
         } else {
             return messageSource.getMessage("template.error.access-denied");
@@ -119,7 +136,7 @@ public class EventController {
         }
 
         if (!eventService.updateEvent(event)) {
-            model.addAttribute("updateEventError", messageSource.getMessage("event.exists.not"));
+            model.addAttribute("eventNotFound", messageSource.getMessage("event.exists.not"));
             return messageSource.getMessage("template.author.event.edit");
         }
 

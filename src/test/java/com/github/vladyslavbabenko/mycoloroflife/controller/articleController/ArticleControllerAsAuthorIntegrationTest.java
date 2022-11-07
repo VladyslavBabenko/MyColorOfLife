@@ -162,7 +162,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
                         .param("text", "First text text"))
                 .andDo(print())
                 .andExpect(view().name("authorTemplate/newArticlePage"))
-                .andExpect(model().attribute("articleError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("articleExistsAlready", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -179,8 +179,35 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
                         .param("title", "New test title as Author")
                         .param("text", "New text text"))
                 .andDo(print())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/article"));
+                .andExpect(view().name("generalTemplate/articlesPage"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GET_ArticlePageByIdAsAuthor_With_ArticleNotFound() throws Exception {
+        String errorMessage = "Такої статті не існує";
+
+        this.mockMvc.perform(get("/article/" + Integer.MAX_VALUE))
+                .andDo(print())
+                .andExpect(view().name("generalTemplate/articlePage"))
+                .andExpect(model().attribute("articleNotFound", Matchers.equalTo(errorMessage)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void GET_EditArticlePageAsAuthor_WithArticleNotFound() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "testAuthor", testAuthor, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_AUTHOR")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String errorMessage = "Такої статті не існує";
+
+        this.mockMvc.perform(get("/article/" + Integer.MAX_VALUE + "/edit"))
+                .andDo(print())
+                .andExpect(model().attribute("articleNotFound", Matchers.equalTo(errorMessage)))
+                .andExpect(view().name("generalTemplate/articlePage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -296,7 +323,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
                         .param("text", "First text text"))
                 .andDo(print())
                 .andExpect(view().name("authorTemplate/editArticlePage"))
-                .andExpect(model().attribute("updateArticleError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("articleNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -313,8 +340,7 @@ class ArticleControllerAsAuthorIntegrationTest extends AbstractControllerIntegra
                         .param("title", "First test title")
                         .param("text", "First text text"))
                 .andDo(print())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/article"));
+                .andExpect(view().name("generalTemplate/articlesPage"))
+                .andExpect(status().isOk());
     }
-
 }

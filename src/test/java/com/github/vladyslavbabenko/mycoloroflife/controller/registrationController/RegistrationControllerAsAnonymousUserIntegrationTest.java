@@ -85,7 +85,7 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(model().attribute("passwordMismatchError", Matchers.equalTo(errorText)))
+                .andExpect(model().attribute("userPasswordMismatch", Matchers.equalTo(errorText)))
                 .andExpect(content().string(Matchers.containsString(errorText)))
                 .andExpect(status().isOk());
     }
@@ -101,7 +101,7 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(model().attribute("saveUserError", Matchers.equalTo(errorText)))
+                .andExpect(model().attribute("userExistsAlready", Matchers.equalTo(errorText)))
                 .andExpect(content().string(Matchers.containsString(errorText)))
                 .andExpect(status().isOk());
     }

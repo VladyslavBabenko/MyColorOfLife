@@ -71,13 +71,26 @@ class ArticleServiceImplTest {
     }
 
     @Test
-    void shouldFIndArticleById() {
+    void shouldFindArticleById() {
         //when
         Mockito.doReturn(Optional.of(firstTestArticle))
                 .when(articleRepository)
                 .findById(firstTestArticle.getId());
 
         articleService.findById(firstTestArticle.getId());
+
+        //then
+        Mockito.verify(articleRepository, Mockito.times(1)).findById(firstTestArticle.getId());
+    }
+
+    @Test
+    void shouldFindOptionalArticleById() {
+        //when
+        Mockito.doReturn(Optional.of(firstTestArticle))
+                .when(articleRepository)
+                .findById(firstTestArticle.getId());
+
+        articleService.optionalFindById(firstTestArticle.getId());
 
         //then
         Mockito.verify(articleRepository, Mockito.times(1)).findById(firstTestArticle.getId());

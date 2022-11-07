@@ -37,9 +37,6 @@ public class AdminController {
     private final CourseTitleService courseTitleService;
     private final MailContentBuilderService mailContentBuilderService;
 
-    private final String REDIRECT_ADMIN = "redirect:/admin";
-    private final String REDIRECT_ADMIN_COURSE = REDIRECT_ADMIN + "/course";
-
     @GetMapping()
     public String getUsers(Model model) {
         model.addAttribute("listOfUsers", userService.getAllUsers());
@@ -53,7 +50,7 @@ public class AdminController {
         if (StringUtils.isNumeric(id)) {
             userId = Integer.parseInt(id);
         } else {
-            model.addAttribute("findIdError", messageSource.getMessage("user.invalid.id"));
+            model.addAttribute("getUserInvalidID", messageSource.getMessage("user.invalid.id"));
         }
 
         model.addAttribute("listOfUsers", userId > 0 ? userService.findById(userId) : userService.getAllUsers());
@@ -63,24 +60,23 @@ public class AdminController {
 
     @DeleteMapping("/delete")
     public String deleteUser(@RequestParam("userID") String id, Model model) {
-        int userId;
+
+        model.addAttribute("listOfUsers", userService.getAllUsers());
 
         if (StringUtils.isNumeric(id)) {
-            userId = Integer.parseInt(id);
-            if (userId > 0) {
-                if (!userService.deleteUser(userId)) {
-                    model.addAttribute("deleteIdError", messageSource.getMessage("user.invalid.id"));
-                    model.addAttribute("listOfUsers", userService.getAllUsers());
-                    return messageSource.getMessage("template.admin.panel.user");
-                }
+
+            int userId = Integer.parseInt(id);
+
+            if (userId > 0 && !userService.deleteUser(userId)) {
+                model.addAttribute("deleteUserInvalidID", messageSource.getMessage("user.invalid.id"));
+                return messageSource.getMessage("template.admin.panel.user");
             }
         } else {
-            model.addAttribute("deleteIdError", messageSource.getMessage("user.invalid.id"));
-            model.addAttribute("listOfUsers", userService.getAllUsers());
+            model.addAttribute("deleteUserInvalidID", messageSource.getMessage("user.invalid.id"));
             return messageSource.getMessage("template.admin.panel.user");
         }
 
-        return REDIRECT_ADMIN;
+        return getUsers(model);
     }
 
     @GetMapping("/course")
@@ -103,11 +99,11 @@ public class AdminController {
         }
 
         if (!courseService.save(course)) {
-            model.addAttribute("courseError", messageSource.getMessage("course.exists.page"));
+            model.addAttribute("courseExistsPage", messageSource.getMessage("course.page.exists"));
             return messageSource.getMessage("template.admin.course.add");
         }
 
-        return REDIRECT_ADMIN_COURSE;
+        return getCourses(model);
     }
 
     @GetMapping("/course/{courseId}/edit")
@@ -125,19 +121,22 @@ public class AdminController {
         }
 
         if (!courseService.update(course)) {
-            model.addAttribute("courseError", messageSource.getMessage("invalid.input"));
+            model.addAttribute("courseInvalidInput", messageSource.getMessage("invalid.input"));
             return messageSource.getMessage("template.admin.course.edit");
         }
 
-        return REDIRECT_ADMIN_COURSE;
+        return getCourses(model);
     }
 
     @DeleteMapping("/course/delete")
-    public String deleteCourse(@RequestParam("courseID") String courseId) {
+    public String deleteCourse(@RequestParam("courseID") String courseId, Model model) {
         if (StringUtils.isNumeric(courseId)) {
-            courseService.delete(Integer.parseInt(courseId));
+            if (!courseService.delete(Integer.parseInt(courseId))) {
+                model.addAttribute("coursePageNotFound", messageSource.getMessage("course.page.not.exists"));
+            }
         }
-        return REDIRECT_ADMIN_COURSE;
+
+        return getCourses(model);
     }
 
     @DeleteMapping("/code/delete")
@@ -145,12 +144,12 @@ public class AdminController {
         if (code != null && !code.isEmpty() && codeService.existsByCode(code)) {
             codeService.deleteByCode(code);
         } else {
-            model.addAttribute("codeError", messageSource.getMessage("invalid.input"));
+            model.addAttribute("codeInvalidInput", messageSource.getMessage("invalid.input"));
             model.addAttribute("listOfUsers", userService.getAllUsers());
             return messageSource.getMessage("template.admin.panel.user");
         }
 
-        return REDIRECT_ADMIN;
+        return getUsers(model);
     }
 
     @PostMapping("/code/new")
@@ -165,45 +164,48 @@ public class AdminController {
             }
         }
 
-        if (userService.existsById(userID)) {
-            if (courseTitleService.existsById(courseTitleID)) {
-                Optional<CourseTitle> courseTitleFromDB = courseTitleService.findById(courseTitleID);
-                if (courseTitleFromDB.isPresent()) {
-                    User user = userService.findById(userID);
-                    if (codeService.findAllByUserAndCourseTitle(user, courseTitleFromDB.get()).isEmpty()) {
-                        ActivationCode code = codeService.createCode(courseTitleFromDB.get(), userService.findById(userID));
-
-                        String courseTitle = code.getCourseTitle().getTitle();
-
-                        List<String> strings = new ArrayList<>();
-                        strings.add(user.getName());
-                        strings.add(courseTitle);
-                        strings.add(code.getCode());
-
-                        mailSender.sendEmail(user.getEmail(),
-                                messageSource.getMessage("email.course.activation-code.subject") + " " + courseTitle,
-                                mailContentBuilderService.build(strings, messageSource.getMessage("template.email.activation-code")));
-
-                        model.addAttribute("mailHasBeenSent", messageSource.getMessage("user.activation-code.email.sent"));
-
-                    } else {
-                        model.addAttribute("codeForCourseExists", messageSource.getMessage("user.activation-code.exists"));
-                        model.addAttribute("listOfUsers", userService.getAllUsers());
-                        return messageSource.getMessage("template.admin.panel.user");
-                    }
-                }
-            } else {
-                model.addAttribute("courseTitleIDError", messageSource.getMessage("course.exists.not"));
-                model.addAttribute("listOfUsers", userService.getAllUsers());
-                return messageSource.getMessage("template.admin.panel.user");
-            }
-        } else {
-            model.addAttribute("userIDError", messageSource.getMessage("user.not.found"));
+        if (!userService.existsById(userID)) {
+            model.addAttribute("userNotFound", messageSource.getMessage("user.not.found"));
             model.addAttribute("listOfUsers", userService.getAllUsers());
             return messageSource.getMessage("template.admin.panel.user");
         }
 
-        return REDIRECT_ADMIN;
+        if (!courseTitleService.existsById(courseTitleID)) {
+            model.addAttribute("courseNotFound", messageSource.getMessage("course.title.not.exists"));
+            model.addAttribute("listOfUsers", userService.getAllUsers());
+            return messageSource.getMessage("template.admin.panel.user");
+        }
+
+        Optional<CourseTitle> courseTitleFromDB = courseTitleService.findById(courseTitleID);
+
+        if (courseTitleFromDB.isPresent()) {
+
+            User user = userService.findById(userID);
+
+            if (!codeService.findAllByUserAndCourseTitle(user, courseTitleFromDB.get()).isEmpty()) {
+                model.addAttribute("userActivationCodeExists", messageSource.getMessage("user.activation-code.exists"));
+                model.addAttribute("listOfUsers", userService.getAllUsers());
+                return messageSource.getMessage("template.admin.panel.user");
+            }
+
+            ActivationCode code = codeService.createCode(courseTitleFromDB.get(), userService.findById(userID));
+
+            String courseTitle = code.getCourseTitle().getTitle();
+
+            List<String> strings = new ArrayList<>();
+            strings.add(user.getName());
+            strings.add(courseTitle);
+            strings.add(code.getCode());
+
+            mailSender.sendEmail(user.getEmail(),
+                    messageSource.getMessage("email.course.activation-code.subject") + " " + courseTitle,
+                    mailContentBuilderService.build(strings, messageSource.getMessage("template.email.activation-code")));
+
+            model.addAttribute("mailHasBeenSent", messageSource.getMessage("user.activation-code.email.sent"));
+
+        }
+
+        return getUsers(model);
     }
 
     @GetMapping("/course-title/new")
@@ -220,11 +222,11 @@ public class AdminController {
         }
 
         if (!courseTitleService.save(courseTitle)) {
-            model.addAttribute("courseTitleError", messageSource.getMessage("course.exists.title"));
+            model.addAttribute("courseTitleExists", messageSource.getMessage("course.title.exists"));
             return messageSource.getMessage("template.admin.course.title.add");
         }
 
-        return REDIRECT_ADMIN_COURSE;
+        return getCourses(model);
     }
 
     @DeleteMapping("/course-title/delete")
@@ -235,26 +237,27 @@ public class AdminController {
             courseTitleID = Integer.parseInt(courseTitleIDAsString);
         }
 
-        if (courseTitleID > 0 && courseTitleService.existsById(courseTitleID)) {
-            Optional<CourseTitle> courseTitleFromDB = courseTitleService.findById(courseTitleID);
-            if (courseTitleFromDB.isPresent()) {
-                if (courseService.findAllByCourseTitle(courseTitleFromDB.get()).isEmpty()) {
-                    courseTitleService.delete(courseTitleID);
-                } else {
-                    model.addAttribute("linksByCourseTitleError", messageSource.getMessage("course.exists.links"));
-                    model.addAttribute("listOfCourses", courseService.getAllCourses());
-                    model.addAttribute("listOfCourseTitles", courseTitleService.getAllCourseTitles());
-                    return messageSource.getMessage("template.admin.panel.course");
-                }
-            }
-        } else {
-            model.addAttribute("courseTitleIDError", messageSource.getMessage("course.exists.not"));
+        if (courseTitleID < 0 && !courseTitleService.existsById(courseTitleID)) {
+            model.addAttribute("courseNotFound", messageSource.getMessage("course.title.not.exists"));
             model.addAttribute("listOfCourses", courseService.getAllCourses());
             model.addAttribute("listOfCourseTitles", courseTitleService.getAllCourseTitles());
             return messageSource.getMessage("template.admin.panel.course");
         }
 
-        return REDIRECT_ADMIN_COURSE;
+        Optional<CourseTitle> courseTitleFromDB = courseTitleService.findById(courseTitleID);
+
+        if (courseTitleFromDB.isPresent()) {
+            if (courseService.findAllByCourseTitle(courseTitleFromDB.get()).isEmpty()) {
+                courseTitleService.delete(courseTitleID);
+            } else {
+                model.addAttribute("courseLinksExists", messageSource.getMessage("course.exists.links"));
+                model.addAttribute("listOfCourses", courseService.getAllCourses());
+                model.addAttribute("listOfCourseTitles", courseTitleService.getAllCourseTitles());
+                return messageSource.getMessage("template.admin.panel.course");
+            }
+        }
+
+        return getCourses(model);
     }
 
     @GetMapping("/course-title/{courseTitleID}/edit")
@@ -273,7 +276,7 @@ public class AdminController {
             }
         }
 
-        return REDIRECT_ADMIN_COURSE;
+        return getCourses(model);
     }
 
     @PutMapping("/course-title/edit")
@@ -283,10 +286,10 @@ public class AdminController {
         }
 
         if (!courseTitleService.update(courseTitle)) {
-            model.addAttribute("courseTitleError", messageSource.getMessage("invalid.input"));
+            model.addAttribute("courseTitleInvalidInput", messageSource.getMessage("invalid.input"));
             return messageSource.getMessage("template.admin.course.title.edit");
         }
 
-        return REDIRECT_ADMIN_COURSE;
+        return getCourses(model);
     }
 }

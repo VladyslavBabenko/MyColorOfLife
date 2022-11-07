@@ -161,7 +161,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("userTemplate/changePasswordPage"))
-                .andExpect(model().attribute("passwordMismatchError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("userPasswordMismatch", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -185,8 +185,8 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/me"));
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -209,15 +209,17 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("userTemplate/changePasswordPage"))
-                .andExpect(model().attribute("oldPasswordError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("invalidOldPassword", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
 
     @Test
-    public void PATCH_ChangePasswordPageAsUser_WithChangePasswordFailure() throws Exception {
-        testUser.setId(-1);
+    public void PATCH_ChangePasswordPageAsUser_Failure_WithInvalidUsername() throws Exception {
+        String randomEmail = testUser.getName() + testUser.getId() + "@mail.com";
+        testUser.setEmail(randomEmail);
+        testUser.setId(Integer.MAX_VALUE);
 
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
@@ -237,7 +239,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
                 .andExpect(view().name("userTemplate/changePasswordPage"))
-                .andExpect(model().attribute("changePasswordError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("userNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -259,12 +261,17 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/me"));
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void PATCH_EditPageAsUser_WithError() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
         String errorMessage = "Пошта має бути валідною";
 
         testUser.setEmail("TestUsermailcom");
@@ -304,12 +311,36 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
         this.mockMvc.perform(put("/me/activate-code")
                         .param("activationCode", ""))
                 .andDo(print())
-                .andExpect(redirectedUrl("/me"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void PUT_ActivateCodeAsUser_Failure_WithUserEmailNotConfirmed() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "TestUser", testUser, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
+        String errorMessage = "Спочатку підтвердьте свою електронну адресу";
+
+        this.mockMvc.perform(put("/me/activate-code")
+                        .param("activationCode", testActivationCode.getCode()))
+                .andDo(print())
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(model().attribute("user", Matchers.any(User.class)))
+                .andExpect(model().attribute("userActivationCodeEmailConfirm", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void PUT_ActivateCodeAsUser_Failure_WithActivationCodeDoesNotExist() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "TestUser", testUserGAuth, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
         String errorMessage = "Недійсний код активації";
 
         this.mockMvc.perform(put("/me/activate-code")
@@ -317,20 +348,24 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .andDo(print())
                 .andExpect(view().name("userTemplate/privateAreaPage"))
                 .andExpect(model().attribute("user", Matchers.any(User.class)))
-                .andExpect(model().attribute("activationCodeError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("userInvalidActivationCode", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void PUT_ActivateCodeAsUser_Success() throws Exception {
+        SecurityContextImpl securityContext = new SecurityContextImpl();
+        securityContext.setAuthentication(new RememberMeAuthenticationToken(
+                "TestUser", testUserGAuth, AuthorityUtils.createAuthorityList("ROLE_USER")));
+        SecurityContextHolder.setContext(securityContext);
+
         this.mockMvc.perform(put("/me/activate-code")
                         .param("activationCode", testActivationCode.getCode()))
                 .andDo(print())
-                .andExpect(redirectedUrl("/me"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(view().name("userTemplate/privateAreaPage"))
+                .andExpect(status().isOk());
     }
-
 
     /////TEMP\\\\\\
     @Test
@@ -367,7 +402,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .andDo(print())
                 .andExpect(view().name("userTemplate/privateAreaPage"))
                 .andExpect(model().attribute("user", Matchers.any(User.class)))
-                .andExpect(model().attribute("codeAlreadyGeneratedError", Matchers.equalTo(errorMessage)))
+                .andExpect(model().attribute("userActivationCodeAlreadyGenerated", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -385,7 +420,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .andDo(print())
                 .andExpect(view().name("userTemplate/privateAreaPage"))
                 .andExpect(model().attribute("user", Matchers.any(User.class)))
-                .andExpect(model().attribute("message", Matchers.equalTo(message)))
+                .andExpect(model().attribute("userActivationCodeEmailConfirm", Matchers.equalTo(message)))
                 .andExpect(status().isOk());
     }
 
@@ -403,7 +438,7 @@ public class PrivateAreaControllerAsUserIntegrationTest extends AbstractControll
                 .andDo(print())
                 .andExpect(view().name("userTemplate/privateAreaPage"))
                 .andExpect(model().attribute("user", Matchers.any(User.class)))
-                .andExpect(model().attribute("mailHasBeenSent", Matchers.equalTo(message)))
+                .andExpect(model().attribute("userActivationCodeEmailSent", Matchers.equalTo(message)))
                 .andExpect(status().isOk());
     }
 

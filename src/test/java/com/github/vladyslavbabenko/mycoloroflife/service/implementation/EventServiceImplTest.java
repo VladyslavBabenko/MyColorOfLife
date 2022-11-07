@@ -72,7 +72,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void shouldFIndEventById() {
+    void shouldFindEventById() {
         //when
         Mockito.doReturn(Optional.of(firstTestEvent))
                 .when(eventRepository)
@@ -83,6 +83,20 @@ class EventServiceImplTest {
         //then
         Mockito.verify(eventRepository, Mockito.times(1)).findById(firstTestEvent.getId());
     }
+
+    @Test
+    void shouldFindOptionalEventById() {
+        //when
+        Mockito.doReturn(Optional.of(firstTestEvent))
+                .when(eventRepository)
+                .findById(firstTestEvent.getId());
+
+        eventService.optionalFindById(firstTestEvent.getId());
+
+        //then
+        Mockito.verify(eventRepository, Mockito.times(1)).findById(firstTestEvent.getId());
+    }
+
 
     @Test
     void shouldSaveEvent() {
