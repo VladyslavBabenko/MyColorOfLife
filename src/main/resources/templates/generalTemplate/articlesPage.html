@@ -1,5 +1,5 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Статті</title>
     <meta charset="utf-8">
@@ -44,7 +44,7 @@
         </form>
         <div>
             <div th:if="${listOfArticles.size() == 0}">
-                <h2 th:text="'Вибачте, але тут нічого немає'"></h2>
+                <h2 th:text="#{empty.content}"></h2>
             </div>
             <div th:if="${listOfArticles.size() > 0}">
                 <ul>

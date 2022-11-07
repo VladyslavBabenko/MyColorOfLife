@@ -1,5 +1,5 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Курси</title>
     <meta charset="utf-8">
@@ -29,7 +29,7 @@
 </div>
 <div id="main">
     <p th:if="${tooEarly}" th:text="${tooEarly}"></p>
-    <div th:unless="${tooEarly}" class="wrapper">
+    <div class="wrapper" th:unless="${tooEarly}">
         <h2 th:text="${courseTitle.getTitle()}"></h2>
         <p th:text="${course.getVideoTitle()}"></p>
         <p th:text="${course.getVideoLink()}"></p>
@@ -40,12 +40,12 @@
         </a>
         <div th:if="${lastCoursePage} > ${course.getPage()}">
             <a th:href="@{/course/{courseTitle}/page/{pageID} (courseTitle = ${courseTitle.getTitle()}, pageID=${course.getPage()}+1)}">
-                <button class="nextPageButton" name="nextPageButton" type="button"
-                        th:if="${lastVisitedPage} > ${course.getPage()}">Вперед
+                <button class="nextPageButton" name="nextPageButton" th:if="${lastVisitedPage} > ${course.getPage()}"
+                        type="button">Вперед
                 </button>
             </a>
             <form th:action="@{/course/{courseTitle}/page/{pageID} (courseTitle = ${courseTitle.getTitle()}, pageID=${course.getPage()})}"
-                  th:method="PATCH" th:if="${lastVisitedPage} <= ${course.getPage()}">
+                  th:if="${lastVisitedPage} <= ${course.getPage()}" th:method="PATCH">
                 <button class="nextPageButton" id="nextPageButton" name="nextPageButton" type="submit">Вперед (Форма)
                 </button>
             </form>

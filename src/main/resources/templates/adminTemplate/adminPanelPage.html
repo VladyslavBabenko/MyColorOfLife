@@ -50,7 +50,7 @@
                                            title="ID користувача" type="number">
                                 </div>
                                 <div class="formValidationError"
-                                     th:if="${findIdError}" th:text="${findIdError}">IdError
+                                     th:if="${getUserInvalidID}" th:text="${getUserInvalidID}">getUserInvalidID
                                 </div>
                                 <input class="submit" name="submit" type="submit" value="Знайти"/>
                             </fieldset>
@@ -66,7 +66,7 @@
                                            title="ID користувача" type="number">
                                 </div>
                                 <div class="formValidationError"
-                                     th:if="${deleteIdError}" th:text="${deleteIdError}">IdError
+                                     th:if="${deleteUserInvalidID}" th:text="${deleteUserInvalidID}">deleteUserInvalidID
                                 </div>
                                 <input class="submit" name="submit" type="submit" value="Видалити користувача"/>
                             </fieldset>
@@ -87,10 +87,17 @@
                                            title="ID курсу" type="number">
                                 </div>
                                 <div class="formValidationError"
-                                     th:if="${courseTitleIDError}" th:text="${courseTitleIDError}">courseTitleIDError
+                                     th:if="${courseNotFound}" th:text="${courseNotFound}">courseNotFound
                                 </div>
                                 <div class="formValidationError"
-                                     th:if="${userIDError}" th:text="${userIDError}">userIDError
+                                     th:if="${userNotFound}" th:text="${userNotFound}">userNotFound
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${userActivationCodeExists}" th:text="${userActivationCodeExists}">
+                                    userActivationCodeExists
+                                </div>
+                                <div class="formValidationError"
+                                     th:if="${mailHasBeenSent}" th:text="${mailHasBeenSent}">mailHasBeenSent
                                 </div>
                                 <input class="submit" name="submit" type="submit" value="Створити код"/>
                             </fieldset>
@@ -106,7 +113,7 @@
                                            type="text">
                                 </div>
                                 <div class="formValidationError"
-                                     th:if="${codeEror}" th:text="${codeEror}">codeError
+                                     th:if="${codeInvalidInput}" th:text="${codeInvalidInput}">codeInvalidInput
                                 </div>
                                 <input class="submit" name="submit" type="submit" value="Видалити код"/>
                             </fieldset>
@@ -141,8 +148,10 @@
                             <div th:each="code : ${user.activationCodes}"
                                  th:text="${code.getCode()}"></div>
                         </td>
-                        <td><div th:if="${user.isEmailConfirmed()}" th:text="'Так'"></div>
-                            <div th:unless="${user.isEmailConfirmed()}" th:text="'Ні'"></div></td>
+                        <td>
+                            <div th:if="${user.isEmailConfirmed()}" th:text="'Так'"></div>
+                            <div th:text="'Ні'" th:unless="${user.isEmailConfirmed()}"></div>
+                        </td>
                     </tr>
                 </th:block>
             </table>

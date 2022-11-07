@@ -1,5 +1,5 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Aдміністрування</title>
     <meta charset="utf-8">
@@ -45,9 +45,9 @@
                                 <input th:field="*{id}" type="hidden">
                                 <label for="courseTitle">Введіть назву:</label>
                                 <div>
-                                    <input id="courseTitle" name="courseTitle"
-                                           placeholder="ID курсу" th:field="*{courseTitle}"
-                                           title="ID курсу" type="number" min="1">
+                                    <input id="courseTitle" min="1"
+                                           name="courseTitle" placeholder="ID курсу"
+                                           th:field="*{courseTitle}" title="ID курсу" type="number">
                                 </div>
                                 <div class="formValidationError" th:errors="*{courseTitle}"
                                      th:if="${#fields.hasErrors('courseTitle')}">courseTitleError
@@ -84,16 +84,16 @@
                                 </div>
                                 <label for="page">Введіть сторінку:</label>
                                 <div>
-                                    <input id="page" name="page"
-                                           placeholder="Сторінка" th:field="*{page}"
-                                           title="Сторінка" type="number" min="1">
+                                    <input id="page" min="1"
+                                           name="page" placeholder="Сторінка"
+                                           th:field="*{page}" title="Сторінка" type="number">
                                 </div>
                                 <div class="formValidationError" th:errors="*{page}"
                                      th:if="${#fields.hasErrors('page')}">pageError
                                 </div>
 
                                 <div class="formValidationError"
-                                     th:if="${courseError}" th:text="${courseError}">courseError
+                                     th:if="${courseInvalidInput}" th:text="${courseInvalidInput}">courseInvalidInput
                                 </div>
                                 <input class="submit" name="submit" type="submit" value="Зберігти"/>
                             </fieldset>

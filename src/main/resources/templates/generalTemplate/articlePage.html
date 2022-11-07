@@ -1,7 +1,8 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
-    <title th:text="${article.getTitle()}"></title>
+    <title th:if="${articleNotFound}" th:text="'Стаття не знайдена'"></title>
+    <title th:text="${article.getTitle()}" th:unless="${articleNotFound}"></title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -18,13 +19,15 @@
                     Нова стаття
                 </a>
             </li>
-            <li id="editArticle" th:each="user : ${article.getUsers()}"
-                th:if="${#authorization.expression('hasRole(''AUTHOR'')') && #authentication.principal.getUsername() == user.getUsername()}
+            <th:block th:unless="${articleNotFound}">
+                <li id="editArticle" th:each="user : ${article.getUsers()}"
+                    th:if="${#authorization.expression('hasRole(''AUTHOR'')') && #authentication.principal.getUsername() == user.getUsername()}
                                     or ${#authorization.expression('hasRole(''ADMIN'')')}">
-                <a th:href="@{/article/{articleId}/edit (articleId=${article.getId()})}">
-                    Редагувати статтю
-                </a>
-            </li>
+                    <a th:href="@{/article/{articleId}/edit (articleId=${article.getId()})}">
+                        Редагувати статтю
+                    </a>
+                </li>
+            </th:block>
             <li id="me"
                 th:if="${#authentication.getPrincipal() != 'anonymousUser'}"><a
                     th:href="@{/me}">Мій аккаунт</a></li>
@@ -42,7 +45,8 @@
 </div>
 <div id="main">
     <div class="wrapper">
-        <div th:object="${article}">
+        <div th:if="${articleNotFound}" th:text="${articleNotFound}">articleNotFound</div>
+        <div th:object="${article}" th:unless="${articleNotFound}">
             <h3 th:text="${article.getTitle()}"></h3>
             <span th:each="user : ${article.getUsers()}"
                   th:text="'Автор: ' + ${user.getUsername()} + ' '"></span>

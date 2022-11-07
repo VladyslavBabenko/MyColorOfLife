@@ -1,7 +1,8 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
-    <title th:text="${event.getTitle()}"></title>
+    <title th:if="${eventNotFound}" th:text="'Подія не знайдена'"></title>
+    <title th:text="${event.getTitle()}" th:unless="${eventNotFound}"></title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -18,13 +19,15 @@
                     Нова подія
                 </a>
             </li>
-            <li id="editEvent" th:each="user : ${event.getUsers()}"
-                th:if="${#authorization.expression('hasRole(''AUTHOR'')') && #authentication.principal.getUsername() == user.getUsername()}
+            <th:block th:unless="${eventNotFound}">
+                <li id="editEvent" th:each="user : ${event.getUsers()}"
+                    th:if="${#authorization.expression('hasRole(''AUTHOR'')') && #authentication.principal.getUsername() == user.getUsername()}
                                     or ${#authorization.expression('hasRole(''ADMIN'')')}">
-                <a th:href="@{/event/{eventId}/edit (eventId=${event.getId()})}">
-                    Редагувати подію
-                </a>
-            </li>
+                    <a th:href="@{/event/{eventId}/edit (eventId=${event.getId()})}">
+                        Редагувати подію
+                    </a>
+                </li>
+            </th:block>
             <li id="me"
                 th:if="${#authentication.getPrincipal() != 'anonymousUser'}"><a
                     th:href="@{/me}">Мій аккаунт</a></li>
@@ -42,11 +45,12 @@
 </div>
 <div id="main">
     <div class="wrapper">
-        <div th:object="${event}">
+        <div th:if="${eventNotFound}" th:text="${eventNotFound}">eventNotFound</div>
+        <div th:object="${event}" th:unless="${eventNotFound}">
             <h3 th:text="${event.getTitle()}"></h3>
             <span th:each="user : ${event.getUsers()}"
                   th:text="'Автор: ' + ${user.getUsername()} + ' '"></span>
-            <p th:text="'Дата публікації: '+ ${event.getDateTimeOfCreation()}"></p>
+            <p th:text="'Дата публікації: ' + ${event.getDateTimeOfCreation()}"></p>
             <p th:text="${event.getText()}"></p>
         </div>
     </div>

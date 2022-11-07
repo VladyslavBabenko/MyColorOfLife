@@ -60,10 +60,10 @@
                        placeholder="Підтвердження пароля" th:field="*{passwordConfirm}"
                        title="Підтвердження пароля" type="password">
             </div>
-            <div class="formValidationError" th:if="${passwordMismatchError}" th:text="${passwordMismatchError}">
-                PasswordMismatchError
+            <div class="formValidationError" th:if="${userPasswordMismatch}" th:text="${userPasswordMismatch}">
+                userPasswordMismatch
             </div>
-            <div class="formValidationError" th:if="${saveUserError}" th:text="${saveUserError}"></div>
+            <div class="formValidationError" th:if="${userExistsAlready}" th:text="${userExistsAlready}"></div>
             <input id="submit" name="submit" type="submit" value="Зареєструватись"/>
         </fieldset>
     </form>

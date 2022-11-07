@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title th:text="${user.getName()}"></title>
     <meta charset="utf-8">
@@ -32,7 +32,7 @@
     <p>
         <span th:text="'Email: ' + ${user.getEmail()}"></span>
         <span th:if="${user.isEmailConfirmed()}" th:text="' | Пошта підтверджена'"></span>
-        <span th:unless="${user.isEmailConfirmed()}" th:text="' | Пошта не підтверджена'"></span>
+        <span th:text="' | Пошта не підтверджена'" th:unless="${user.isEmailConfirmed()}"></span>
     </p>
     <span>Ролі: </span>
     <span th:each="role : ${user.getRoles()}" th:text="${role} + ' '"></span>
@@ -49,9 +49,12 @@
         <fieldset>
             <input name="submit" type="submit" value="Згенерувати"/>
         </fieldset>
-        <div th:if="${mailHasBeenSent}" th:text="${mailHasBeenSent}"></div>
-        <div class="formValidationError" th:if="${codeAlreadyGeneratedError}"
-             th:text="${codeAlreadyGeneratedError}"></div>
+        <div th:if="${userActivationCodeEmailSent}" th:text="${userActivationCodeEmailSent}">
+            userActivationCodeEmailSent
+        </div>
+        <div class="formValidationError" th:if="${userActivationCodeAlreadyGenerated}"
+             th:text="${userActivationCodeAlreadyGenerated}">userActivationCodeAlreadyGenerated
+        </div>
     </form>
     <form id="activationCodeForm" th:action="@{/me/activate-code}" th:method="PUT">
         <fieldset>
@@ -60,13 +63,16 @@
                        placeholder="Код активації" th:value="${activationCode}"
                        title="Код активації" type="text">
             </div>
-            <div class="formValidationError" th:if="${activationCodeError}"
-                 th:text="${activationCodeError}">InvalidCode
+            <div class="formValidationError" th:if="${userActivationCodeEmailConfirm}"
+                 th:text="${userActivationCodeEmailConfirm}">userActivationCodeEmailConfirm
+            </div>
+            <div class="formValidationError" th:if="${userInvalidActivationCode}"
+                 th:text="${userInvalidActivationCode}">userInvalidActivationCode
             </div>
             <input id="submit" name="submit" type="submit" value="Відправити"/>
         </fieldset>
     </form>
-    <form th:if="${user.isEmailConfirmed() == false}" id="emailConfirm" th:action="@{/me/email-request}"
+    <form id="emailConfirm" th:action="@{/me/email-request}" th:if="${user.isEmailConfirmed() == false}"
           th:method="POST">
         <fieldset>
             <input name="submit" type="submit" value="Підтвердити пошту"/>

@@ -28,12 +28,12 @@
     <form id="loginForm" th:action="@{/login}" th:method="POST">
         <fieldset>
             <div>
-                <input id="username" name="username" required
-                       placeholder="Електронна пошта" title="Електронна пошта" type="email">
+                <input id="username" name="username" placeholder="Електронна пошта"
+                       required title="Електронна пошта" type="email">
             </div>
             <div>
-                <input id="password" name="password" required
-                       placeholder="Пароль" title="Пароль" type="password">
+                <input id="password" name="password" placeholder="Пароль"
+                       required title="Пароль" type="password">
             </div>
             <p class="formValidationError" th:if="${param.error}" th:text="#{user.invalid.credentials}"></p>
             <input id="submit" name="submit" type="submit" value="Вхід">

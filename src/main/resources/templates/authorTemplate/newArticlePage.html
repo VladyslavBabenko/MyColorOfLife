@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Нова стаття</title>
     <meta charset="utf-8">
@@ -51,7 +51,9 @@
                      th:if="${#fields.hasErrors('text')}">
                     textError
                 </div>
-                <div class="formValidationError" th:if="${articleError}" th:text="${articleError}">articleError</div>
+                <div class="formValidationError" th:if="${articleExistsAlready}" th:text="${articleExistsAlready}">
+                    articleExistsAlready
+                </div>
                 <input id="submit" name="submit" type="submit" value="Зберігти статтю"/>
             </fieldset>
         </form>
