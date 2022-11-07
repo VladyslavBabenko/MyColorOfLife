@@ -4,6 +4,7 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {@link Service} for handling with {@link Article} entity.
@@ -32,6 +33,14 @@ public interface ArticleService {
      * @return {@link Article} with the provided id, or new {@link Article} otherwise.
      */
     Article findById(Integer articleId);
+
+    /**
+     * Finds {@link Article} by articleId.
+     *
+     * @param articleId provided article id.
+     * @return  Optional of {@link Article} with the provided id, or empty Optional otherwise.
+     */
+    Optional<Article> optionalFindById(Integer articleId);
 
     /**
      * Save provided {@link Article} entity.
