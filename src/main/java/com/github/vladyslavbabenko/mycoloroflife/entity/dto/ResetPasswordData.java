@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class ResetPasswordData {
-    @NotEmpty(message = "Відсутній токен")
+    @NotEmpty(message = "{empty.token}")
     private String token;
-    @Size(min = 5, message = "Довжина пароля має бути від 5 до 30 символів")
+    @Size(min = 5, message = "{user.password.length}")
     private String password;
-    @Size(min = 5, message = "Довжина пароля має бути від 5 до 30 символів")
+    @Size(min = 5, message = "{user.password.length}")
     private String passwordConfirm;
 }

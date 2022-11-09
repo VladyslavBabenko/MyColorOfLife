@@ -11,6 +11,7 @@ import java.util.Optional;
 /**
  * {@link Repository} for handling with {@link Course} entity.
  */
+
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Integer> {
     /**

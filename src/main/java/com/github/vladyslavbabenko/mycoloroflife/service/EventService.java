@@ -4,6 +4,7 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.Event;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {@link Service} for handling with {@link Event} entity.
@@ -32,6 +33,15 @@ public interface EventService {
      * @return {@link Event} with the provided id, or new {@link Event} otherwise.
      */
     Event findById(Integer eventId);
+
+    /**
+     * Find {@link Event} by eventId.
+     *
+     * @param eventId provided {@link Event} id.
+     * @return Optional {@link Event} with the provided id, or empty Optional otherwise.
+     */
+    Optional<Event> optionalFindById(Integer eventId);
+
 
     /**
      * Save provided {@link Event} entity.

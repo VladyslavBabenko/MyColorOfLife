@@ -1,5 +1,5 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Редагувати назву</title>
     <meta charset="utf-8">
@@ -64,7 +64,8 @@
                                      th:if="${#fields.hasErrors('description')}">titleError
                                 </div>
                                 <div class="formValidationError"
-                                     th:if="${courseTitleError}" th:text="${courseTitleError}">courseTitleError
+                                     th:if="${courseTitleInvalidInput}" th:text="${courseTitleInvalidInput}">
+                                    courseTitleInvalidInput
                                 </div>
                                 <input class="submit" name="submit" type="submit" value="Оновити"/>
                             </fieldset>

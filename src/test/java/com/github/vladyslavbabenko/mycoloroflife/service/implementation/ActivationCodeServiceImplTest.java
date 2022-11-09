@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.ActivationCode;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
@@ -15,7 +16,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for ActivationCodeService")
-class ActivationCodeServiceImplTest {
+class ActivationCodeServiceImplTest extends AbstractTest {
 
     private User testUser;
     private ActivationCodeService codeService;
@@ -32,7 +33,7 @@ class ActivationCodeServiceImplTest {
 
         testCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
 
-        testUser = User.builder().id(1).username("TestUser").email("TestUser@mail.com").build();
+        testUser = User.builder().id(1).name("TestUser").email("TestUser@mail.com").build();
 
         testCourse = Course.builder()
                 .id(1)

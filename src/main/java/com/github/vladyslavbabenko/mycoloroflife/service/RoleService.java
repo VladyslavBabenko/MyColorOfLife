@@ -62,7 +62,7 @@ public interface RoleService {
      * Updates provided {@link Role}
      *
      * @param roleToUpdate {@link Role} what will be updated
-     * @param updatedRole provided updated {@link Role}
+     * @param updatedRole  provided updated {@link Role}
      * @return true if operation was successful, otherwise false.
      */
     boolean update(Role roleToUpdate, Role updatedRole);

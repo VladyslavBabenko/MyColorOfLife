@@ -34,16 +34,17 @@ public class User implements UserDetails, OAuth2User {
     private Integer id;
 
     @Column(nullable = false)
-    @NotEmpty(message = "Вкажіть ім'я")
-    @Size(min = 2, max = 30, message = "Ім'я користувача має бути від 2 до 30 символів")
-    private String username;
+    @NotEmpty(message = "{validation.user.name.not.empty}")
+    @Size(min = 2, max = 30, message = "{validation.user.name.length}")
+    private String name;
 
+    //email == username
     @Column(nullable = false)
-    @Email(message = "Пошта має бути валідною")
-    @NotEmpty(message = "Вкажіть пошту")
+    @Email(message = "{validation.user.email.not.valid}")
+    @NotEmpty(message = "{validation.user.email.not.empty}")
     private String email;
 
-    @Size(min = 5, message = "Довжина пароля має бути від 5 до 30 символів")
+    @Size(min = 5, message = "{user.password.length}")
     private String password;
 
     @Transient
@@ -143,7 +144,7 @@ public class User implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return username;
+        return name;
     }
 
     @Override

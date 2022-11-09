@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Event;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.EventRepository;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for EventService")
-class EventServiceImplTest {
+class EventServiceImplTest extends AbstractTest {
 
     private User testAuthor;
     private EventService eventService;
@@ -28,7 +29,7 @@ class EventServiceImplTest {
         eventService = new EventServiceImpl(eventRepository);
         testAuthor = User.builder()
                 .id(3)
-                .username("TestAuthor")
+                .name("TestAuthor")
                 .email("TestAuthor@mail.com")
                 .build();
 
@@ -72,7 +73,7 @@ class EventServiceImplTest {
     }
 
     @Test
-    void shouldFIndEventById() {
+    void shouldFindEventById() {
         //when
         Mockito.doReturn(Optional.of(firstTestEvent))
                 .when(eventRepository)
@@ -83,6 +84,20 @@ class EventServiceImplTest {
         //then
         Mockito.verify(eventRepository, Mockito.times(1)).findById(firstTestEvent.getId());
     }
+
+    @Test
+    void shouldFindOptionalEventById() {
+        //when
+        Mockito.doReturn(Optional.of(firstTestEvent))
+                .when(eventRepository)
+                .findById(firstTestEvent.getId());
+
+        eventService.optionalFindById(firstTestEvent.getId());
+
+        //then
+        Mockito.verify(eventRepository, Mockito.times(1)).findById(firstTestEvent.getId());
+    }
+
 
     @Test
     void shouldSaveEvent() {

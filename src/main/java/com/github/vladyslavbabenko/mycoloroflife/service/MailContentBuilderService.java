@@ -13,7 +13,7 @@ public interface MailContentBuilderService {
     /**
      * Builds a Thymeleaf HTML template
      *
-     * @param string string value to be added to the template
+     * @param string       string value to be added to the template
      * @param templatePath path to Thymeleaf HTML template
      */
     String build(String string, String templatePath);
@@ -21,7 +21,7 @@ public interface MailContentBuilderService {
     /**
      * Builds a Thymeleaf HTML template
      *
-      @param strings A list of string values to be added to the template
+     * @param strings      A list of string values to be added to the template
      * @param templatePath path to Thymeleaf HTML template
      */
     String build(List<String> strings, String templatePath);

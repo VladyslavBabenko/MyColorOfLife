@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.repository;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractRepositoryIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseProgress;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
@@ -31,7 +32,7 @@ class CourseProgressRepositoryIntegrationTest extends AbstractRepositoryIntegrat
         //given
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .build();
 

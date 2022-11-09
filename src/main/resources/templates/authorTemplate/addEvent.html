@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Нова подія</title>
     <meta charset="utf-8">
@@ -50,7 +50,9 @@
                 <div class="formValidationError" th:errors="*{text}"
                      th:if="${#fields.hasErrors('text')}"> textError
                 </div>
-                <div class="formValidationError" th:if="${eventError}" th:text="${eventError}">eventError</div>
+                <div class="formValidationError" th:if="${eventExistsAlready}" th:text="${eventExistsAlready}">
+                    eventExistsAlready
+                </div>
                 <input id="submit" name="submit" type="submit" value="Зберігти подію"/>
             </fieldset>
         </form>

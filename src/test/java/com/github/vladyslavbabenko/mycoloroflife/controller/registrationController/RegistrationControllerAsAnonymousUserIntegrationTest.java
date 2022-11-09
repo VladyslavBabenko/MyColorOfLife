@@ -1,12 +1,13 @@
 package com.github.vladyslavbabenko.mycoloroflife.controller.registrationController;
 
-import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractControllerIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.fest.assertions.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.jdbc.Sql;
@@ -25,13 +26,29 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
 
     private User testUser;
 
+    //Templates
+    @Value("${template.general.registration}")
+    String templateGeneralRegistration;
+
+
+    //Messages
+    @Value("${validation.user.email.not.valid}")
+    String validationUserEmailNotValid;
+
+    @Value("${user.exists.already}")
+    String userExistsAlready;
+
+    @Value("${user.password.mismatch}")
+    String userPasswordMismatch;
+
+
     @BeforeEach
     void setUp() {
         super.setup();
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .passwordConfirm("123456")
@@ -50,70 +67,70 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
     public void GET_RegistrationPageAsAnonymousUser() throws Exception {
         this.mockMvc.perform(get("/registration"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
+                .andExpect(view().name(templateGeneralRegistration))
                 .andExpect(model().attribute("user", Matchers.any(User.class)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithErrors() throws Exception {
-        String errorText = "Пошта має бути валідною";
+        String errorMessage = validationUserEmailNotValid;
 
         testUser.setEmail("TestUsermailcom");
 
         this.mockMvc.perform(post("/registration")
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(content().string(Matchers.containsString(errorText)))
+                .andExpect(view().name(templateGeneralRegistration))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithPasswordMismatchError() throws Exception {
-        String errorText = "Паролі не співпадають";
+        String errorMessage = userPasswordMismatch;
 
         testUser.setPasswordConfirm(testUser.getPassword() + testUser.getPassword());
 
         this.mockMvc.perform(post("/registration")
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(model().attribute("passwordMismatchError", Matchers.equalTo(errorText)))
-                .andExpect(content().string(Matchers.containsString(errorText)))
+                .andExpect(view().name(templateGeneralRegistration))
+                .andExpect(model().attribute("userPasswordMismatch", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserFailure() throws Exception {
-        String errorText = "Цей користувач уже існує";
+        String errorMessage = userExistsAlready;
 
         this.mockMvc.perform(post("/registration")
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(model().attribute("saveUserError", Matchers.equalTo(errorText)))
-                .andExpect(content().string(Matchers.containsString(errorText)))
+                .andExpect(view().name(templateGeneralRegistration))
+                .andExpect(model().attribute("userExistsAlready", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @Sql(value = {"/clear-db.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserSuccess() throws Exception {
-        testUser.setUsername("NewTestUser");
+        testUser.setName("NewTestUser");
 
         this.mockMvc.perform(post("/registration")
                         .param("id", String.valueOf(testUser.getId()))
-                        .param("username", testUser.getUsername())
+                        .param("name", testUser.getName())
                         .param("email", testUser.getEmail())
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))

@@ -1,12 +1,13 @@
 package com.github.vladyslavbabenko.mycoloroflife.entity;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-class UserTest {
+class UserTest extends AbstractTest {
 
     Role testUserRole;
     User testUser;
@@ -20,7 +21,7 @@ class UserTest {
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .roles(Collections.singleton(testUserRole))
@@ -30,7 +31,7 @@ class UserTest {
     }
 
     @Test
-    void testGetAuthorities(){
+    void testGetAuthorities() {
         Assertions.assertThat(testUser.getAuthorities().contains(testUserRole)).isTrue();
     }
 }

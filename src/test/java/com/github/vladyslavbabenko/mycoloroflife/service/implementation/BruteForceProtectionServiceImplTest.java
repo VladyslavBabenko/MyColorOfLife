@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.service.BruteForceProtectionService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
@@ -10,12 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 @DisplayName("Unit-level testing for BruteForceProtectionService")
-class BruteForceProtectionServiceImplTest {
+class BruteForceProtectionServiceImplTest extends AbstractTest {
 
     private BruteForceProtectionServiceImpl bruteForceProtectionService;
     private UserService userService;
     private User expectedUser;
-    private final int maxFailedLogins = 10;
 
     @BeforeEach
     void setUp() {
@@ -26,7 +26,7 @@ class BruteForceProtectionServiceImplTest {
 
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .failedLoginAttempt(0)
                 .isAccountNonLocked(true)

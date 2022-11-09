@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.entity;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 @DisplayName("Unit-level testing for Role")
-class RoleTest {
+class RoleTest extends AbstractTest {
 
     User testUser;
 
@@ -18,7 +19,7 @@ class RoleTest {
     void setUp() {
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .password("123456")
                 .build();

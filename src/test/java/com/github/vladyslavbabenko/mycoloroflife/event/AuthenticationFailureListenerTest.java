@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.event;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
@@ -19,7 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @DisplayName("Unit-level testing for AuthenticationFailureListener")
-class AuthenticationFailureListenerTest {
+class AuthenticationFailureListenerTest extends AbstractTest {
 
     private BruteForceProtectionService bruteForceProtectionService;
     private PasswordRecoveryService passwordRecoveryService;
@@ -42,7 +43,7 @@ class AuthenticationFailureListenerTest {
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .roles(roles)
                 .password(String.valueOf(123456))

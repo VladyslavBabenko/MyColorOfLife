@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.ArticleRepository;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for ArticleService")
-class ArticleServiceImplTest {
+class ArticleServiceImplTest extends AbstractTest {
 
     private User testAuthor;
     private ArticleService articleService;
@@ -28,7 +29,7 @@ class ArticleServiceImplTest {
         articleService = new ArticleServiceImpl(articleRepository);
         testAuthor = User.builder()
                 .id(3)
-                .username("TestAuthor")
+                .name("TestAuthor")
                 .email("TestAuthor@mail.com")
                 .build();
 
@@ -71,13 +72,26 @@ class ArticleServiceImplTest {
     }
 
     @Test
-    void shouldFIndArticleById() {
+    void shouldFindArticleById() {
         //when
         Mockito.doReturn(Optional.of(firstTestArticle))
                 .when(articleRepository)
                 .findById(firstTestArticle.getId());
 
         articleService.findById(firstTestArticle.getId());
+
+        //then
+        Mockito.verify(articleRepository, Mockito.times(1)).findById(firstTestArticle.getId());
+    }
+
+    @Test
+    void shouldFindOptionalArticleById() {
+        //when
+        Mockito.doReturn(Optional.of(firstTestArticle))
+                .when(articleRepository)
+                .findById(firstTestArticle.getId());
+
+        articleService.optionalFindById(firstTestArticle.getId());
 
         //then
         Mockito.verify(articleRepository, Mockito.times(1)).findById(firstTestArticle.getId());

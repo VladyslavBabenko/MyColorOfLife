@@ -3,7 +3,9 @@ package com.github.vladyslavbabenko.mycoloroflife.controller;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import com.github.vladyslavbabenko.mycoloroflife.service.ArticleService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,14 +14,23 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+/**
+ * {@link Controller} to manage articles.
+ */
+
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/article")
 public class ArticleController {
-    private final ArticleService articleService;
+
     private final UserService userService;
+    private final ArticleService articleService;
+    private final MessageSourceUtil messageSource;
+
+    private final String REDIRECT_ARTICLE = "redirect:/article";
 
     @GetMapping(path = {"", "/page/{pageId}"})
     public String getArticles(Model model, String keyword, @PathVariable(value = "pageId", required = false) Integer pageId) {
@@ -47,74 +58,91 @@ public class ArticleController {
         model.addAttribute("pageID", pageId);
         model.addAttribute("numberOfPages", numberOfPages);
 
-        return "generalTemplate/articlesPage";
+        return messageSource.getMessage("template.general.article.all");
     }
 
     @GetMapping("/{articleId}")
-    public String getArticleById(@PathVariable("articleId") Integer articleId, Model model) {
-        model.addAttribute("article", articleService.findById(articleId));
-        return "generalTemplate/articlePage";
+    public String getArticle(@PathVariable("articleId") Integer articleId, Model model) {
+
+        Optional<Article> optionalArticle = articleService.optionalFindById(articleId);
+
+        if(optionalArticle.isEmpty()){
+            model.addAttribute("articleNotFound", messageSource.getMessage("article.exists.not"));
+            return messageSource.getMessage("template.general.article");
+        }
+
+        model.addAttribute("article", optionalArticle.get());
+        return messageSource.getMessage("template.general.article");
     }
 
     @GetMapping("/new")
-    public String newArticle(Model model) {
+    public String getAddArticle(Model model) {
         model.addAttribute("article", new Article());
-        return "authorTemplate/newArticlePage";
+        return messageSource.getMessage("template.author.article.add");
     }
 
     @PostMapping()
-    public String createArticle(@ModelAttribute @Valid Article article, BindingResult bindingResult, Model model) {
+    public String postAddArticle(@ModelAttribute @Valid Article article, BindingResult bindingResult, Model model) {
         article.setUsers(Collections.singleton(userService.getCurrentUser()));
 
         if (bindingResult.hasErrors()) {
-            return "authorTemplate/newArticlePage";
+            return messageSource.getMessage("template.author.article.add");
         }
 
         if (!articleService.saveArticle(article)) {
-            model.addAttribute("articleError", "Така стаття вже існує");
-            return "authorTemplate/newArticlePage";
+            model.addAttribute("articleExistsAlready", messageSource.getMessage("article.exists.already"));
+            return messageSource.getMessage("template.author.article.add");
         }
 
-        return "redirect:/article";
+        return getArticles(model,"",1);
     }
 
     @DeleteMapping("/{articleId}")
     public String deleteArticle(@PathVariable("articleId") Integer articleId) {
-        if (userService.getCurrentUser().getRoles().stream()
-                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("ROLE_ADMIN") ||
-                        role.getRoleName().equalsIgnoreCase("ROLE_AUTHOR"))) {
+        boolean hasRole = userService.getCurrentUser().getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.admin")) ||
+                        role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.author")));
+
+        if (hasRole) {
             articleService.deleteArticle(articleId);
         }
-        return "redirect:/article";
+
+        return REDIRECT_ARTICLE;
     }
 
     @GetMapping("/{articleId}/edit")
-    public String toArticleEdit(@PathVariable("articleId") Integer articleId, Model model) {
-        Article article = articleService.findById(articleId);
+    public String getArticleEdit(@PathVariable("articleId") Integer articleId, Model model) {
+
+        Optional<Article> optionalArticle = articleService.optionalFindById(articleId);
+
+        if(optionalArticle.isEmpty()){
+            model.addAttribute("articleNotFound", messageSource.getMessage("article.exists.not"));
+            return messageSource.getMessage("template.general.article");
+        }
 
         boolean isAdmin = userService.getCurrentUser().getRoles().stream()
-                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("ROLE_ADMIN"));
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase(messageSource.getMessage("role.admin")));
 
-        if (article.getUsers().contains(userService.getCurrentUser()) || isAdmin) {
-            model.addAttribute("article", article);
-            return "authorTemplate/editArticlePage";
+        if (optionalArticle.get().getUsers().contains(userService.getCurrentUser()) || isAdmin) {
+            model.addAttribute("article", optionalArticle.get());
+            return messageSource.getMessage("template.author.article.edit");
         } else {
-            return "error/accessDeniedPage";
+            return messageSource.getMessage("template.error.access-denied");
         }
     }
 
     @PutMapping()
-    public String updateArticle(@ModelAttribute @Valid Article article, BindingResult bindingResult, Model model) {
+    public String putArticleUpdate(@ModelAttribute @Valid Article article, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "authorTemplate/editArticlePage";
+            return messageSource.getMessage("template.author.article.edit");
         }
 
         if (!articleService.updateArticle(article)) {
-            model.addAttribute("updateArticleError", "Такої статті не існує");
-            return "authorTemplate/editArticlePage";
+            model.addAttribute("articleNotFound", messageSource.getMessage("article.exists.not"));
+            return messageSource.getMessage("template.author.article.edit");
         }
 
-        return "redirect:/article";
+        return getArticles(model,"",1);
     }
 }

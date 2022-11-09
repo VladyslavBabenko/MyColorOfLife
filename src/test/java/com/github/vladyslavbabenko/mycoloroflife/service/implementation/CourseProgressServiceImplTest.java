@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseProgressRepository;
@@ -16,7 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 
 @DisplayName("Unit-level testing for CourseProgressService")
-class CourseProgressServiceImplTest {
+class CourseProgressServiceImplTest extends AbstractTest {
+
     private CourseProgressRepository courseProgressRepository;
     private CourseProgressService courseProgressService;
 
@@ -37,7 +39,7 @@ class CourseProgressServiceImplTest {
 
         testUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestMail@mail.com")
                 .roles(roles)
                 .password(String.valueOf(123456789))

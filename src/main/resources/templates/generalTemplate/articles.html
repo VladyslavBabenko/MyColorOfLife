@@ -1,7 +1,7 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
-    <title>Курси</title>
+    <title>Статті</title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -12,6 +12,12 @@
             <li><a th:href="@{/article}">Статті</a></li>
             <li><a th:href="@{/event}">Події</a></li>
             <li><a th:href="@{/course}">Курси</a></li>
+            <li id="newArticle" th:if="${#authorization.expression('hasRole(''AUTHOR'')')} or
+                   ${#authorization.expression('hasRole(''ADMIN'')')}">
+                <a th:href="@{/article/new}">
+                    Нова стаття
+                </a>
+            </li>
             <li id="me"
                 th:if="${#authentication.getPrincipal() != 'anonymousUser'}"><a
                     th:href="@{/me}">Мій аккаунт</a></li>
@@ -29,7 +35,7 @@
 </div>
 <div id="main">
     <div class="wrapper">
-        <form id="searchForm" th:action="@{/course}" th:method="GET">
+        <form id="searchForm" th:action="@{/article}" th:method="GET">
             <div>
                 <input id="search" name="keyword" placeholder="Пошук..."
                        th:value="${keyWord}" type="search">
@@ -37,26 +43,30 @@
             </div>
         </form>
         <div>
-            <div th:if="${listOfCourseTitles.size() == 0}">
-                <h2 th:text="'Вибачте, але тут нічого немає'"></h2>
+            <div th:if="${listOfArticles.size() == 0}">
+                <h2 th:text="#{empty.content}"></h2>
             </div>
-            <div th:if="${listOfCourseTitles.size() > 0}">
+            <div th:if="${listOfArticles.size() > 0}">
                 <ul>
-                    <li th:each="courseTitle, courseTitleCounter : ${listOfCourseTitles}" th:object="${courseTitle}"
-                        th:unless="${courseTitleCounter.index > 5}">
-                        <a th:href="@{/course/{courseTitleId}(courseTitleId=${courseTitle.getId()})}">
+                    <li th:each="article, articleCounter : ${listOfArticles}" th:object="${article}"
+                        th:unless="${articleCounter.index > 5}">
+                        <a th:href="@{/article/{articleId}(articleId=${article.getId()})}">
                             <div>
-                                <a th:href="@{/course/{courseTitle}(courseTitle=${courseTitle.getTitle()})}"
-                                   th:text="${courseTitle.getTitle()}">
+                                <a th:href="@{/article/{articleId}(articleId=${article.getId()})}"
+                                   th:text="${article.getTitle()}">
                                 </a>
+                                <div th:each="user : ${article.getUsers()}"
+                                     th:text="'Автор: ' + ${user.getUsername()} + '. '
+                                     + 'Дата публікації: '+ ${article.getDateTimeOfCreation()}"></div>
+                                <a class="text" th:href="@{/article/{articleId}(articleId=${article.getId()})}"
+                                   th:text="${article.getText()}"></a>
                             </div>
-                        </a>
                     </li>
                 </ul>
                 <ul th:if="${numberOfPages.length} != 1">
                     <th:block th:if="${pageID} >= 2">
-                        <li><a th:href="@{/course/page/{pageId}(pageId=1)}" title="Перша сторінка">&laquo;</a></li>
-                        <li><a th:href="@{/course/page/{pageId}(pageId=${pageID}-1)}" title="Попередня сторінка">&lsaquo;</a>
+                        <li><a th:href="@{/article/page/{pageId}(pageId=1)}" title="Перша сторінка">&laquo;</a></li>
+                        <li><a th:href="@{/article/page/{pageId}(pageId=${pageID}-1)}" title="Попередня сторінка">&lsaquo;</a>
                         </li>
                     </th:block>
 
@@ -64,18 +74,18 @@
                         th:each="pageNumber : ${numberOfPages}"
                         th:if="${pageNumber} + 1 > ${pageID} - 4 and ${pageNumber} + 1 < ${pageID} + 4">
 
-                        <a th:href="@{/course/page/{pageId}(pageId=${pageNumber} + 1)}"
+                        <a th:href="@{/article/page/{pageId}(pageId=${pageNumber} + 1)}"
                            th:text="${pageNumber} + 1"></a>
                     </li>
 
                     <th:block th:if="${pageID} != ${numberOfPages.length}">
                         <li>
-                            <a th:href="@{/course/page/{pageId}(pageId=${pageID} + 1)}"
+                            <a th:href="@{/article/page/{pageId}(pageId=${pageID} + 1)}"
                                title="Наступна сторінка">&rsaquo;
                             </a>
                         </li>
                         <li>
-                            <a th:href="@{/course/page/{pageId}(pageId=${numberOfPages.length})}"
+                            <a th:href="@{/article/page/{pageId}(pageId=${numberOfPages.length})}"
                                title="Остання сторінка">&raquo;
                             </a>
                         </li>

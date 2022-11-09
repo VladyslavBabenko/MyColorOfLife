@@ -10,6 +10,7 @@ import java.util.Optional;
 /**
  * {@link Repository} for handling with {@link Article} entity.
  */
+
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Integer> {
     /**

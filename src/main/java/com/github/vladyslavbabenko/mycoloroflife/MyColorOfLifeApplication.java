@@ -23,7 +23,7 @@ public class MyColorOfLifeApplication {
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 
-        messageSource.setBasename("classpath:messages");
+        messageSource.setBasenames("classpath:messages", "classpath:templates");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }

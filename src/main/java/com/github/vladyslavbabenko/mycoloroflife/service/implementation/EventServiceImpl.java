@@ -45,6 +45,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Optional<Event> optionalFindById(Integer eventId) {
+        return eventRepository.findById(eventId);
+    }
+
+    @Override
     public boolean saveEvent(Event eventToSave) {
         if (eventRepository.existsByTitle(eventToSave.getTitle())) {
             return false;

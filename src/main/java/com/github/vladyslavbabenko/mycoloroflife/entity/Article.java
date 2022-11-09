@@ -29,14 +29,14 @@ public class Article {
     @Column(length = 16)
     private String dateTimeOfCreation = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
 
-    @NotEmpty(message = "Назва не повинна бути порожньою")
-    @Size(min = 1, max = 100, message = "Назва має бути від 1 до 100 символів")
+    @NotEmpty(message = "{validation.title.not.empty}")
+    @Size(min = 1, max = 100, message = "{validation.title.length}")
     @Column(length = 100, nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    @NotEmpty(message = "Стаття не повинна бути порожньою")
-    @Size(min = 1, max = 65535, message = "Стаття має бути від 1 до 65535 символів")
+    @NotEmpty(message = "{validation.article.not.empty}")
+    @Size(min = 1, max = 65535, message = "{validation.text.length}")
     private String text;
 
     @ManyToMany(fetch = FetchType.EAGER)

@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.repository;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractRepositoryIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.fest.assertions.api.Assertions;
@@ -26,7 +27,7 @@ class SecureTokenRepositoryIntegrationTest extends AbstractRepositoryIntegration
         //given
         expectedUser = User.builder()
                 .id(1)
-                .username("TestUser")
+                .name("TestUser")
                 .email("TestUser@mail.com")
                 .build();
         expectedSecureToken = SecureToken.builder().id(1).token("wMQzFUNrjsXyyht0lF-B").user(expectedUser).build();

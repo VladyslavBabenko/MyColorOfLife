@@ -1,7 +1,7 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
-    <title>Aдміністрування</title>
+    <title>Створити курс</title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -38,16 +38,15 @@
                 </thead>
                 <tr>
                     <td>
-                        <form th:action="@{/admin/course/edit}"
-                              th:method="PUT"
+                        <form th:action="@{/admin/course/new}"
+                              th:method="POST"
                               th:object="${course}">
                             <fieldset>
-                                <input th:field="*{id}" type="hidden">
                                 <label for="courseTitle">Введіть назву:</label>
                                 <div>
-                                    <input id="courseTitle" name="courseTitle"
-                                           placeholder="ID курсу" th:field="*{courseTitle}"
-                                           title="ID курсу" type="number" min="1">
+                                    <input id="courseTitle" min="1"
+                                           name="courseTitle" placeholder="ID курсу"
+                                           th:field="*{courseTitle}" title="ID курсу" type="number">
                                 </div>
                                 <div class="formValidationError" th:errors="*{courseTitle}"
                                      th:if="${#fields.hasErrors('courseTitle')}">courseTitleError
@@ -84,18 +83,18 @@
                                 </div>
                                 <label for="page">Введіть сторінку:</label>
                                 <div>
-                                    <input id="page" name="page"
-                                           placeholder="Сторінка" th:field="*{page}"
-                                           title="Сторінка" type="number" min="1">
+                                    <input id="page" min="1"
+                                           name="page" placeholder="Сторінка"
+                                           th:field="*{page}" title="Сторінка" type="number">
                                 </div>
                                 <div class="formValidationError" th:errors="*{page}"
                                      th:if="${#fields.hasErrors('page')}">pageError
                                 </div>
 
                                 <div class="formValidationError"
-                                     th:if="${courseError}" th:text="${courseError}">courseError
+                                     th:if="${courseExistsPage}" th:text="${courseExistsPage}">courseExistsPage
                                 </div>
-                                <input class="submit" name="submit" type="submit" value="Зберігти"/>
+                                <input class="submit" name="submit" type="submit" value="Створити"/>
                             </fieldset>
                         </form>
                     </td>

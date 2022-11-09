@@ -1,7 +1,8 @@
 <!DOCTYPE  html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
-    <title th:text="${event.getTitle()}"></title>
+    <title th:if="${articleNotFound}" th:text="'Стаття не знайдена'"></title>
+    <title th:text="${article.getTitle()}" th:unless="${articleNotFound}"></title>
     <meta charset="utf-8">
 </head>
 <body>
@@ -12,19 +13,21 @@
             <li><a th:href="@{/article}">Статті</a></li>
             <li><a th:href="@{/event}">Події</a></li>
             <li><a th:href="@{/course}">Курси</a></li>
-            <li id="newEvent" th:if="${#authorization.expression('hasRole(''AUTHOR'')')}
+            <li id="newArticle" th:if="${#authorization.expression('hasRole(''AUTHOR'')')}
                                    or ${#authorization.expression('hasRole(''ADMIN'')')}">
-                <a th:href="@{/event/new}">
-                    Нова подія
+                <a th:href="@{/article/new}">
+                    Нова стаття
                 </a>
             </li>
-            <li id="editEvent" th:each="user : ${event.getUsers()}"
-                th:if="${#authorization.expression('hasRole(''AUTHOR'')') && #authentication.principal.getUsername() == user.getUsername()}
+            <th:block th:unless="${articleNotFound}">
+                <li id="editArticle" th:each="user : ${article.getUsers()}"
+                    th:if="${#authorization.expression('hasRole(''AUTHOR'')') && #authentication.principal.getUsername() == user.getUsername()}
                                     or ${#authorization.expression('hasRole(''ADMIN'')')}">
-                <a th:href="@{/event/{eventId}/edit (eventId=${event.getId()})}">
-                    Редагувати подію
-                </a>
-            </li>
+                    <a th:href="@{/article/{articleId}/edit (articleId=${article.getId()})}">
+                        Редагувати статтю
+                    </a>
+                </li>
+            </th:block>
             <li id="me"
                 th:if="${#authentication.getPrincipal() != 'anonymousUser'}"><a
                     th:href="@{/me}">Мій аккаунт</a></li>
@@ -42,12 +45,13 @@
 </div>
 <div id="main">
     <div class="wrapper">
-        <div th:object="${event}">
-            <h3 th:text="${event.getTitle()}"></h3>
-            <span th:each="user : ${event.getUsers()}"
+        <div th:if="${articleNotFound}" th:text="${articleNotFound}">articleNotFound</div>
+        <div th:object="${article}" th:unless="${articleNotFound}">
+            <h3 th:text="${article.getTitle()}"></h3>
+            <span th:each="user : ${article.getUsers()}"
                   th:text="'Автор: ' + ${user.getUsername()} + ' '"></span>
-            <p th:text="'Дата публікації: '+ ${event.getDateTimeOfCreation()}"></p>
-            <p th:text="${event.getText()}"></p>
+            <p th:text="'Дата публікації: '+ ${article.getDateTimeOfCreation()}"></p>
+            <p th:text="${article.getText()}"></p>
         </div>
     </div>
 </div>

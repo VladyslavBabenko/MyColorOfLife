@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
@@ -7,16 +8,14 @@ import com.github.vladyslavbabenko.mycoloroflife.service.MailContentBuilderServi
 import com.github.vladyslavbabenko.mycoloroflife.service.MailSenderService;
 import com.github.vladyslavbabenko.mycoloroflife.service.SecureTokenService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,16 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
-@TestPropertySource(value = {"classpath:application-test.properties", "classpath:messages.properties"})
 @DisplayName("Unit-level testing for PasswordRecoveryServiceImpl")
-class PasswordRecoveryServiceImplTest {
+class PasswordRecoveryServiceImplTest extends AbstractTest {
 
     private UserService userService;
     private SecureTokenService secureTokenService;
     private MailSenderService mailSenderService;
     private MailContentBuilderService mailContentBuilder;
-    private MessageSource messageSource;
+    private MessageSourceUtil messageSource;
 
     private PasswordRecoveryServiceImpl passwordRecoveryService;
 
@@ -60,14 +57,14 @@ class PasswordRecoveryServiceImplTest {
         secureTokenService = Mockito.mock(SecureTokenService.class);
         mailSenderService = Mockito.mock(MailSenderService.class);
         mailContentBuilder = Mockito.mock(MailContentBuilderService.class);
-        messageSource = Mockito.mock(MessageSource.class);
+        messageSource = Mockito.mock(MessageSourceUtil.class);
 
         passwordRecoveryService = new PasswordRecoveryServiceImpl(userService, secureTokenService, mailSenderService, mailContentBuilder, messageSource);
 
         ReflectionTestUtils.setField(passwordRecoveryService, "baseURL", baseURL);
 
-        expectedUser = User.builder().id(1).username("TestUser").email("TestUser@mail.com").registrationType(UserRegistrationType.REGISTRATION_FORM).isAccountNonLocked(true).failedLoginAttempt(0).build();
-        expectedUserGAuth = User.builder().id(4).username("TestUserGAuth").email("TestUserGAuth@gmail.com").registrationType(UserRegistrationType.GMAIL_AUTHENTICATION).isAccountNonLocked(false).failedLoginAttempt(0).build();
+        expectedUser = User.builder().id(1).name("TestUser").email("TestUser@mail.com").registrationType(UserRegistrationType.REGISTRATION_FORM).isAccountNonLocked(true).failedLoginAttempt(0).build();
+        expectedUserGAuth = User.builder().id(4).name("TestUserGAuth").email("TestUserGAuth@gmail.com").registrationType(UserRegistrationType.GMAIL_AUTHENTICATION).isAccountNonLocked(false).failedLoginAttempt(0).build();
 
         expectedSecureToken = SecureToken.builder().id(1).token("wMQzFUNrjsXyyht0lF-B").timeStamp(Timestamp.valueOf(LocalDateTime.now())).expireAt(LocalDateTime.now().plusSeconds(tokenValidityInSeconds)).user(expectedUser).build();
     }
@@ -77,7 +74,7 @@ class PasswordRecoveryServiceImplTest {
         Assertions.assertThat(userService).isNotNull().isInstanceOf(UserService.class);
         Assertions.assertThat(mailSenderService).isNotNull().isInstanceOf(MailSenderService.class);
         Assertions.assertThat(mailContentBuilder).isNotNull().isInstanceOf(MailContentBuilderService.class);
-        Assertions.assertThat(messageSource).isNotNull().isInstanceOf(MessageSource.class);
+        Assertions.assertThat(messageSource).isNotNull().isInstanceOf(MessageSourceUtil.class);
         Assertions.assertThat(passwordRecoveryService).isNotNull().isInstanceOf(PasswordRecoveryServiceImpl.class);
         Assertions.assertThat(secureTokenService).isNotNull().isInstanceOf(SecureTokenService.class);
         Assertions.assertThat(expectedUser).isNotNull().isInstanceOf(User.class);

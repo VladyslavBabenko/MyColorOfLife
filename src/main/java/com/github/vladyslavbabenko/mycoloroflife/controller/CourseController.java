@@ -2,6 +2,7 @@ package com.github.vladyslavbabenko.mycoloroflife.controller;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -17,18 +18,23 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+/**
+ * {@link Controller} for courses.
+ */
+
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/course")
 public class CourseController {
-    private final CourseService courseService;
-    private final CourseTitleService courseTitleService;
     private final UserService userService;
     private final RoleService roleService;
+    private final CourseService courseService;
+    private final MessageSourceUtil messageSource;
+    private final CourseTitleService courseTitleService;
     private final CourseProgressService courseProgressService;
 
     @GetMapping(path = {"", "/page/{pageId}"})
-    public String getCoursesPage(Model model, String keyword, @PathVariable(value = "pageId", required = false) Integer pageId) {
+    public String getCourses(Model model, String keyword, @PathVariable(value = "pageId", required = false) Integer pageId) {
         if (pageId == null) {
             pageId = 1;
         }
@@ -53,95 +59,106 @@ public class CourseController {
         model.addAttribute("pageID", pageId);
         model.addAttribute("numberOfPages", numberOfPages);
 
-        return "courseTemplate/coursesPage";
+        return messageSource.getMessage("template.course.all");
     }
 
     @GetMapping("/{courseTitle}")
-    public String getMainCoursePage(Model model, @PathVariable(value = "courseTitle") String title) {
+    public String getCourseMain(Model model, @PathVariable(value = "courseTitle") String title) {
         Optional<CourseTitle> optionalCourseTitle = courseTitleService.findByTitle(title);
-        if (optionalCourseTitle.isPresent()) {
-            List<Course> courseList = courseService.findAllByCourseTitle(optionalCourseTitle.get());
-            courseList.sort(Comparator.comparingLong(Course::getPage));
-            User currentUser = userService.getCurrentUser();
-            AtomicInteger lastVisitedPage = new AtomicInteger(-1);
 
-            if (currentUser.getCourseProgresses() != null) {
-                currentUser.getCourseProgresses()
-                        .stream()
-                        .filter(courseProgress -> courseProgress.getCourse().getCourseTitle().equals(optionalCourseTitle.get()))
-                        .findFirst().ifPresent(value -> lastVisitedPage.set(value.getCourse().getPage()));
-            }
-
-            model.addAttribute("lastVisitedPage", lastVisitedPage.intValue());
-            model.addAttribute("courseTitle", optionalCourseTitle.get());
-            model.addAttribute("courseList", courseList);
-
-            return "courseTemplate/courseMainPage";
-        } else {
-            return "/error/404";
+        if (optionalCourseTitle.isEmpty()) {
+            return messageSource.getMessage("template.error.404");
         }
+
+        List<Course> courseList = courseService.findAllByCourseTitle(optionalCourseTitle.get());
+        courseList.sort(Comparator.comparingLong(Course::getPage));
+        User currentUser = userService.getCurrentUser();
+        AtomicInteger lastVisitedPage = new AtomicInteger(-1);
+
+        if (currentUser.getCourseProgresses() != null) {
+            currentUser.getCourseProgresses()
+                    .stream()
+                    .filter(courseProgress -> courseProgress.getCourse().getCourseTitle().equals(optionalCourseTitle.get()))
+                    .findFirst().ifPresent(value -> lastVisitedPage.set(value.getCourse().getPage()));
+        }
+
+        model.addAttribute("lastVisitedPage", lastVisitedPage.intValue());
+        model.addAttribute("courseTitle", optionalCourseTitle.get());
+        model.addAttribute("courseList", courseList);
+
+        return messageSource.getMessage("template.course.main");
     }
 
     @GetMapping("/{courseTitle}/page/{pageID}")
     public String getCoursePage(Model model, @PathVariable(value = "courseTitle") String courseTitle, @PathVariable(value = "pageID") String pageIDAsString) {
-        if (courseTitleService.existsByTitle(courseTitle)) {
-            String courseOwnerAuthority = "ROLE_COURSE_OWNER_" + roleService.convertToRoleStyle(courseTitle);
-            if (roleService.existsByRoleName(courseOwnerAuthority)) {
-                Role role = roleService.findByRoleName(courseOwnerAuthority).orElse(new Role());
-                User userFromDB = userService.getCurrentUser();
-                if (userFromDB.getRoles() != null && userFromDB.getRoles().contains(role)) {
-                    int pageID = 1;
+        if (!courseTitleService.existsByTitle(courseTitle)) {
+            return messageSource.getMessage("template.error.404");
+        }
 
-                    if (StringUtils.isNumeric(pageIDAsString)) {
-                        pageID = Integer.parseInt(pageIDAsString);
-                    }
+        String courseOwnerAuthority = messageSource.getMessage("role.course.owner") + roleService.convertToRoleStyle(courseTitle);
 
-                    Optional<CourseTitle> optionalCourseTitle = courseTitleService.findByTitle(courseTitle);
-                    if (optionalCourseTitle.isPresent()) {
+        if (!roleService.existsByRoleName(courseOwnerAuthority)) {
+            return messageSource.getMessage("template.error.access-denied");
+        }
 
-                        Optional<Course> course = courseService.findByCourseTitleAndPage(optionalCourseTitle.get().getTitle(), pageID);
+        Role role = roleService.findByRoleName(courseOwnerAuthority).orElse(new Role());
+        User userFromDB = userService.getCurrentUser();
 
-                        if (course.isPresent()) {
-                            AtomicInteger lastVisitedPage = new AtomicInteger(-1);
+        if (userFromDB.getRoles() == null || userFromDB.getRoles().isEmpty() || !userFromDB.getRoles().contains(role)) {
+            return messageSource.getMessage("template.error.access-denied");
+        }
 
-                            if (userFromDB.getCourseProgresses() != null) {
-                                userFromDB.getCourseProgresses()
-                                        .stream()
-                                        .filter(courseProgress -> courseProgress.getCourse().getCourseTitle().equals(optionalCourseTitle.get()))
-                                        .findFirst().ifPresent(value -> lastVisitedPage.set(value.getCourse().getPage()));
-                            }
+        int pageID = 1;
 
-                            if (lastVisitedPage.intValue() < course.get().getPage()) {
-                                model.addAttribute("tooEarly", "Ой, а Вам ще рано сюди. Пройдіть попередні уроки для доступу");
-                            } else {
-                                model.addAttribute("courseTitle", optionalCourseTitle.get());
-                                model.addAttribute("course", course.get());
-                                model.addAttribute("lastVisitedPage", lastVisitedPage.intValue());
-                            }
+        if (StringUtils.isNumeric(pageIDAsString)) {
+            pageID = Integer.parseInt(pageIDAsString);
+        }
 
-                            int lastCoursePage = -1;
-                            List<Course> courseList = courseService.findAllByCourseTitle(optionalCourseTitle.get());
-                            if (!courseList.isEmpty()) {
-                                courseList.sort(Comparator.comparingLong(Course::getPage).reversed());
-                                lastCoursePage = courseList.get(0).getPage();
-                            }
+        Optional<CourseTitle> optionalCourseTitle = courseTitleService.findByTitle(courseTitle);
 
-                            model.addAttribute("lastCoursePage", lastCoursePage);
+        if (optionalCourseTitle.isEmpty()) {
+            return messageSource.getMessage("template.error.404");
+        }
 
-                        } else {
-                            return "/error/404";
-                        }
-                    } else {
-                        return "/error/404";
-                    }
-                    return "courseTemplate/coursePage";
-                } else return "error/accessDeniedPage";
-            } else return "error/accessDeniedPage";
-        } else return "/error/404";
+        Optional<Course> course = courseService.findByCourseTitleAndPage(optionalCourseTitle.get().getTitle(), pageID);
+
+        if (course.isEmpty()) {
+            return messageSource.getMessage("template.error.404");
+        }
+
+        AtomicInteger lastVisitedPage = new AtomicInteger(-1);
+
+        if (userFromDB.getCourseProgresses() != null) {
+            userFromDB.getCourseProgresses()
+                    .stream()
+                    .filter(courseProgress -> courseProgress.getCourse().getCourseTitle().equals(optionalCourseTitle.get()))
+                    .findFirst().ifPresent(value -> lastVisitedPage.set(value.getCourse().getPage()));
+        }
+
+        if (lastVisitedPage.intValue() < course.get().getPage()) {
+            model.addAttribute("tooEarly", messageSource.getMessage("user.course.too-early"));
+        } else {
+            model.addAttribute("courseTitle", optionalCourseTitle.get());
+            model.addAttribute("course", course.get());
+            model.addAttribute("lastVisitedPage", lastVisitedPage.intValue());
+        }
+
+        int lastCoursePage = -1;
+
+        List<Course> courseList = courseService.findAllByCourseTitle(optionalCourseTitle.get());
+
+        if (!courseList.isEmpty()) {
+            courseList.sort(Comparator.comparingLong(Course::getPage).reversed());
+            lastCoursePage = courseList.get(0).getPage();
+        }
+
+        model.addAttribute("lastCoursePage", lastCoursePage);
+
+        return messageSource.getMessage("template.course.page");
     }
 
     @PatchMapping("/{courseTitle}/page/{pageID}")
-    private String updateCourseProgress(@PathVariable("courseTitle") String courseTitleAsString, @PathVariable("pageID") String pageIDAsString) {
+    private String patchCourseProgressUpdate(@PathVariable("courseTitle") String courseTitleAsString, @PathVariable("pageID") String pageIDAsString) {
         int page = -1;
 
         if (StringUtils.isNumeric(pageIDAsString)) {
@@ -149,12 +166,15 @@ public class CourseController {
         }
 
         Optional<Course> optionalCourse = courseService.findByCourseTitleAndPage(courseTitleAsString, page);
+
         if (optionalCourse.isPresent()) {
             page += 1;
 
             Optional<Course> optionalNextCourseFromDB = courseService.findByCourseTitleAndPage(courseTitleAsString, page);
+
             if (optionalNextCourseFromDB.isPresent()) {
-                Optional<CourseProgress> courseProgressFromDB = courseProgressService.findByUserAndCourse(userService.getCurrentUser(), optionalCourse.get());
+                Optional<CourseProgress> courseProgressFromDB =
+                        courseProgressService.findByUserAndCourse(userService.getCurrentUser(), optionalCourse.get());
 
                 if (courseProgressFromDB.isPresent()) {
                     courseProgressFromDB.get().setCourse(optionalNextCourseFromDB.get());

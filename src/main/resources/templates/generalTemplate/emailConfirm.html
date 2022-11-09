@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ua-UA">
+<html lang="uk-UA">
 <head>
     <title>Підтвердження пошти</title>
     <meta charset="utf-8">
@@ -28,7 +28,7 @@
     <p>Якщо ви підтверджуєте, що вказаний нижче email ваш - натисніть кнопку</p>
     <form id="emailConfirm" th:action="@{/me/email-confirm}" th:method="POST">
         <fieldset>
-            <input type="hidden" name="token" th:value="${token}"/>
+            <input name="token" th:value="${token}" type="hidden"/>
             <p th:text="${email}"></p>
             <input name="submit" type="submit" value="Підтвердити пошту"/>
         </fieldset>

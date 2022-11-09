@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="uk-UA">
 <head>
-    <meta charset="UTF-8">
-    <title>Увійти</title>
+    <title>Редагування</title>
+    <meta charset="utf-8">
 </head>
 <body>
 <div id="header">
@@ -25,30 +25,21 @@
     </ul>
 </div>
 <div id="main">
-    <form id="loginForm" th:action="@{/login}" th:method="POST">
+    <form id="personalEditForm" th:action="@{/me/edit}" th:method="PATCH" th:object="${user}">
         <fieldset>
+            <label for="email">Введіть електронну пошту: </label>
             <div>
-                <input id="username" name="username" required
-                       placeholder="Електронна пошта" title="Електронна пошта" type="email">
+                <input id="email" name="email"
+                       placeholder="Електронна пошта" required
+                       th:field="*{email}" title="Електронна пошта"
+                       type="text"/>
             </div>
-            <div>
-                <input id="password" name="password" required
-                       placeholder="Пароль" title="Пароль" type="password">
+            <div class="formValidationError" th:errors="*{email}" th:if="${#fields.hasErrors('email')}">EmailError
             </div>
-            <p class="formValidationError" th:if="${param.error}" th:text="#{user.invalid.credentials}"></p>
-            <input id="submit" name="submit" type="submit" value="Вхід">
-            <a th:href="@{/password/request}">Забули пароль?</a>
+            <div class="formValidationError" th:if="${userNotFound}" th:text="${userNotFound}">userNotFound</div>
+            <input id="submit" name="submit" type="submit" value="Підтвердити зміни!"/>
         </fieldset>
     </form>
-    <p th:if="${message}" th:text="${message}"></p>
-    <p th:if="${tokenError}" th:text="${tokenError}"></p>
-    <h3>Або</h3>
-    <p></p>
-    <a class="auth" href="/oauth2/authorization/google">
-        <div>
-            Увійдіть за допомогою Google
-        </div>
-    </a>
 </div>
 <div id="footer"></div>
 </body>

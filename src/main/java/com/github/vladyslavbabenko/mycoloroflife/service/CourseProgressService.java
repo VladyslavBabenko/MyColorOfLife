@@ -2,7 +2,6 @@ package com.github.vladyslavbabenko.mycoloroflife.service;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseProgress;
-import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +11,7 @@ import java.util.Optional;
 /**
  * {@link Service} for handling with {@link CourseProgress} entity.
  */
+
 public interface CourseProgressService {
     /**
      * Get all {@link CourseProgress} entities.

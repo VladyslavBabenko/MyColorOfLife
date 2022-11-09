@@ -2,7 +2,6 @@ package com.github.vladyslavbabenko.mycoloroflife.repository;
 
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseProgress;
-import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,6 +12,7 @@ import java.util.Optional;
 /**
  * {@link Repository} for handling with {@link CourseProgress} entity.
  */
+
 @Repository
 public interface CourseProgressRepository extends JpaRepository<CourseProgress, Integer> {
     /**

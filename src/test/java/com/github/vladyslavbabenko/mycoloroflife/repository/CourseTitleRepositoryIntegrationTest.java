@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.repository;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractRepositoryIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

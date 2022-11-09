@@ -52,10 +52,18 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
         if (principal instanceof User) {
-            Optional<User> userFromDB = userRepository.findById(((User) authentication.getPrincipal()).getId());
+            Optional<User> userFromDB = userRepository.findByEmail(((User) authentication.getPrincipal()).getEmail());
+
             if (userFromDB.isPresent()) {
                 return userFromDB.get();
             }
+
+            userFromDB = userRepository.findById(((User) authentication.getPrincipal()).getId());
+
+            if (userFromDB.isPresent()) {
+                return userFromDB.get();
+            }
+
         } else if (principal instanceof OAuth2User) {
             return (User) loadUserByUsername(((OAuth2User) principal).getAttribute("email"));
         }
@@ -65,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     public boolean saveOAuth2User(OAuth2UserAuthority oAuth2UserAuthority) {
         return saveUser(User.builder()
-                .username((String) oAuth2UserAuthority.getAttributes().get("name"))
+                .name((String) oAuth2UserAuthority.getAttributes().get("name"))
                 .email((String) oAuth2UserAuthority.getAttributes().get("email"))
                 .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
                 .build());
@@ -93,13 +101,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean saveUser(User userToSave) {
-        Optional<User> userFromDB;
-
-        if (userToSave.getId() != null) {
-            userFromDB = userRepository.findById(userToSave.getId());
-        } else {
-            userFromDB = userRepository.findByEmail(userToSave.getEmail());
-        }
+        Optional<User> userFromDB = userRepository.findByEmail(userToSave.getUsername());
 
         if (userFromDB.isPresent()) {
             return false;
@@ -172,25 +174,32 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean activateCode(ActivationCode activationCode) {
-        if (activationCodeService.existsByCode(activationCode.getCode())) {
-            String courseOwnerRoleString = "ROLE_COURSE_OWNER_" +
-                    roleService.convertToRoleStyle(activationCode.getCourseTitle().getTitle());
-            if (roleService.existsByRoleName(courseOwnerRoleString)) {
-                Optional<Role> courseOwnerRole = roleService.findByRoleName(courseOwnerRoleString);
-                if (courseOwnerRole.isPresent()) {
-                    User user = activationCode.getUser();
-                    user.getRoles().add(courseOwnerRole.get());
-                    userRepository.save(user);
-
-                    Optional<Course> courseFromDB = courseService.findByCourseTitleAndPage(activationCode.getCourseTitle().getTitle(), 1);
-                    courseFromDB.ifPresent(course -> courseProgressService.save(CourseProgress.builder().user(user).course(course).build()));
-
-                    activationCodeService.deleteByCode(activationCode.getCode());
-                    return true;
-                }
-            }
+        if (!activationCodeService.existsByCode(activationCode.getCode())) {
+            return false;
         }
-        return false;
+
+        String courseOwnerRoleString = "ROLE_COURSE_OWNER_" +
+                roleService.convertToRoleStyle(activationCode.getCourseTitle().getTitle());
+
+        if (!roleService.existsByRoleName(courseOwnerRoleString)) {
+            return false;
+        }
+
+        Optional<Role> courseOwnerRole = roleService.findByRoleName(courseOwnerRoleString);
+
+        if (courseOwnerRole.isEmpty()) {
+            return false;
+        }
+
+        User user = activationCode.getUser();
+        user.getRoles().add(courseOwnerRole.get());
+        userRepository.save(user);
+
+        Optional<Course> courseFromDB = courseService.findByCourseTitleAndPage(activationCode.getCourseTitle().getTitle(), 1);
+        courseFromDB.ifPresent(course -> courseProgressService.save(CourseProgress.builder().user(user).course(course).build()));
+
+        activationCodeService.deleteByCode(activationCode.getCode());
+        return true;
     }
 
     @Override

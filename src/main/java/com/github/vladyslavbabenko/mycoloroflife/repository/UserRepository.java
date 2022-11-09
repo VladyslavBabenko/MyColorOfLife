@@ -9,18 +9,12 @@ import java.util.Optional;
 /**
  * {@link Repository} for handling with {@link User} entity.
  */
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     /**
-     * Finds a {@link User} by username.
+     * Finds a {@link User} by username. (username == email)
      *
-     * @param username username to search
-     * @return Optional user from database, otherwise empty Optional
-     */
-    Optional<User> findByUsername(String username);
-
-    /**
-     * Finds a {@link User} by  email.
      *
      * @param email email to search
      * @return Optional user from database, otherwise empty Optional
