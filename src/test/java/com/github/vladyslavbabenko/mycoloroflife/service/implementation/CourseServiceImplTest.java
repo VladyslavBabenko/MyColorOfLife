@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Course;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseRepository;
@@ -14,7 +15,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for CourseService")
-class CourseServiceImplTest {
+class CourseServiceImplTest extends AbstractTest {
 
     private CourseService courseService;
     private CourseRepository courseRepository;

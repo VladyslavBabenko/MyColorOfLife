@@ -1,12 +1,13 @@
 package com.github.vladyslavbabenko.mycoloroflife.entity;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-class UserTest {
+class UserTest extends AbstractTest {
 
     Role testUserRole;
     User testUser;

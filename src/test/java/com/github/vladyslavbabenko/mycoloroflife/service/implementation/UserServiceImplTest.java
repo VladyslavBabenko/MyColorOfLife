@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.repository.UserRepository;
@@ -19,7 +20,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Unit-level testing for UserService")
-class UserServiceImplTest {
+class UserServiceImplTest extends AbstractTest {
+
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private UserRepository userRepository;
     private UserService userService;

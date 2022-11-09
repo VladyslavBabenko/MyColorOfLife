@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
@@ -11,8 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
@@ -21,10 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@SpringBootTest
-@TestPropertySource("classpath:application-test.properties")
 @DisplayName("Unit-level testing for SecureTokenService")
-class SecureTokenServiceImplTest {
+class SecureTokenServiceImplTest extends AbstractTest {
 
     private SecureTokenServiceImpl secureTokenService;
     private SecureTokenRepository secureTokenRepository;

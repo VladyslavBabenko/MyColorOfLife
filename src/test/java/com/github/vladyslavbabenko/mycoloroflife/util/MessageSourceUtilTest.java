@@ -1,22 +1,19 @@
 package com.github.vladyslavbabenko.mycoloroflife.util;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.test.context.TestPropertySource;
 
 import java.util.Locale;
 
-@SpringBootTest
-@TestPropertySource(value = {"classpath:application-test.properties", "classpath:messages.properties"})
 @DisplayName("Unit-level testing for MessageSourceUtil")
-class MessageSourceUtilTest {
+class MessageSourceUtilTest extends AbstractTest {
 
     private MessageSource messageSource;
     private MessageSourceUtil messageSourceUtil;

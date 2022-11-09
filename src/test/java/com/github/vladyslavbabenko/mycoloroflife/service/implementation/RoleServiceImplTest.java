@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.repository.RoleRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.RoleService;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for RoleService")
-class RoleServiceImplTest {
+class RoleServiceImplTest extends AbstractTest {
     private RoleRepository roleRepository;
     private RoleService roleService;
 

@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.service.BruteForceProtectionService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
@@ -10,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 @DisplayName("Unit-level testing for BruteForceProtectionService")
-class BruteForceProtectionServiceImplTest {
+class BruteForceProtectionServiceImplTest extends AbstractTest {
 
     private BruteForceProtectionServiceImpl bruteForceProtectionService;
     private UserService userService;

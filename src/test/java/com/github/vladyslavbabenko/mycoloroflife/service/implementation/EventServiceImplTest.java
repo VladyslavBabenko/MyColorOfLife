@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Event;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.EventRepository;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for EventService")
-class EventServiceImplTest {
+class EventServiceImplTest extends AbstractTest {
 
     private User testAuthor;
     private EventService eventService;

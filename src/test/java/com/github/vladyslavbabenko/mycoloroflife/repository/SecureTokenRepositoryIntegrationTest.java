@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.repository;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractRepositoryIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.SecureToken;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.fest.assertions.api.Assertions;

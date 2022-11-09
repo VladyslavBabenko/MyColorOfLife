@@ -1,6 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.controller.articleController;
 
-import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractControllerIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.fest.assertions.api.Assertions;
@@ -8,6 +8,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -29,6 +30,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrationTest {
 
     private User testAdmin;
+
+    //Templates
+    @Value("${template.general.article.all}")
+    String templateGeneralArticleAll;
+    @Value("${template.author.article.edit}")
+    String templateAuthorArticleEdit;
+    @Value("${template.general.article}")
+    String templateGeneralArticle;
+    @Value("${template.author.article.add}")
+    String templateAuthorArticleAdd;
+
+    //Messages
+    @Value("${article.exists.not}")
+    String articleNotExists;
+    @Value("${validation.text.length}")
+    String validationTextLength;
+    @Value("${validation.article.not.empty}")
+    String validationArticleNotEmpty;
+    @Value("${validation.title.not.empty}")
+    String validationTitleNotEmpty;
+    @Value("${validation.title.length}")
+    String validationTitleLength;
+    @Value("${article.exists.already}")
+    String articleExistsAlready;
+    @Value("${role.user}")
+    String roleUser;
+    @Value("${role.admin}")
+    String roleAdmin;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +83,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
         this.mockMvc.perform(get("/article")
                         .param("keyword", "First"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/articlesPage"))
+                .andExpect(view().name(templateGeneralArticleAll))
                 .andExpect(model().attribute("listOfArticles", Matchers.any(List.class)))
                 .andExpect(model().attribute("pageID", Matchers.any(Integer.class)))
                 .andExpect(model().attribute("numberOfPages", Matchers.any(int[].class)))
@@ -65,7 +94,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void GET_ArticlesPageAsAdmin_WithKeyword() throws Exception {
         this.mockMvc.perform(get("/article"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/articlesPage"))
+                .andExpect(view().name(templateGeneralArticleAll))
                 .andExpect(model().attribute("listOfArticles", Matchers.any(List.class)))
                 .andExpect(model().attribute("pageID", Matchers.any(Integer.class)))
                 .andExpect(model().attribute("numberOfPages", Matchers.any(int[].class)))
@@ -76,18 +105,18 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void GET_ArticlePageByIdAsAdmin() throws Exception {
         this.mockMvc.perform(get("/article/1"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/articlePage"))
+                .andExpect(view().name(templateGeneralArticle))
                 .andExpect(model().attribute("article", Matchers.any(Article.class)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void GET_ArticlePageByIdAsAdmin_With_ArticleNotFound() throws Exception {
-        String errorMessage = "Такої статті не існує";
+        String errorMessage = articleNotExists;
 
         this.mockMvc.perform(get("/article/" + Integer.MAX_VALUE))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/articlePage"))
+                .andExpect(view().name(templateGeneralArticle))
                 .andExpect(model().attribute("articleNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -96,54 +125,54 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void GET_NewArticlePageAsAdmin() throws Exception {
         this.mockMvc.perform(get("/article/new"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/newArticlePage"))
+                .andExpect(view().name(templateAuthorArticleAdd))
                 .andExpect(model().attribute("article", Matchers.any(Article.class)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_CreateNewArticleAsAdmin_WithEmptyTitleError() throws Exception {
-        String errorMessage = "Вкажіть назву";
+        String errorMessage = validationTitleNotEmpty;
 
         this.mockMvc.perform(post("/article")
                         .param("title", "")
                         .param("text", "First test text"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/newArticlePage"))
+                .andExpect(view().name(templateAuthorArticleAdd))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_CreateNewArticleAsAdmin_WithTitleOutOfBoundsError() throws Exception {
-        String errorMessage = "Назва має бути до 100 символів";
+        String errorMessage = validationTitleLength;
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
 
         this.mockMvc.perform(post("/article")
                         .param("title", symbols_101)
                         .param("text", "First test text"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/newArticlePage"))
+                .andExpect(view().name(templateAuthorArticleAdd))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_CreateNewArticleAsAdmin_WithEmptyTextError() throws Exception {
-        String errorMessage = "Стаття не повинна бути порожньою";
+        String errorMessage = validationArticleNotEmpty;
 
         this.mockMvc.perform(post("/article")
                         .param("title", "First test title")
                         .param("text", ""))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/newArticlePage"))
+                .andExpect(view().name(templateAuthorArticleAdd))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_CreateNewArticleAsAdmin_WithTextOutOfBoundsError() throws Exception {
-        String errorMessage = "Текст має бути до 65535 символів";
+        String errorMessage = validationTextLength;
 
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
         StringBuilder longTestString = new StringBuilder();
@@ -154,7 +183,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
                         .param("title", "First text title")
                         .param("text", String.valueOf(longTestString)))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/newArticlePage"))
+                .andExpect(view().name(templateAuthorArticleAdd))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -163,16 +192,16 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void POST_CreateNewArticleAsAdmin_WithSaveArticleFailure() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
-        String errorMessage = "Така стаття вже існує";
+        String errorMessage = articleExistsAlready;
 
         this.mockMvc.perform(post("/article")
                         .param("title", "First test title")
                         .param("text", "First text text"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/newArticlePage"))
+                .andExpect(view().name(templateAuthorArticleAdd))
                 .andExpect(model().attribute("articleExistsAlready", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
@@ -183,14 +212,14 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void POST_CreateNewArticleAsAdmin_WithSaveArticleSuccess() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
         this.mockMvc.perform(post("/article")
                         .param("title", "New test title As Admin")
                         .param("text", "New text text 2"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/articlesPage"))
+                .andExpect(view().name(templateGeneralArticleAll))
                 .andExpect(status().isOk());
     }
 
@@ -198,7 +227,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void DELETE_ArticleByIDAsAdmin() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
         this.mockMvc.perform(delete("/article/1"))
@@ -211,12 +240,12 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void GET_EditArticlePageAsAdmin_WithArticleWrittenByAuthor() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
         this.mockMvc.perform(get("/article/2/edit"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/editArticlePage"))
+                .andExpect(view().name(templateAuthorArticleEdit))
                 .andExpect(model().attribute("article", Matchers.any(Article.class)))
                 .andExpect(status().isOk());
     }
@@ -225,12 +254,12 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void GET_EditArticlePageAsAdmin_WithArticleWrittenByAdmin() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
         this.mockMvc.perform(get("/article/1/edit"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/editArticlePage"))
+                .andExpect(view().name(templateAuthorArticleEdit))
                 .andExpect(status().isOk());
     }
 
@@ -238,61 +267,61 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void GET_EditArticlePageAsAdmin_WithArticleNotFound() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
-        String errorMessage = "Такої статті не існує";
+        String errorMessage = articleNotExists;
 
         this.mockMvc.perform(get("/article/" + Integer.MAX_VALUE + "/edit"))
                 .andDo(print())
                 .andExpect(model().attribute("articleNotFound", Matchers.equalTo(errorMessage)))
-                .andExpect(view().name("generalTemplate/articlePage"))
+                .andExpect(view().name(templateGeneralArticle))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void PUT_UpdateArticleAsAdmin_WithEmptyTitleError() throws Exception {
-        String errorMessage = "Вкажіть назву";
+        String errorMessage = validationTitleNotEmpty;
 
         this.mockMvc.perform(put("/article")
                         .param("title", "")
                         .param("text", "First test text"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/editArticlePage"))
+                .andExpect(view().name(templateAuthorArticleEdit))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void PUT_UpdateArticleAsAdmin_WithTitleOutOfBoundsError() throws Exception {
-        String errorMessage = "Назва має бути до 100 символів";
+        String errorMessage = validationTitleLength;
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
 
         this.mockMvc.perform(put("/article")
                         .param("title", symbols_101)
                         .param("text", "First test text"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/editArticlePage"))
+                .andExpect(view().name(templateAuthorArticleEdit))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void PUT_UpdateArticleAsAdmin_WithEmptyTextError() throws Exception {
-        String errorMessage = "Стаття не повинна бути порожньою";
+        String errorMessage = validationArticleNotEmpty;
 
         this.mockMvc.perform(put("/article")
                         .param("title", "First test title")
                         .param("text", ""))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/editArticlePage"))
+                .andExpect(view().name(templateAuthorArticleEdit))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void PUT_UpdateArticleAsAdmin_WithTextOutOfBoundsError() throws Exception {
-        String errorMessage = "Текст має бути до 65535 символів";
+        String errorMessage = validationTextLength;
 
         String symbols_101 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
         StringBuilder longTestString = new StringBuilder();
@@ -303,7 +332,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
                         .param("title", "First text title")
                         .param("text", String.valueOf(longTestString)))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/editArticlePage"))
+                .andExpect(view().name(templateAuthorArticleEdit))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
@@ -312,17 +341,17 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void PUT_UpdateArticleAsAdmin_WithSaveArticleFailure() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
-        String errorMessage = "Такої статті не існує";
+        String errorMessage = articleNotExists;
 
         this.mockMvc.perform(put("/article")
                         .param("id", "-1")
                         .param("title", "First test title")
                         .param("text", "First text text"))
                 .andDo(print())
-                .andExpect(view().name("authorTemplate/editArticlePage"))
+                .andExpect(view().name(templateAuthorArticleEdit))
                 .andExpect(model().attribute("articleNotFound", Matchers.equalTo(errorMessage)))
                 .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
@@ -332,7 +361,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
     public void PUT_UpdateArticleAsAdmin_WithSaveArticleSuccess() throws Exception {
         SecurityContextImpl securityContext = new SecurityContextImpl();
         securityContext.setAuthentication(new RememberMeAuthenticationToken(
-                "testAdmin", testAdmin, AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN")));
+                "TestAdmin", testAdmin, AuthorityUtils.createAuthorityList(roleUser, roleAdmin)));
         SecurityContextHolder.setContext(securityContext);
 
         this.mockMvc.perform(put("/article")
@@ -340,7 +369,7 @@ class ArticleControllerAsAdminIntegrationTest extends AbstractControllerIntegrat
                         .param("title", "First test title")
                         .param("text", "First text text"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/articlesPage"))
+                .andExpect(view().name(templateGeneralArticleAll))
                 .andExpect(status().isOk());
     }
 }

@@ -1,10 +1,11 @@
 package com.github.vladyslavbabenko.mycoloroflife.controller.generalController;
 
-import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractControllerIntegrationTest;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -18,6 +19,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser(username = "TestUser", roles = "USER")
 @DisplayName("Integration-level testing for GeneralController as User")
 public class GeneralControllerAsUserIntegrationTest extends AbstractControllerIntegrationTest {
+
+    //Templates
+    @Value("${template.general.main}")
+    String templateGeneralMain;
+
+    @Value("${template.general.login}")
+    String templateGeneralLogin;
+
+    @Value("${template.error.access-denied}")
+    String templateErrorAccessDenied;
+
 
     @BeforeEach
     public void setup() {
@@ -36,7 +48,7 @@ public class GeneralControllerAsUserIntegrationTest extends AbstractControllerIn
     public void GET_MainPageAsUser() throws Exception {
         this.mockMvc.perform(get("/"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/mainPage"))
+                .andExpect(view().name(templateGeneralMain))
                 .andExpect(status().isOk());
     }
 
@@ -44,7 +56,7 @@ public class GeneralControllerAsUserIntegrationTest extends AbstractControllerIn
     public void GET_LoginPageAsUser() throws Exception {
         this.mockMvc.perform(get("/login"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/loginPage"))
+                .andExpect(view().name(templateGeneralLogin))
                 .andExpect(status().isOk());
     }
 
@@ -52,7 +64,7 @@ public class GeneralControllerAsUserIntegrationTest extends AbstractControllerIn
     public void GET_AccessDeniedPageAsUser() throws Exception {
         this.mockMvc.perform(get("/access-denied"))
                 .andDo(print())
-                .andExpect(view().name("error/accessDeniedPage"))
+                .andExpect(view().name(templateErrorAccessDenied))
                 .andExpect(status().isOk());
     }
 }

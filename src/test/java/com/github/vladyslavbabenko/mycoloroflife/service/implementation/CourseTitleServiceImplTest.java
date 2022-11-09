@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseTitleRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.CourseTitleService;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for CourseTitleService")
-class CourseTitleServiceImplTest {
+class CourseTitleServiceImplTest extends AbstractTest {
 
     private CourseTitleService courseTitleService;
     private CourseTitleRepository courseTitleRepository;

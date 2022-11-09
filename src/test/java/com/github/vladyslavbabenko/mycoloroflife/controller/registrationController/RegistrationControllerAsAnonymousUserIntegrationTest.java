@@ -1,12 +1,13 @@
 package com.github.vladyslavbabenko.mycoloroflife.controller.registrationController;
 
-import com.github.vladyslavbabenko.mycoloroflife.controller.AbstractControllerIntegrationTest;
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractControllerIntegrationTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import org.fest.assertions.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.jdbc.Sql;
@@ -24,6 +25,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RegistrationControllerAsAnonymousUserIntegrationTest extends AbstractControllerIntegrationTest {
 
     private User testUser;
+
+    //Templates
+    @Value("${template.general.registration}")
+    String templateGeneralRegistration;
+
+
+    //Messages
+    @Value("${validation.user.email.not.valid}")
+    String validationUserEmailNotValid;
+
+    @Value("${user.exists.already}")
+    String userExistsAlready;
+
+    @Value("${user.password.mismatch}")
+    String userPasswordMismatch;
+
 
     @BeforeEach
     void setUp() {
@@ -50,14 +67,14 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
     public void GET_RegistrationPageAsAnonymousUser() throws Exception {
         this.mockMvc.perform(get("/registration"))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
+                .andExpect(view().name(templateGeneralRegistration))
                 .andExpect(model().attribute("user", Matchers.any(User.class)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithErrors() throws Exception {
-        String errorText = "Пошта має бути валідною";
+        String errorMessage = validationUserEmailNotValid;
 
         testUser.setEmail("TestUsermailcom");
 
@@ -67,14 +84,14 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(content().string(Matchers.containsString(errorText)))
+                .andExpect(view().name(templateGeneralRegistration))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithPasswordMismatchError() throws Exception {
-        String errorText = "Паролі не співпадають";
+        String errorMessage = userPasswordMismatch;
 
         testUser.setPasswordConfirm(testUser.getPassword() + testUser.getPassword());
 
@@ -84,15 +101,15 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(model().attribute("userPasswordMismatch", Matchers.equalTo(errorText)))
-                .andExpect(content().string(Matchers.containsString(errorText)))
+                .andExpect(view().name(templateGeneralRegistration))
+                .andExpect(model().attribute("userPasswordMismatch", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void POST_RegistrationPageAsAnonymousUser_WithSaveUserFailure() throws Exception {
-        String errorText = "Цей користувач вже існує";
+        String errorMessage = userExistsAlready;
 
         this.mockMvc.perform(post("/registration")
                         .param("name", testUser.getName())
@@ -100,9 +117,9 @@ public class RegistrationControllerAsAnonymousUserIntegrationTest extends Abstra
                         .param("password", testUser.getPassword())
                         .param("passwordConfirm", testUser.getPasswordConfirm()))
                 .andDo(print())
-                .andExpect(view().name("generalTemplate/registrationPage"))
-                .andExpect(model().attribute("userExistsAlready", Matchers.equalTo(errorText)))
-                .andExpect(content().string(Matchers.containsString(errorText)))
+                .andExpect(view().name(templateGeneralRegistration))
+                .andExpect(model().attribute("userExistsAlready", Matchers.equalTo(errorMessage)))
+                .andExpect(content().string(Matchers.containsString(errorMessage)))
                 .andExpect(status().isOk());
     }
 

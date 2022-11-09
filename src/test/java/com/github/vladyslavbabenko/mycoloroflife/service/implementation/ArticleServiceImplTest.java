@@ -1,5 +1,6 @@
 package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 
+import com.github.vladyslavbabenko.mycoloroflife.AbstractTest.AbstractTest;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.ArticleRepository;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @DisplayName("Unit-level testing for ArticleService")
-class ArticleServiceImplTest {
+class ArticleServiceImplTest extends AbstractTest {
 
     private User testAuthor;
     private ArticleService articleService;
