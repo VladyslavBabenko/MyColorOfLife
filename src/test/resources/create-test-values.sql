@@ -31,13 +31,13 @@ VALUES (4, 'ROLE_COURSE_OWNER_TEST', '"Власник курсу Test"'),
        (6, 'ROLE_COURSE_OWNER_TEST_COURSE', '"Власник курсу Test Course"');
 
 INSERT INTO t_user /* encryptedPassword: $2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby | rawPassword: 123456 */
-VALUES (1, 'TestUser@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true, 0,
+VALUES (1, 'testuser@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true, 0,
         false, 'TestUser'),
-       (2, 'TestAdmin@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true,
+       (2, 'testadmin@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0, true,
         0, false, 'TestAdmin'),
-       (3, 'TestAuthor@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0,
+       (3, 'testauthor@mail.com', '$2a$10$Aj0/QMUfy7Fz5u4GxDviueq3tmqCsOBoOvUyxn8Yn8ncn6KK97Mby', 0,
         true, 0, false, 'TestAuthor'),
-       (4, 'TestUserGAuth@gmail.com', null, 1, false, 0, true, 'TestUserGAuth');
+       (4, 'testusergauth@gmail.com', null, 1, false, 0, true, 'TestUserGAuth');
 
 INSERT INTO t_user_roles
 VALUES (1, 1),

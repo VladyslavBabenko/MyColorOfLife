@@ -40,11 +40,7 @@ public class PrivateAreaController {
 
     @GetMapping()
     public String getPersonalArea(Model model) {
-
-        if (!model.containsAttribute("user")) {
-            model.addAttribute("user", userService.getCurrentUser());
-        }
-
+        model.addAttribute("user", userService.getCurrentUser());
         return messageSource.getMessage("template.user.private-area");
     }
 

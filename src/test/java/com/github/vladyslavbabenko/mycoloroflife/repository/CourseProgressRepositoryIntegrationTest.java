@@ -33,7 +33,7 @@ class CourseProgressRepositoryIntegrationTest extends AbstractRepositoryIntegrat
         expectedUser = User.builder()
                 .id(1)
                 .name("TestUser")
-                .email("TestUser@mail.com")
+                .email("testuser@mail.com")
                 .build();
 
         expectedCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();

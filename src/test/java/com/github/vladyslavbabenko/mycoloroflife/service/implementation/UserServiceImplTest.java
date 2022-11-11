@@ -57,7 +57,7 @@ class UserServiceImplTest extends AbstractTest {
         testUser = User.builder()
                 .id(1)
                 .name("TestUser")
-                .email("TestUser@mail.com")
+                .email("testuser@mail.com")
                 .roles(roles)
                 .password(String.valueOf(123456789))
                 .registrationType(UserRegistrationType.REGISTRATION_FORM)
@@ -66,7 +66,7 @@ class UserServiceImplTest extends AbstractTest {
         testUserGAuth = User.builder()
                 .id(4)
                 .name("TestUserGAuth")
-                .email("TestUserGAuth@gmail.com")
+                .email("testusergauth@gmail.com")
                 .roles(roles)
                 .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
                 .build();
@@ -78,6 +78,12 @@ class UserServiceImplTest extends AbstractTest {
         testActivationCode = ActivationCode.builder().id(1).code("qqqqqwwwwweeeee").courseTitle(testCourseTitle).user(testUser).build();
 
         testCourse = Course.builder().id(1).courseTitle(testCourseTitle).text("test text").build();
+
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("name", testUserGAuth.getName());
+        attributes.put("email", testUserGAuth.getEmail());
+
+        oAuth2UserAuthorityMock = new OAuth2UserAuthority(attributes);
     }
 
     @Test
@@ -250,9 +256,10 @@ class UserServiceImplTest extends AbstractTest {
 
     @Test
     void shouldSaveOAuth2User() {
-        userService.saveOAuth2User(oAuth2UserAuthorityMock);
+        boolean saved = userService.saveOAuth2User(oAuth2UserAuthorityMock);
 
         Assertions.assertThat(testUserGAuth).isNotNull().isInstanceOf(User.class).isEqualTo(testUserGAuth);
+        Assertions.assertThat(saved).isTrue();
     }
 
     @Test

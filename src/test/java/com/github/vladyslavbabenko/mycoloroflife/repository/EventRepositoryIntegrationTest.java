@@ -18,8 +18,8 @@ import java.util.Optional;
 @Sql(value = {"/create-test-values.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class EventRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
 
-    private final User testAdmin = User.builder().id(2).name("TestAdmin").email("TestAdmin@mail.com").build(),
-            testAuthor = User.builder().id(3).name("TestAuthor").email("TestAuthor@mail.com").build();
+    private final User testAdmin = User.builder().id(2).name("TestAdmin").email("testadmin@mail.com").build(),
+            testAuthor = User.builder().id(3).name("TestAuthor").email("testauthor@mail.com").build();
     private Event expectedFirstEvent, expectedSecondEvent;
     @Autowired
     private EventRepository eventRepository;

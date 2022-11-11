@@ -26,14 +26,14 @@ class UserRepositoryIntegrationTest extends AbstractRepositoryIntegrationTest {
         expectedUser = User.builder()
                 .id(1)
                 .name("TestUser")
-                .email("TestUser@mail.com")
+                .email("testuser@mail.com")
                 .build();
     }
 
     @Test
     void shouldProperlyFindByEmail() {
         //when
-        Optional<User> userFromDB = userRepository.findByEmail("TestUser@mail.com");
+        Optional<User> userFromDB = userRepository.findByEmail(expectedUser.getEmail());
 
         //then
         Assertions.assertThat(userFromDB.get().getId()).isNotNull().isEqualTo(expectedUser.getId());
