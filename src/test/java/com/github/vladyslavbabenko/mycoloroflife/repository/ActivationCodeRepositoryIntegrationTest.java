@@ -30,7 +30,7 @@ class ActivationCodeRepositoryIntegrationTest extends AbstractRepositoryIntegrat
         testCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
         differentCourseTitle = CourseTitle.builder().id(2).title("Different Course").build();
 
-        testUser = User.builder().id(1).name("TestUser").email("TestUser@mail.com").build();
+        testUser = User.builder().id(1).name("TestUser").email("testuser@mail.com").build();
 
         Course expectedFirstCourse = Course.builder()
                 .id(1)
