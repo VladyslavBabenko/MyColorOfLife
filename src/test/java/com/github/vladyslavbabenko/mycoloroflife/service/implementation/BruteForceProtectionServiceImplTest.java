@@ -28,7 +28,7 @@ class BruteForceProtectionServiceImplTest extends AbstractTest {
                 .id(1)
                 .name("TestUser")
                 .email("TestUser@mail.com")
-                .failedLoginAttempt(0)
+                .failedLoginAttempt(1)
                 .isAccountNonLocked(true)
                 .build();
     }
@@ -51,6 +51,19 @@ class BruteForceProtectionServiceImplTest extends AbstractTest {
         //then
         Mockito.verify(userService, Mockito.times(1)).loadUserByUsername(expectedUser.getUsername());
         Mockito.verify(userService, Mockito.times(1)).updateUser(expectedUser);
+    }
+
+    @Test
+    void resetBruteForceCounter_When_CounterIsZero() {
+        //given
+        expectedUser.setFailedLoginAttempt(0);
+        Mockito.doReturn(expectedUser).when(userService).loadUserByUsername(expectedUser.getUsername());
+
+        //when
+        bruteForceProtectionService.resetBruteForceCounter(expectedUser.getUsername());
+
+        //then
+        Mockito.verify(userService, Mockito.times(0)).updateUser(expectedUser);
     }
 
     @Test

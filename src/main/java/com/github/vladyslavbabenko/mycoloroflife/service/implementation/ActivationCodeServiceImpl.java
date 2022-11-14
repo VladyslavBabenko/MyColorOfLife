@@ -6,10 +6,13 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.ActivationCodeRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.ActivationCodeService;
 import org.apache.commons.text.RandomStringGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,6 +27,8 @@ import java.util.Optional;
 public class ActivationCodeServiceImpl implements ActivationCodeService {
 
     private final ActivationCodeRepository codeRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public ActivationCodeServiceImpl(ActivationCodeRepository codeRepository) {
@@ -81,6 +86,10 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
         }
 
         codeRepository.save(codeToSave);
+
+        log.info("Created a new activation code for course {} and user {}",
+                codeToSave.getCourseTitle().getTitle(), codeToSave.getUser().getUsername());
+
         return true;
     }
 
@@ -88,6 +97,9 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
     public boolean deleteAllByUser(User user) {
         if (existsByUser(user)) {
             codeRepository.deleteAllByUser(user);
+
+            log.info("All codes for {} successfully deleted", user.getUsername());
+
             return true;
         }
 
@@ -98,6 +110,9 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
     public boolean deleteByCode(String code) {
         if (existsByCode(code)) {
             codeRepository.deleteByCode(code);
+
+            log.info("{} successfully deleted", code);
+
             return true;
         }
 
@@ -118,6 +133,9 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
             activationCodeToUpdate.setUser(updatedCode.getUser());
 
             codeRepository.save(activationCodeToUpdate);
+
+            log.info("{} successfully updated", optionalActivationCode.get().getCode());
+
             return true;
         }
     }

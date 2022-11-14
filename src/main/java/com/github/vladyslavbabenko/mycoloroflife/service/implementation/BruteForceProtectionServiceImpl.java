@@ -3,9 +3,13 @@ package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.service.BruteForceProtectionService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.lang.invoke.MethodHandles;
 
 /**
  * Implementation of {@link BruteForceProtectionService}.
@@ -13,9 +17,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BruteForceProtectionServiceImpl implements BruteForceProtectionService {
+
     private final UserService userService;
+
     @Value("${security.failed.login.count}")
     private int maxFailedLogins;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public BruteForceProtectionServiceImpl(UserService userService) {
@@ -31,6 +39,7 @@ public class BruteForceProtectionServiceImpl implements BruteForceProtectionServ
 
             if (maxFailedLogins < failedCounter + 1) {
                 userFromDB.setAccountNonLocked(false);
+                log.info("Login disabled for user with username - {}", userFromDB.getUsername());
             } else {
                 userFromDB.setFailedLoginAttempt(failedCounter + 1);
             }
@@ -42,12 +51,17 @@ public class BruteForceProtectionServiceImpl implements BruteForceProtectionServ
     @Override
     public void resetBruteForceCounter(String username) {
         User userFromDB = getUser(username);
-        if (userFromDB != null) {
-            userFromDB.setFailedLoginAttempt(0);
-            userFromDB.setAccountNonLocked(true);
 
-            userService.updateUser(userFromDB);
+        if (userFromDB == null || userFromDB.getFailedLoginAttempt() == 0) {
+            return;
         }
+
+        userFromDB.setFailedLoginAttempt(0);
+        userFromDB.setAccountNonLocked(true);
+
+        userService.updateUser(userFromDB);
+
+        log.info("Failed login attempt set to 0 for user with username - {}", userFromDB.getUsername());
     }
 
     @Override
@@ -55,7 +69,13 @@ public class BruteForceProtectionServiceImpl implements BruteForceProtectionServ
         User userFromDB = getUser(username);
 
         if (userFromDB != null) {
-            return userFromDB.getFailedLoginAttempt() >= maxFailedLogins;
+            boolean isBruteForceAttack = userFromDB.getFailedLoginAttempt() >= maxFailedLogins;
+
+            if (isBruteForceAttack) {
+                log.info("Registered brute force attack on user with username - {} ", userFromDB.getUsername());
+            }
+
+            return isBruteForceAttack;
         }
 
         return false;

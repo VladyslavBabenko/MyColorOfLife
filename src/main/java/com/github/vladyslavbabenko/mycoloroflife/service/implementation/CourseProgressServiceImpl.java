@@ -5,9 +5,12 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.CourseProgress;
 import com.github.vladyslavbabenko.mycoloroflife.entity.User;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseProgressRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.CourseProgressService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +23,8 @@ import java.util.Optional;
 public class CourseProgressServiceImpl implements CourseProgressService {
 
     private final CourseProgressRepository courseProgressRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public CourseProgressServiceImpl(CourseProgressRepository courseProgressRepository) {
@@ -57,18 +62,26 @@ public class CourseProgressServiceImpl implements CourseProgressService {
     public boolean save(CourseProgress courseProgressToSave) {
         if (courseProgressRepository.existsByUserAndCourse(courseProgressToSave.getUser(), courseProgressToSave.getCourse())) {
             return false;
-        } else {
-            courseProgressRepository.save(courseProgressToSave);
-            return true;
         }
+
+        courseProgressRepository.save(courseProgressToSave);
+
+        log.info("New CourseProgress object created for course {} and user with username - {}", courseProgressToSave.getCourse().getCourseTitle().getTitle(), courseProgressToSave.getUser().getUsername());
+
+        return true;
     }
 
     @Override
     public boolean delete(Integer courseProgressId) {
         if (courseProgressRepository.existsById(courseProgressId)) {
             courseProgressRepository.deleteById(courseProgressId);
+
+            log.info("CourseProgress with id {} successfully deleted", courseProgressId);
+
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 
     @Override
@@ -77,14 +90,18 @@ public class CourseProgressServiceImpl implements CourseProgressService {
 
         if (optionalCourseProgress.isEmpty()) {
             return false;
-        } else {
-            CourseProgress courseProgressToUpdate = optionalCourseProgress.get();
-
-            courseProgressToUpdate.setCourse(updatedCourseProgress.getCourse());
-            courseProgressToUpdate.setUser(updatedCourseProgress.getUser());
-
-            courseProgressRepository.save(courseProgressToUpdate);
-            return true;
         }
+
+        CourseProgress courseProgressToUpdate = optionalCourseProgress.get();
+
+        courseProgressToUpdate.setCourse(updatedCourseProgress.getCourse());
+        courseProgressToUpdate.setUser(updatedCourseProgress.getUser());
+
+        courseProgressRepository.save(courseProgressToUpdate);
+
+        log.info("CourseProgress for course {} and user {} successfully updated",
+                optionalCourseProgress.get().getCourse().getCourseTitle().getTitle(), optionalCourseProgress.get().getUser().getUsername());
+
+        return true;
     }
 }

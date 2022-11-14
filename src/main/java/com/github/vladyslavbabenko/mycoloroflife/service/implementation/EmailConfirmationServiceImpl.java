@@ -6,11 +6,14 @@ import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
 import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +29,8 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
 
     @Value("${site.base.url.https}")
     private String baseURL;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public EmailConfirmationServiceImpl(UserService userService,
                                         SecureTokenService secureTokenService,
@@ -43,13 +48,13 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
     public boolean confirmEmail(String token) {
         Optional<SecureToken> secureToken = secureTokenService.findByToken(token);
         if (secureToken.isEmpty() || !StringUtils.equals(token, secureToken.get().getToken())) {
-            //log later
+            log.info("Invalid secureToken parameters");
             return false;
         }
 
         if (secureToken.get().isExpired()) {
             secureTokenService.delete(secureToken.get());
-            //log later
+            log.info("{} has been deleted", secureToken.get().getToken());
             return false;
         }
 
@@ -58,7 +63,7 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
             secureTokenService.delete(secureToken.get());
             return true;
         } catch (UsernameNotFoundException e) {
-            //log later
+            log.warn("UsernameNotFoundException in {} : {}", this.getClass().getSimpleName(), e.getMessage());
             return false;
         }
     }
@@ -78,6 +83,8 @@ public class EmailConfirmationServiceImpl implements EmailConfirmationService {
         mailSenderService.sendEmail(user.getEmail(),
                 messageSource.getMessage("email.confirm.subject"),
                 mailContentBuilder.build(strings, messageSource.getMessage("template.email.confirm")));
+
+        log.info("Confirmation email sent to - {}", user.getEmail());
     }
 
     protected String getConfirmationEmailUrl(String token) {

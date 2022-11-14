@@ -3,9 +3,12 @@ package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Event;
 import com.github.vladyslavbabenko.mycoloroflife.repository.EventRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.EventService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -21,6 +24,8 @@ import java.util.Optional;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository) {
@@ -53,18 +58,26 @@ public class EventServiceImpl implements EventService {
     public boolean saveEvent(Event eventToSave) {
         if (eventRepository.existsByTitle(eventToSave.getTitle())) {
             return false;
-        } else {
-            eventRepository.save(eventToSave);
-            return true;
         }
+
+        eventRepository.save(eventToSave);
+
+        log.info("Event with title {} saved successfully", eventToSave.getTitle());
+
+        return true;
     }
 
     @Override
     public boolean deleteEvent(Integer eventId) {
         if (eventRepository.existsById(eventId)) {
             eventRepository.deleteById(eventId);
+
+            log.info("Event with id {} deleted successfully", eventId);
+
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 
     @Override
@@ -73,15 +86,18 @@ public class EventServiceImpl implements EventService {
 
         if (optionalEvent.isEmpty()) {
             return false;
-        } else {
-            Event EventToUpdate = optionalEvent.get();
-
-            EventToUpdate.setTitle(updatedEvent.getTitle());
-            EventToUpdate.setText(updatedEvent.getText());
-            EventToUpdate.setDateTimeOfCreation(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")));
-
-            eventRepository.save(EventToUpdate);
-            return true;
         }
+
+        Event EventToUpdate = optionalEvent.get();
+
+        EventToUpdate.setTitle(updatedEvent.getTitle());
+        EventToUpdate.setText(updatedEvent.getText());
+        EventToUpdate.setDateTimeOfCreation(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")));
+
+        eventRepository.save(EventToUpdate);
+
+        log.info("Event with title {} updated successfully", optionalEvent.get().getTitle());
+
+        return true;
     }
 }

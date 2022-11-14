@@ -6,12 +6,15 @@ import com.github.vladyslavbabenko.mycoloroflife.enumeration.Purpose;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
 import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +33,8 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
     @Value("${site.base.url.https}")
     private String baseURL;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public PasswordRecoveryServiceImpl(UserService userService,
@@ -51,7 +56,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
             sendResetPasswordEmail(userFromDB);
             return true;
         } catch (UsernameNotFoundException e) {
-            //log later
+            log.warn("UsernameNotFoundException in {} : {}", this.getClass().getSimpleName(), e.getMessage());
             return false;
         }
     }
@@ -59,8 +64,9 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     @Override
     public boolean updatePassword(String password, String token) {
         Optional<SecureToken> secureToken = secureTokenService.findByToken(token);
+
         if (secureToken.isEmpty() || !StringUtils.equals(token, secureToken.get().getToken()) || secureToken.get().isExpired()) {
-            //log later
+            log.info("Invalid secureToken parameters");
             return false;
         }
 
@@ -69,7 +75,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
         try {
             userFromDB = (User) userService.loadUserByUsername(secureToken.get().getUser().getUsername());
         } catch (UsernameNotFoundException e) {
-            //log later
+            log.warn("UsernameNotFoundException in {} : {}", this.getClass().getSimpleName(), e.getMessage());
             return false;
         }
 
@@ -79,6 +85,8 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
         userService.updateUser(userFromDB);
         secureTokenService.delete(secureToken.get());
+
+        log.info("Password updated for user with username {}", userFromDB.getUsername());
 
         return true;
     }
@@ -111,6 +119,8 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                         mailContentBuilder.build(strings, messageSource.getMessage("template.email.password.forgot.gmail-authentication")));
                 break;
         }
+
+        log.info("Password reset email sent to - {}", user.getEmail());
     }
 
     protected String getResetPasswordUrl(String token) {
@@ -126,7 +136,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                 return true;
             } else return false;
         } catch (UsernameNotFoundException e) {
-            //log later
+            log.warn("UsernameNotFoundException in {} : {}", this.getClass().getSimpleName(), e.getMessage());
             return false;
         }
     }
