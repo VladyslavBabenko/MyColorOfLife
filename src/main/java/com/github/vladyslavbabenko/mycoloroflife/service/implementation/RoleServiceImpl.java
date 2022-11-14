@@ -3,9 +3,12 @@ package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Role;
 import com.github.vladyslavbabenko.mycoloroflife.repository.RoleRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.RoleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +22,8 @@ import java.util.Optional;
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public RoleServiceImpl(RoleRepository roleRepository) {
@@ -62,6 +67,7 @@ public class RoleServiceImpl implements RoleService {
         } else {
             roleToSave.setRoleName(convertToRoleStyle(roleToSave.getRoleName()));
             roleRepository.save(roleToSave);
+            log.info("{} has been created", roleToSave.getRoleName());
             return true;
         }
     }
@@ -76,6 +82,7 @@ public class RoleServiceImpl implements RoleService {
             roleToUpdate.setRoleName(convertToRoleStyle(updatedRole.getRoleName()));
             roleToUpdate.setDescription(updatedRole.getDescription());
             roleRepository.save(roleToUpdate);
+            log.info("{} updated successfully", roleFromDB.get().getRoleName());
             return true;
         }
     }
@@ -90,20 +97,29 @@ public class RoleServiceImpl implements RoleService {
             roleToSave.setRoleName(updatedRole.getRoleName());
             roleToSave.setDescription(updatedRole.getDescription());
             roleRepository.save(roleToSave);
+            log.info("{} updated successfully", roleFromDB.get().getRoleName());
             return true;
         }
     }
 
     @Override
     public boolean delete(Role roleToDelete) {
-        if (roleRepository.existsByRoleName(roleToDelete.getRoleName())) {
-            Optional<Role> roleFromDB = roleRepository.findByRoleName(roleToDelete.getRoleName());
-            if (roleFromDB.isPresent()) {
-                roleRepository.delete(roleFromDB.get());
-                return true;
-            }
-        } else return false;
-        return false;
+
+        if (!roleRepository.existsByRoleName(roleToDelete.getRoleName())) {
+            return false;
+        }
+
+        Optional<Role> roleFromDB = roleRepository.findByRoleName(roleToDelete.getRoleName());
+
+        if (roleFromDB.isEmpty()) {
+            return false;
+        }
+
+        roleRepository.delete(roleFromDB.get());
+
+        log.info("Role {} removed successfully", roleFromDB.get().getRoleName());
+
+        return true;
     }
 
     public String convertToRoleStyle(String string) {

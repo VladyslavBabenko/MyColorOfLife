@@ -51,6 +51,8 @@ class UserServiceImplTest extends AbstractTest {
 
         oAuth2UserAuthorityMock = Mockito.mock(OAuth2UserAuthority.class);
 
+        testRole = Role.builder().id(1).roleName("ROLE_USER").build();
+
         Set<Role> roles = new HashSet<>();
         roles.add(testRole);
 
@@ -70,8 +72,6 @@ class UserServiceImplTest extends AbstractTest {
                 .roles(roles)
                 .registrationType(UserRegistrationType.GMAIL_AUTHENTICATION)
                 .build();
-
-        testRole = Role.builder().id(1).roleName("ROLE_USER").build();
 
         testCourseTitle = CourseTitle.builder().id(1).title("test").build();
 

@@ -3,9 +3,12 @@ package com.github.vladyslavbabenko.mycoloroflife.service.implementation;
 import com.github.vladyslavbabenko.mycoloroflife.entity.Article;
 import com.github.vladyslavbabenko.mycoloroflife.repository.ArticleRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.ArticleService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -21,6 +24,8 @@ import java.util.Optional;
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public ArticleServiceImpl(ArticleRepository articleRepository) {
@@ -48,18 +53,27 @@ public class ArticleServiceImpl implements ArticleService {
     public boolean saveArticle(Article articleToSave) {
         if (articleRepository.existsByTitle(articleToSave.getTitle())) {
             return false;
-        } else {
-            articleRepository.save(articleToSave);
-            return true;
         }
+
+        articleRepository.save(articleToSave);
+
+        log.info("Article with title {} saved successfully", articleToSave.getTitle());
+
+        return true;
+
     }
 
     @Override
     public boolean deleteArticle(Integer articleId) {
         if (articleRepository.existsById(articleId)) {
             articleRepository.deleteById(articleId);
+
+            log.info("Article with id {} deleted successfully", articleId);
+
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 
     @Override
@@ -68,20 +82,23 @@ public class ArticleServiceImpl implements ArticleService {
 
         if (optionalArticle.isEmpty()) {
             return false;
-        } else {
-            Article articleToUpdate = optionalArticle.get();
-
-            articleToUpdate.setTitle(updatedArticle.getTitle());
-            articleToUpdate.setText(updatedArticle.getText());
-            articleToUpdate.setDateTimeOfCreation(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")));
-
-            articleRepository.save(articleToUpdate);
-            return true;
         }
+
+        Article articleToUpdate = optionalArticle.get();
+
+        articleToUpdate.setTitle(updatedArticle.getTitle());
+        articleToUpdate.setText(updatedArticle.getText());
+        articleToUpdate.setDateTimeOfCreation(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")));
+
+        articleRepository.save(articleToUpdate);
+
+        log.info("Article with title {} updated successfully", optionalArticle.get().getTitle());
+
+        return true;
     }
 
     @Override
     public Optional<Article> optionalFindById(Integer articleId) {
-            return articleRepository.findById(articleId);
+        return articleRepository.findById(articleId);
     }
 }

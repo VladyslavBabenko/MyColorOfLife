@@ -4,6 +4,8 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.*;
 import com.github.vladyslavbabenko.mycoloroflife.enumeration.UserRegistrationType;
 import com.github.vladyslavbabenko.mycoloroflife.repository.UserRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +16,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 /**
@@ -23,12 +26,14 @@ import java.util.*;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private final RoleService roleService;
+    private final CourseService courseService;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ActivationCodeService activationCodeService;
-    private final RoleService roleService;
     private final CourseProgressService courseProgressService;
-    private final CourseService courseService;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
@@ -48,6 +53,7 @@ public class UserServiceImpl implements UserService {
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
+
         if (principal instanceof User) {
             Optional<User> userFromDB = userRepository.findByEmail(((User) authentication.getPrincipal()).getEmail().toLowerCase(Locale.ROOT));
 
@@ -101,6 +107,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> userFromDB = userRepository.findByEmail(userToSave.getUsername().toLowerCase(Locale.ROOT));
 
         if (userFromDB.isPresent()) {
+            log.warn("User with username {} exists already", userToSave.getUsername());
             return false;
         } else {
             userToSave.setRoles(Collections.singleton(Role.builder().id(1).roleName("ROLE_USER").build()));
@@ -108,6 +115,9 @@ public class UserServiceImpl implements UserService {
             userToSave.setEmail(userToSave.getEmail().toLowerCase(Locale.ROOT));
 
             userRepository.save(userToSave);
+
+            log.info("User with username {} has been created", userToSave.getUsername());
+
             return true;
         }
     }
@@ -116,14 +126,20 @@ public class UserServiceImpl implements UserService {
     public boolean deleteUser(Integer userId) {
         if (userRepository.existsById(userId)) {
             userRepository.deleteById(userId);
+
+            log.info("User with id {} has been deleted", userId);
+
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 
     @Override
     public boolean updateUser(User updatedUser) {
         Optional<User> userFromDB = userRepository.findById(updatedUser.getId());
         if (userFromDB.isEmpty()) {
+            log.warn("User with {} not found", updatedUser.getUsername());
             return false;
         } else {
             User userToUpdate = userFromDB.get();
@@ -137,6 +153,9 @@ public class UserServiceImpl implements UserService {
             userToUpdate.setAccountNonLocked(updatedUser.isAccountNonLocked());
 
             userRepository.save(userToUpdate);
+
+            log.info("User with username {} has been updated", userFromDB.get().getUsername());
+
             return true;
         }
     }
@@ -153,16 +172,31 @@ public class UserServiceImpl implements UserService {
             User userToUpdate = userFromDB.get();
             userToUpdate.setPassword(encodePassword(updatedUser.getPassword()));
             userRepository.save(userToUpdate);
+
+            log.info("Password for user with username {} has been updated", userFromDB.get().getUsername());
+
             return true;
-        } else return false;
+        }
+
+        log.warn("User with id {} not found", updatedUser.getId());
+
+        return false;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userFromDB = userRepository.findByEmail(username.toLowerCase(Locale.ROOT));
         if (userFromDB.isEmpty()) {
+            log.warn("User with {} not found", username);
             throw new UsernameNotFoundException("User with " + username + " not found");
         }
+
+        boolean isAdmin = userFromDB.get().getRoles().stream().anyMatch(role -> role.getRoleName().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            log.info("Found user with username {} and ROLE_ADMIN authority", userFromDB.get().getUsername());
+        }
+
         return userFromDB.get();
     }
 
@@ -198,13 +232,21 @@ public class UserServiceImpl implements UserService {
         courseFromDB.ifPresent(course -> courseProgressService.save(CourseProgress.builder().user(user).course(course).build()));
 
         activationCodeService.deleteByCode(activationCode.getCode());
+
+        log.info("ActivationCode {} for User with username {} has been activated", activationCode.getCode(), user.getUsername());
+
         return true;
     }
 
     @Override
     public boolean deleteRoleFromUser(List<User> users, Role roleToDelete) {
         if (roleService.existsByRoleName(roleToDelete.getRoleName())) {
-            getAllUsers().stream().peek(user -> user.getRoles().removeIf(role -> role.getRoleName().equals(roleToDelete.getRoleName()))).forEach(userRepository::save);
+            getAllUsers().stream()
+                    .peek(user -> user.getRoles().removeIf(role -> role.getRoleName().equals(roleToDelete.getRoleName())))
+                    .forEach(userRepository::save);
+
+            log.info("Authority {} has been removed from users", roleToDelete);
+
             return true;
         }
         return false;
@@ -222,10 +264,13 @@ public class UserServiceImpl implements UserService {
             userFromDB.setEmailConfirmed(true);
 
             userRepository.save(userFromDB);
+
+            log.info("Email has been verified for user with username {}", userFromDB.getUsername());
+
             return true;
 
         } catch (UsernameNotFoundException e) {
-            //log later
+            log.warn("UsernameNotFoundException in {} : {}", this.getClass().getSimpleName(), e.getMessage());
             return false;
         }
     }

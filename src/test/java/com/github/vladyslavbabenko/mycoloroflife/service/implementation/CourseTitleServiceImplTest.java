@@ -6,6 +6,7 @@ import com.github.vladyslavbabenko.mycoloroflife.repository.CourseTitleRepositor
 import com.github.vladyslavbabenko.mycoloroflife.service.CourseTitleService;
 import com.github.vladyslavbabenko.mycoloroflife.service.RoleService;
 import com.github.vladyslavbabenko.mycoloroflife.service.UserService;
+import com.github.vladyslavbabenko.mycoloroflife.util.MessageSourceUtil;
 import org.fest.assertions.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ class CourseTitleServiceImplTest extends AbstractTest {
     private CourseTitle testCourseTitle;
     private RoleService roleService;
     private UserService userService;
+    private MessageSourceUtil messageSourceUtil;
 
     @BeforeEach
     void setUp() {
@@ -30,8 +32,9 @@ class CourseTitleServiceImplTest extends AbstractTest {
         courseTitleRepository = Mockito.mock(CourseTitleRepository.class);
         roleService = Mockito.mock(RoleService.class);
         userService = Mockito.mock(UserService.class);
+        messageSourceUtil = Mockito.mock(MessageSourceUtil.class);
 
-        courseTitleService = new CourseTitleServiceImpl(courseTitleRepository, roleService, userService);
+        courseTitleService = new CourseTitleServiceImpl(courseTitleRepository, roleService, userService, messageSourceUtil);
 
         testCourseTitle = CourseTitle.builder().id(1).title("Test").description("Test description").build();
     }

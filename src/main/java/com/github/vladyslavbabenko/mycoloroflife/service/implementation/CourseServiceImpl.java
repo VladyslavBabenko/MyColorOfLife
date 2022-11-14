@@ -5,9 +5,12 @@ import com.github.vladyslavbabenko.mycoloroflife.entity.CourseTitle;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseRepository;
 import com.github.vladyslavbabenko.mycoloroflife.repository.CourseTitleRepository;
 import com.github.vladyslavbabenko.mycoloroflife.service.CourseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 /**
@@ -19,6 +22,8 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final CourseTitleRepository courseTitleRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     public CourseServiceImpl(CourseRepository courseRepository, CourseTitleRepository courseTitleRepository) {
@@ -47,9 +52,7 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findById(courseId).orElse(new Course());
     }
 
-    @Override
-    public boolean save(Course courseToSave) {
-        if (courseRepository.existsByCourseTitle(courseToSave.getCourseTitle()) &&
+    /*if (courseRepository.existsByCourseTitle(courseToSave.getCourseTitle()) &&
                 courseToSave.getVideoTitle() != null &&
                 courseToSave.getVideoTitle().length() > 0 &&
                 courseRepository.existsByVideoTitle(courseToSave.getVideoTitle())) {
@@ -58,16 +61,41 @@ public class CourseServiceImpl implements CourseService {
             return false;
         } else {
             courseRepository.save(courseToSave);
+            log.info("Page {} for {} has been created", courseToSave.getPage(), courseToSave.getCourseTitle());
             return true;
+        }*/
+
+    @Override
+    public boolean save(Course courseToSave) {
+        if (courseRepository.existsByCourseTitle(courseToSave.getCourseTitle()) &&
+                courseToSave.getVideoTitle() != null &&
+                courseToSave.getVideoTitle().length() > 0 &&
+                courseRepository.existsByVideoTitle(courseToSave.getVideoTitle())) {
+            return false;
         }
+
+        if (courseRepository.existsByCourseTitleAndPage(courseToSave.getCourseTitle(), courseToSave.getPage())) {
+            return false;
+        }
+
+        courseRepository.save(courseToSave);
+
+        log.info("Page {} for {} has been created", courseToSave.getPage(), courseToSave.getCourseTitle());
+
+        return true;
     }
 
     @Override
     public boolean delete(Integer courseId) {
         if (courseRepository.existsById(courseId)) {
             courseRepository.deleteById(courseId);
+
+            log.info("Page with id - {} has been deleted", courseId);
+
             return true;
-        } else return false;
+        }
+
+        return false;
     }
 
     @Override
@@ -76,20 +104,26 @@ public class CourseServiceImpl implements CourseService {
 
         if (optionalCourse.isEmpty()) {
             return false;
-        } else if (courseRepository.existsByCourseTitleAndPage(updatedCourse.getCourseTitle(), updatedCourse.getPage())) {
-            return false;
-        } else {
-            Course courseToUpdate = optionalCourse.get();
-
-            courseToUpdate.setCourseTitle(updatedCourse.getCourseTitle());
-            courseToUpdate.setVideoTitle(updatedCourse.getVideoTitle());
-            courseToUpdate.setVideoLink(updatedCourse.getVideoLink());
-            courseToUpdate.setText(updatedCourse.getText());
-            courseToUpdate.setPage(updatedCourse.getPage());
-
-            courseRepository.save(courseToUpdate);
-            return true;
         }
+
+        if (courseRepository.existsByCourseTitleAndPage(updatedCourse.getCourseTitle(), updatedCourse.getPage())) {
+            return false;
+        }
+
+        Course courseToUpdate = optionalCourse.get();
+
+        courseToUpdate.setCourseTitle(updatedCourse.getCourseTitle());
+        courseToUpdate.setVideoTitle(updatedCourse.getVideoTitle());
+        courseToUpdate.setVideoLink(updatedCourse.getVideoLink());
+        courseToUpdate.setText(updatedCourse.getText());
+        courseToUpdate.setPage(updatedCourse.getPage());
+
+        courseRepository.save(courseToUpdate);
+
+        log.info("Page {} for {} has been updated", optionalCourse.get().getPage(), optionalCourse.get().getCourseTitle());
+
+        return true;
+
     }
 
     @Override
@@ -105,9 +139,11 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Optional<Course> findByCourseTitleAndPage(String title, Integer page) {
         Optional<CourseTitle> optionalCourseTitle = courseTitleRepository.findByTitle(title);
+
         if (optionalCourseTitle.isPresent()) {
             return courseRepository.findByCourseTitleAndPage(optionalCourseTitle.get(), page);
         }
+
         return Optional.empty();
     }
 
